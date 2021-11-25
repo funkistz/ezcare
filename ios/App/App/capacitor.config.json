@@ -1,0 +1,6 @@
+{
+	"appId": "io.ionic.starter",
+	"appName": "ezcare",
+	"webDir": "www",
+	"bundledWebRuntime": false
+}

@@ -1,0 +1,138 @@
+<!-- <ion-header>
+  <ion-toolbar>
+    <ion-buttons slot="start">
+      <ion-back-button></ion-back-button>
+    </ion-buttons>
+
+    <ion-title slot="end">Standard</ion-title>
+  </ion-toolbar>
+</ion-header> -->
+
+<ion-content>
+
+  <ion-grid>
+    <ion-row>
+      <ion-col class="logo-wrapper">
+        <img src="../../assets/Ezcarehorizontal.png" class="logo" />
+      </ion-col>
+    </ion-row>
+
+    <ion-row>
+      <ion-col>
+
+      </ion-col>
+    </ion-row>
+  </ion-grid>
+
+  <ion-card mode="ios" *ngIf="segment == 'customer'">
+
+    <ion-card-header>
+      <ion-card-title>Customer Login</ion-card-title>
+    </ion-card-header>
+
+    <ion-card-content>
+      <form class="ez-form" (ngSubmit)="customer_login()" [formGroup]="customerForm">
+        <ion-item lines="full">
+          <ion-label position="floating">Registration no</ion-label>
+          <ion-input type="text" required formControlName="registration_number"></ion-input>
+        </ion-item>
+
+        <ion-item lines="full">
+          <ion-label position="floating">Policy no</ion-label>
+          <ion-input type="text" required formControlName="policy_number"></ion-input>
+        </ion-item>
+
+        <ion-row>
+          <ion-col>
+            <ion-button type="submit" color="primary" expand="block" shape="round" class="btn-login"
+              *ngIf="customerForm.valid">Login</ion-button>
+            <ion-button type="submit" color="primary" expand="block" shape="round" class="btn-login" disabled
+              *ngIf="!customerForm.valid">Login</ion-button>
+          </ion-col>
+        </ion-row>
+      </form>
+    </ion-card-content>
+
+  </ion-card>
+
+  <ion-card mode="ios" *ngIf="segment == 'staff'">
+
+    <ion-card-header>
+      <ion-card-title>Staff Login</ion-card-title>
+    </ion-card-header>
+
+    <ion-card-content>
+      <form class="ez-form" (ngSubmit)="staff_login()" [formGroup]="staffForm">
+        <ion-item lines="full">
+          <ion-label position="floating">Username</ion-label>
+          <ion-input type="text" required formControlName="username"></ion-input>
+        </ion-item>
+
+        <ion-item lines="full">
+          <ion-label position="floating">Password</ion-label>
+          <ion-input type="password" required formControlName="password"></ion-input>
+        </ion-item>
+
+        <ion-row>
+          <ion-col>
+            <ion-button type="submit" color="primary" expand="block" class="btn-login">Login</ion-button>
+          </ion-col>
+        </ion-row>
+      </form>
+
+    </ion-card-content>
+
+  </ion-card>
+
+  <ion-card mode="ios" *ngIf="segment == 'workshop'">
+
+    <ion-card-header>
+      <ion-card-title>Workshop Login</ion-card-title>
+    </ion-card-header>
+
+    <ion-card-content>
+      <form>
+        <ion-item lines="full">
+          <ion-label position="floating">Email</ion-label>
+          <ion-input type="text" required></ion-input>
+        </ion-item>
+
+        <ion-item lines="full">
+          <ion-label position="floating">Password</ion-label>
+          <ion-input type="password" required></ion-input>
+        </ion-item>
+
+        <ion-row>
+          <ion-col class="ion-text-center">
+            <ion-button type="submit" color="primary" expand="block" class="btn-login">Login</ion-button>
+            <a [routerLink]="['/forgot-password']" class="small-text">Forgot Password?</a>
+            <ion-button type="submit" color="warning" expand="block" class="btn-signup">Sign up</ion-button>
+          </ion-col>
+        </ion-row>
+      </form>
+
+    </ion-card-content>
+
+  </ion-card>
+
+  <ion-card *ngIf="error" mode="ios" color="danger">
+    <ion-card-content>
+      {{ error }}
+    </ion-card-content>
+  </ion-card>
+
+</ion-content>
+
+<ion-footer class="ion-no-border" color="light">
+  <ion-segment (ionChange)="segmentChanged($event)" value="{{ segment }}" mode="md" color="light">
+    <ion-segment-button value="customer">
+      <ion-label>Customer</ion-label>
+    </ion-segment-button>
+    <ion-segment-button value="staff">
+      <ion-label>Staff</ion-label>
+    </ion-segment-button>
+    <ion-segment-button value="workshop">
+      <ion-label>Workshop</ion-label>
+    </ion-segment-button>
+  </ion-segment>
+</ion-footer>

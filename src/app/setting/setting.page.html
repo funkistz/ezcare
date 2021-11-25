@@ -1,0 +1,76 @@
+<ion-header>
+  <ion-toolbar mode="ios" class="ez-toolbar" color="primary">
+    <img src="../../assets/Ezcarehorizontal.png" class="logo" />
+
+    <ion-title size="large">
+    </ion-title>
+
+    <ion-buttons slot="end">
+      <ion-button color="light" style="margin: 14px 5px; font-size: 18px;">
+        <ion-icon name="notifications-outline"></ion-icon>
+      </ion-button>
+    </ion-buttons>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content>
+
+  <ion-text>
+    <h2 class="ez-title bold" style="margin-bottom: 20px;">Settings</h2>
+  </ion-text>
+
+  <!-- <ion-card mode="ios"> -->
+  <ion-list mode="ios">
+    <ion-item>
+      <ion-label>
+        Profile
+      </ion-label>
+      <ion-icon name="person-outline" slot="start"></ion-icon>
+    </ion-item>
+
+    <ion-item (click)="aboutUs()">
+      <ion-label>
+        About Us
+      </ion-label>
+      <ion-icon name="information-circle-outline" slot="start"></ion-icon>
+    </ion-item>
+
+    <ion-item (click)="contactUs()">
+      <ion-label>
+        Contact Us
+      </ion-label>
+      <ion-icon name="call-outline" slot="start"></ion-icon>
+    </ion-item>
+
+    <ion-item (click)="facebook()">
+      <ion-label>
+        Facebook
+      </ion-label>
+      <ion-icon name="logo-facebook" slot="start"></ion-icon>
+    </ion-item>
+
+    <ion-item>
+      <ion-label>
+        Tiktok
+      </ion-label>
+      <ion-icon name="logo-tiktok" slot="start"></ion-icon>
+    </ion-item>
+
+    <ion-item>
+      <ion-label>
+        Privacy Policy
+      </ion-label>
+      <ion-icon name="alert-circle-outline" slot="start"></ion-icon>
+    </ion-item>
+
+    <ion-item (click)="logout()">
+      <ion-label>
+        Logout
+      </ion-label>
+      <ion-icon name="log-out-outline" slot="start"></ion-icon>
+    </ion-item>
+
+  </ion-list>
+  <!-- </ion-card> -->
+
+</ion-content>

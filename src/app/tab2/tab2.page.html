@@ -1,17 +1,241 @@
-<ion-header [translucent]="true">
-  <ion-toolbar>
-    <ion-title>
-      Tab 2
+<ion-header>
+  <ion-toolbar mode="ios" class="ez-toolbar" color="primary">
+    <img src="../../assets/Ezcarehorizontal.png" class="logo" />
+
+    <ion-title size="large">
     </ion-title>
+
+    <ion-buttons slot="end">
+      <ion-button color="light" style="margin: 14px 5px; font-size: 18px;">
+        <ion-icon name="notifications-outline"></ion-icon>
+      </ion-button>
+    </ion-buttons>
   </ion-toolbar>
 </ion-header>
 
-<ion-content [fullscreen]="true">
-  <ion-header collapse="condense">
-    <ion-toolbar>
-      <ion-title size="large">Tab 2</ion-title>
-    </ion-toolbar>
-  </ion-header>
+<ion-content>
 
-  <app-explore-container name="Tab 2 page"></app-explore-container>
+  <ion-refresher slot="fixed" (ionRefresh)="doRefresh($event)">
+    <ion-refresher-content></ion-refresher-content>
+  </ion-refresher>
+
+  <ion-text>
+    <h2 class="ez-title bold">Customer Services</h2>
+  </ion-text>
+
+  <ion-card mode="ios" *ngIf="!cPolicy">
+    <div class="flex">
+      <div class="flex-left">
+        <ion-card-title>
+          <ion-icon name="car-sport-outline" class="carIcon"></ion-icon>
+
+        </ion-card-title>
+      </div>
+      <div class="flex-right">
+        <ion-card class="chooseCarDropdown" mode="ios">
+          <ion-select mode="ios" style="width: 100%;" interface="action-sheet">
+            <ion-select-option>
+
+            </ion-select-option>
+          </ion-select>
+        </ion-card>
+      </div>
+    </div>
+
+    <div class="listWrapper">
+      <ion-grid>
+        <ion-row>
+          <ion-col size="6">
+            <span class="bold">Policy No:</span>
+          </ion-col>
+          <ion-col size="6">
+            <ion-skeleton-text animated style="width: 60%"></ion-skeleton-text>
+          </ion-col>
+        </ion-row>
+        <ion-row>
+          <ion-col size="6">
+            <span class="bold">Name:</span>
+          </ion-col>
+          <ion-col size="6">
+            <ion-skeleton-text animated style="width: 60%"></ion-skeleton-text>
+          </ion-col>
+        </ion-row>
+        <ion-row>
+          <ion-col size="6">
+            <span class="bold">Address:</span>
+          </ion-col>
+          <ion-col size="6">
+            <ion-skeleton-text animated style="width: 60%"></ion-skeleton-text>
+          </ion-col>
+        </ion-row>
+        <ion-row>
+          <ion-col size="6">
+            <span class="bold">Vehicle Model:</span>
+          </ion-col>
+          <ion-col size="6">
+            <ion-skeleton-text animated style="width: 60%"></ion-skeleton-text>
+          </ion-col>
+        </ion-row>
+        <ion-row>
+          <ion-col size="6">
+            <span class="bold">Reg No:</span>
+          </ion-col>
+          <ion-col size="6">
+            <ion-skeleton-text animated style="width: 60%"></ion-skeleton-text>
+          </ion-col>
+        </ion-row>
+      </ion-grid>
+    </div>
+  </ion-card>
+
+  <ion-card mode="ios" *ngIf="cPolicy">
+
+    <div class="flex">
+      <div class="flex-left">
+        <ion-card-title>
+          <ion-icon name="car-sport-outline" class="carIcon"></ion-icon>
+
+        </ion-card-title>
+      </div>
+      <div class="flex-right">
+        <ion-card class="chooseCarDropdown" mode="ios">
+          <ion-list lines="none">
+            <ion-item *ngIf="user && policies">
+              <ion-select [value]="cPolicy.id" mode="ios" style="width: 100%;" interface="action-sheet"
+                (ionChange)="changeCar($event);">
+                <ion-select-option *ngFor="let policy of policies" [value]="policy.id">
+                  {{ policy.cust_vehicleregno }}
+                </ion-select-option>
+              </ion-select>
+            </ion-item>
+          </ion-list>
+        </ion-card>
+      </div>
+    </div>
+
+    <div class="listWrapper">
+      <ion-grid>
+        <ion-row>
+          <ion-col size="6">
+            <span class="bold">Policy No:</span>
+          </ion-col>
+          <ion-col size="6" *ngIf="cPolicys">
+            {{ cPolicy.cust_policyno }}
+          </ion-col>
+        </ion-row>
+        <ion-row>
+          <ion-col size="6">
+            <span class="bold">Name:</span>
+          </ion-col>
+          <ion-col size="6" *ngIf="cPolicy">
+            {{ cPolicy.cust_name }}
+          </ion-col>
+        </ion-row>
+        <ion-row>
+          <ion-col size="6">
+            <span class="bold">Address:</span>
+          </ion-col>
+          <ion-col size="6" *ngIf="cPolicy">
+            {{ cPolicy.cust_address1 }}
+            {{ cPolicy.cust_address2 }}
+            {{ cPolicy.cust_address3 }}
+            {{ cPolicy.cust_postcode }}
+            {{ cPolicy.cust_city }}
+            {{ cPolicy.cust_state }}
+            {{ cPolicy.cust_phone1 }}
+          </ion-col>
+        </ion-row>
+        <ion-row>
+          <ion-col size="6">
+            <span class="bold">Vehicle Model:</span>
+          </ion-col>
+          <ion-col size="6" *ngIf="cPolicy">
+            {{ cPolicy.vehicle_maker.name }} {{ cPolicy.vehicle_model.name }}
+          </ion-col>
+        </ion-row>
+        <ion-row>
+          <ion-col size="6">
+            <span class="bold">Reg No:</span>
+          </ion-col>
+          <ion-col size="6" *ngIf="cPolicy">
+            {{ cPolicy.cust_vehicleregno }}
+          </ion-col>
+        </ion-row>
+      </ion-grid>
+    </div>
+  </ion-card>
+
+  <ion-card mode="ios">
+    <div class="flex">
+      <div class="flex-left">
+        <ion-card-title>
+          <ion-icon name="cog-outline" class="carIcon"></ion-icon>
+        </ion-card-title>
+      </div>
+      <div class="flex-right">
+        <ion-card-title style="margin-top: 14px; font-size: 20px;">Services</ion-card-title>
+      </div>
+    </div>
+
+    <ion-card-content style="padding-top:0; padding-bottom: 40px;">
+      <ion-list mode="ios">
+        <ion-item class="ez-item" *ngFor="let service of services" (click)="viewService(service.id)">
+          <ion-thumbnail slot="start" class="ez-square-badge">
+            <ion-badge color="warning" *ngIf="service.service_type_id == 1">
+              Engine<br>Oil
+            </ion-badge>
+            <ion-badge color="success" *ngIf="service.service_type_id == 2">
+              ATF<br>Oil
+            </ion-badge>
+            <ion-badge color="danger" *ngIf="service.service_type_id == 3" style="font-size: 12px;">
+              Engine + <br>ATF Oil
+            </ion-badge>
+          </ion-thumbnail>
+
+
+          <ion-label>
+
+            <div *ngIf="service.service_type_id == 1 || service.service_type_id == 3">
+              <h3 *ngIf="service.engine_oil_type_id == 1">Next Service (Semi):</h3>
+              <h3 *ngIf="service.engine_oil_type_id == 2">Next Service (Fully):</h3>
+              <ion-badge color="light">
+                {{ service.next_due_mileage }} KM
+              </ion-badge><br>
+              <ion-badge color="light">
+                {{ service.next_due_date | date : "d/MM/y" }}
+              </ion-badge>
+            </div>
+
+            <div *ngIf="service.service_type_id == 2 || service.service_type_id == 3">
+              <h3>Next Service (ATF):</h3>
+              <ion-badge color="light">
+                {{ service.next_due_mileage_atf }} KM
+              </ion-badge><br>
+              <ion-badge color="light">
+                {{ service.next_due_date_atf | date : "d/MM/y" }}
+              </ion-badge>
+            </div>
+
+          </ion-label>
+
+          <!-- <ion-note slot="end">
+            {{ service.invoice_date | date : "d/MM/y" }}
+          </ion-note> -->
+        </ion-item>
+
+        <ion-item *ngIf="!isLoading && services && services.length == 0">
+          No service record
+        </ion-item>
+
+      </ion-list>
+    </ion-card-content>
+
+  </ion-card>
+
+  <ion-fab vertical="bottom" horizontal="end" slot="fixed">
+    <ion-fab-button color="warning" (click)="addService(cPolicy.id)">
+      <ion-icon color="light" name="add-outline"></ion-icon>
+    </ion-fab-button>
+  </ion-fab>
+
 </ion-content>

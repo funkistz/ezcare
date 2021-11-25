@@ -1,0 +1,49 @@
+.banners {
+  height: 200px;
+  background-color: black;
+
+  img {
+    max-height: 100vh;
+    // max-width: 100vh;
+  }
+}
+
+ion-content {
+  // --ion-background-color: #dbe9f6;
+}
+
+ion-tab-bar,
+ion-tab-button {
+  background-color: hsl(354, 100%, 40%);
+}
+
+ion-icon {
+  // color: #d7d8da;
+}
+
+// ion-fab-button {
+//   margin-left: 140px;
+//   overflow: visible;
+//   position: relative;
+// }
+
+// ion-fab-list {
+//   ion-label {
+//     position: relative;
+//     top: 40px;
+//     right: 20px;
+//     color: white;
+//     background-color: rgba(0, 0, 0, 0.7);
+//     line-height: 24px;
+//     padding: 4px 8px;
+//     border-radius: 4px;
+//   }
+// }
+
+// ion-fab {
+//   ion-badge {
+//     position: relative;
+//     top: 10px;
+//     left: 140px;
+//   }
+// }

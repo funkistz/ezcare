@@ -1,17 +1,58 @@
-<ion-header [translucent]="true">
-  <ion-toolbar>
-    <ion-title>
-      Tab 3
+<ion-header>
+  <ion-toolbar mode="ios" class="ez-toolbar" color="primary">
+    <img src="../../assets/Ezcarehorizontal.png" class="logo" />
+
+    <ion-title size="large">
     </ion-title>
+
+    <ion-buttons slot="end">
+      <ion-button color="light" style="margin: 14px 5px; font-size: 18px;">
+        <ion-icon name="notifications-outline"></ion-icon>
+      </ion-button>
+    </ion-buttons>
   </ion-toolbar>
 </ion-header>
 
-<ion-content [fullscreen]="true">
-  <ion-header collapse="condense">
-    <ion-toolbar>
-      <ion-title size="large">Tab 3</ion-title>
-    </ion-toolbar>
-  </ion-header>
+<ion-content>
 
-  <app-explore-container name="Tab 3 page"></app-explore-container>
+  <ion-text>
+    <h2 class="ez-title bold">Customer Claims</h2>
+  </ion-text>
+
+  <ion-grid>
+    <ion-searchbar mode="ios"></ion-searchbar>
+  </ion-grid>
+
+  <ion-card mode="ios">
+    <div class="flex">
+      <div class="flex-left">
+        <ion-card-title>
+          <ion-icon name="cash-outline" class="carIcon"></ion-icon>
+        </ion-card-title>
+      </div>
+      <div class="flex-right">
+        <ion-card-title style="margin-top: 14px; font-size: 20px;">Claims</ion-card-title>
+      </div>
+    </div>
+
+    <ion-card-content style="padding-top:0; padding-bottom: 40px;">
+      <ion-list mode="ios">
+        <ion-item class="ez-item" *ngFor="let service of services" (click)="viewClaim(service.id)">
+          <ion-label>
+            <h2>Registration No:</h2>
+            <ion-badge color="light" *ngIf="cPolicy">
+              {{ cPolicy.cust_vehicleregno }}
+            </ion-badge><br>
+          </ion-label>
+          <ion-note slot="end">
+            {{ service.created_at | date : "d MMMM, y" }}
+          </ion-note>
+        </ion-item>
+
+
+      </ion-list>
+    </ion-card-content>
+
+  </ion-card>
+
 </ion-content>

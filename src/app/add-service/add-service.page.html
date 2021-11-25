@@ -1,0 +1,144 @@
+<ion-header>
+  <ion-toolbar mode="ios" color="primary">
+    <ion-buttons slot="start">
+      <ion-back-button></ion-back-button>
+    </ion-buttons>
+    <ion-title>
+      Add Service
+    </ion-title>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content>
+
+  <div mode="ios" class="ez-form">
+    <ion-card-content>
+
+      <form [formGroup]="ionicForm" (ngSubmit)="submitForm()" novalidate>
+
+        <ion-list>
+
+          <ion-list-header>
+            <ion-label style="margin: 0;">Service Form</ion-label>
+          </ion-list-header>
+
+          <ion-item lines="none" class="ez-select">
+            <ion-label position="floating">
+              Service Type*
+            </ion-label>
+            <ion-select value="brown" okText="Okay" cancelText="Dismiss" interface="action-sheet"
+              formControlName="service_type_id" (ionChange)="serviceTypeChange($event);">
+              <ion-select-option value="1">Engine Oil</ion-select-option>
+              <ion-select-option value="2">ATF Oil</ion-select-option>
+              <ion-select-option value="3">Engine Oil + ATF Oil</ion-select-option>
+            </ion-select>
+          </ion-item>
+
+          <ion-item lines="none" class="ez-select" *ngIf="serviceType == 1 || serviceType == 3">
+            <ion-label position="floating">
+              Engine Oil Type*
+            </ion-label>
+            <ion-select value="brown" okText="Okay" cancelText="Dismiss" interface="action-sheet"
+              formControlName="engine_oil_type_id" (ionChange)="engineOilTypeChange($event);">
+              <ion-select-option value="1">Semi</ion-select-option>
+              <ion-select-option value="2">Fully</ion-select-option>
+            </ion-select>
+          </ion-item>
+
+          <ion-item lines="none" class="ez-input">
+            <ion-label position="floating">Invoice Number*</ion-label>
+            <ion-input placeholder="" formControlName="invoice_no"></ion-input>
+          </ion-item>
+
+          <ion-item lines="none" class="ez-input">
+            <ion-label position="floating">Invoice Date*</ion-label>
+            <ion-datetime placeholder="" formControlName="invoice_date" [value]="defaultDate"></ion-datetime>
+          </ion-item>
+
+          <ion-item lines="none" class="ez-input" *ngIf="serviceType">
+            <ion-label position="floating">Current Mileage (KM)*</ion-label>
+            <ion-input placeholder="" formControlName="current_mileage" (ionChange)="currentMileageChange($event)"
+              (keypress)="numberOnlyValidation($event)" type="number">
+            </ion-input>
+          </ion-item>
+
+          <div *ngIf="serviceType == 1 || serviceType == 3">
+            <ion-list-header>
+              <ion-label>
+                Engine Oil
+              </ion-label>
+            </ion-list-header>
+
+            <ion-item lines="none" class="ez-input">
+              <ion-label position="floating">Next Service Due (KM)</ion-label>
+              <ion-input placeholder="" formControlName="next_due_mileage" (keypress)="numberOnlyValidation($event)"
+                type="number"></ion-input>
+            </ion-item>
+
+            <ion-item lines="none" class="ez-input">
+              <ion-label position="floating">Next Service Due (Date)</ion-label>
+              <ion-datetime placeholder="" formControlName="next_due_date"></ion-datetime>
+            </ion-item>
+          </div>
+
+          <div *ngIf="serviceType == 2 || serviceType == 3">
+            <ion-list-header>
+              <ion-label>
+                ATF Oil
+              </ion-label>
+            </ion-list-header>
+
+            <ion-item lines="none" class="ez-input">
+              <ion-label position="floating">Next Service Due (KM)</ion-label>
+              <ion-input placeholder="" formControlName="next_due_mileage_atf" (keypress)="numberOnlyValidation($event)"
+                type="number"></ion-input>
+            </ion-item>
+
+            <ion-item lines="none" class="ez-input">
+              <ion-label position="floating">Next Service Due (Date)</ion-label>
+              <ion-datetime placeholder="" formControlName="next_due_date_atf">
+              </ion-datetime>
+            </ion-item>
+          </div>
+
+
+          <ion-item lines="none" class="ez-input">
+            <ion-label position="floating">Workshop Name*</ion-label>
+            <ion-input placeholder="" formControlName="workshop_name"></ion-input>
+          </ion-item>
+
+          <ion-item lines="none" class="ez-input">
+            <ion-label position="floating">Remarks</ion-label>
+            <ion-input placeholder="" formControlName="remarks"></ion-input>
+          </ion-item>
+
+          <ion-list-header>
+            <ion-label>Attachment</ion-label>
+          </ion-list-header>
+
+          <ion-row>
+            <ion-col>
+              <ion-button expand="block" color="success">Upload Reminder Sticker</ion-button>
+              <ion-button expand="block" color="success">Upload Workshop Receipt</ion-button>
+              <ion-button expand="block" color="success">Upload Mileage Image</ion-button>
+            </ion-col>
+          </ion-row>
+
+        </ion-list>
+
+        <ion-row style="margin-top: 20px;">
+          <ion-col>
+            <ion-button type="submit" color="danger" expand="block" *ngIf="ionicForm.valid && !isSubmitted">Submit
+            </ion-button>
+            <ion-button type="submit" color="danger" expand="block" *ngIf="!ionicForm.valid || isSubmitted" disabled>
+              Submit
+            </ion-button>
+          </ion-col>
+        </ion-row>
+
+      </form>
+
+    </ion-card-content>
+  </div>
+
+</ion-content>

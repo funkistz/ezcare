@@ -1,5 +1,7 @@
 {
   "name": "ezcare",
-  "integrations": {},
+  "integrations": {
+    "capacitor": {}
+  },
   "type": "angular"
 }

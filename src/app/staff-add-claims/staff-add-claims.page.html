@@ -1,0 +1,74 @@
+<ion-header>
+  <ion-toolbar mode="ios" color="primary">
+    <ion-buttons slot="start">
+      <ion-back-button></ion-back-button>
+    </ion-buttons>
+    <ion-title>
+      Add Claim
+    </ion-title>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content>
+
+  <div mode="ios" class="ez-form">
+    <ion-card-content>
+
+      <form [formGroup]="ionicForm" (ngSubmit)="submitForm()" novalidate>
+
+        <ion-list style="margin-bottom: 30px;">
+          <ion-list-header>
+            <ion-label style="margin: 0;">Claim Form</ion-label>
+          </ion-list-header>
+
+          <ion-item lines="none" class="ez-input">
+            <ion-label position="floating">Registration No*</ion-label>
+            <ion-input placeholder="" formControlName="reg_no"></ion-input>
+          </ion-item>
+
+        </ion-list>
+
+        <input type="file" #fileInput (change)="uploadFile($event)" hidden="true" accept="image/*" />
+        <ion-button expand="block" style="margin-bottom: 20px;" (click)="selectImageSource('report')" color="warning">
+          Add Diagnose
+          Report
+        </ion-button>
+
+        <ion-grid>
+          <ion-row>
+            <ion-col size="6" *ngFor="let image of reportImages">
+              <ion-img style="border:1px solid; margin: 5px;" role="button" class="image" [src]="image.base64"
+                *ngIf="image.base64"></ion-img>
+            </ion-col>
+          </ion-row>
+        </ion-grid>
+
+        <ion-button expand="block" style="margin-bottom: 20px;" (click)="selectImageSource('quotation')"
+          color="warning">Add Workshop
+          Quotation</ion-button>
+
+        <ion-grid>
+          <ion-row>
+            <ion-col size="6" *ngFor="let image of quotationImages">
+              <ion-img style="border:1px solid; margin: 5px;" role="button" class="image" [src]="image.base64"
+                *ngIf="image.base64"></ion-img>
+            </ion-col>
+          </ion-row>
+        </ion-grid>
+
+      </form>
+    </ion-card-content>
+  </div>
+
+</ion-content>
+
+<ion-footer>
+  <ion-toolbar style="padding-left: 10px; padding-right: 10px;">
+    <ion-button expand="block" (click)="addClaim()" *ngIf="ionicForm.valid">
+      Add Claim
+    </ion-button>
+    <ion-button expand="block" *ngIf="!ionicForm.valid" disabled>
+      Add Claim
+    </ion-button>
+  </ion-toolbar>
+</ion-footer>

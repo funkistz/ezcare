@@ -1,0 +1,192 @@
+<ion-header>
+  <ion-toolbar mode="ios" color="primary">
+    <ion-buttons slot="start">
+      <ion-back-button></ion-back-button>
+    </ion-buttons>
+    <ion-title>
+      View Claim
+    </ion-title>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content>
+
+  <ion-card mode="ios">
+
+    <div class="flex">
+      <div class="flex-left">
+        <ion-card-title>
+          <ion-icon name="cash-outline" class="carIcon"></ion-icon>
+        </ion-card-title>
+      </div>
+      <div class="flex-right">
+        <ion-card-title style="margin-top: 14px; font-size: 20px;">Claims</ion-card-title>
+      </div>
+    </div>
+
+    <div class="listWrapper" *ngIf="claim">
+      <ion-grid>
+        <ion-row>
+          <ion-col size="6">
+            <span class="bold">Policy No:</span>
+          </ion-col>
+          <ion-col size="6" *ngIf="claim">
+            {{ claim.policy.cust_policyno }}
+          </ion-col>
+        </ion-row>
+        <ion-row>
+          <ion-col size="6">
+            <span class="bold">Name:</span>
+          </ion-col>
+          <ion-col size="6" *ngIf="claim">
+            {{ claim.policy.cust_name }}
+          </ion-col>
+        </ion-row>
+        <ion-row>
+          <ion-col size="6">
+            <span class="bold">Vehicle Model:</span>
+          </ion-col>
+          <ion-col size="6" *ngIf="claim">
+            {{ claim.policy.cust_vehicledesc }}
+          </ion-col>
+        </ion-row>
+        <ion-row>
+          <ion-col size="6">
+            <span class="bold">Reg No:</span>
+          </ion-col>
+          <ion-col size="6" *ngIf="claim">
+            {{ claim.policy.cust_vehicleregno }}
+          </ion-col>
+        </ion-row>
+      </ion-grid>
+
+      <ion-card-title style="margin: 8px; margin-top: 24px; font-size: 16px;">Claim Details:</ion-card-title>
+
+      <ion-grid>
+        <ion-row>
+          <ion-col size="6">
+            <span class="bold">Status:</span>
+          </ion-col>
+          <ion-col size="6" *ngIf="claim">
+            {{ claim.status }}
+          </ion-col>
+        </ion-row>
+        <ion-row>
+          <ion-col size="6">
+            <span class="bold">Created At:</span>
+          </ion-col>
+          <ion-col size="6" *ngIf="claim">
+            {{ claim.created_at | date : "d/MM/y" }}
+          </ion-col>
+        </ion-row>
+        <ion-row>
+          <ion-col size="6">
+            <span class="bold">Remarks:</span>
+          </ion-col>
+          <ion-col size="6" *ngIf="claim">
+            {{ claim.remarks }}
+          </ion-col>
+        </ion-row>
+        <ion-row>
+          <ion-col size="6">
+            <span class="bold">Payment Details:</span>
+          </ion-col>
+          <ion-col size="6" *ngIf="claim">
+            {{ claim.payment_details }}
+          </ion-col>
+        </ion-row>
+        <ion-row>
+          <ion-col size="6" *ngIf="claim.creator">
+            <span class="bold">Created By:</span>
+          </ion-col>
+          <ion-col size="6">
+            {{ claim.creator.user_fullname }}
+          </ion-col>
+        </ion-row>
+        <ion-row *ngIf="claim.approver">
+          <ion-col size="6">
+            <span class="bold">Approver:</span>
+          </ion-col>
+          <ion-col size="6">
+            {{ claim.approver.user_fullname }}
+          </ion-col>
+        </ion-row>
+      </ion-grid>
+
+    </div>
+  </ion-card>
+
+  <ion-card mode="ios">
+
+    <div class="flex">
+      <div class="flex-left">
+        <ion-card-title>
+          <ion-icon name="document-text-outline" class="carIcon"></ion-icon>
+        </ion-card-title>
+      </div>
+      <div class="flex-right">
+        <ion-card-title style="margin-top: 14px; font-size: 20px;">Report Diagnose</ion-card-title>
+      </div>
+    </div>
+
+    <ion-card-content>
+      <ion-grid>
+        <ion-row>
+          <ion-col size="6">
+          </ion-col>
+        </ion-row>
+      </ion-grid>
+    </ion-card-content>
+
+  </ion-card>
+
+  <ion-card mode="ios">
+
+    <div class="flex">
+      <div class="flex-left">
+        <ion-card-title>
+          <ion-icon name="document-text-outline" class="carIcon"></ion-icon>
+        </ion-card-title>
+      </div>
+      <div class="flex-right">
+        <ion-card-title style="margin-top: 14px; font-size: 20px;">Workshop Quotation</ion-card-title>
+      </div>
+    </div>
+
+    <ion-card-content>
+      <ion-grid>
+        <ion-row>
+          <ion-col size="6">
+          </ion-col>
+        </ion-row>
+      </ion-grid>
+    </ion-card-content>
+
+  </ion-card>
+
+  <ion-card mode="ios" *ngIf="claim && claim.status == 'pending' && staff && staff.user_role == 1">
+    <ion-list lines="full" style="margin: 10px 30px 0 30px;">
+      <ion-item>
+        <ion-label position="floating">Remarks</ion-label>
+        <ion-textarea [(ngModel)]="remarks"></ion-textarea>
+      </ion-item>
+    </ion-list>
+    <ion-card-content>
+      <ion-grid>
+        <ion-row>
+          <ion-col size="6">
+            <ion-button expand="block" color="success" (click)="action('approved')">Approve</ion-button>
+          </ion-col>
+          <ion-col size="6">
+            <ion-button expand="block" color="danger" (click)="action('rejected')">Reject</ion-button>
+          </ion-col>
+
+        </ion-row>
+      </ion-grid>
+
+    </ion-card-content>
+
+  </ion-card>
+
+
+</ion-content>

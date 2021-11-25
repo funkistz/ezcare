@@ -1,17 +1,510 @@
-<ion-header [translucent]="true">
-  <ion-toolbar>
-    <ion-title>
-      Tab 1
-    </ion-title>
-  </ion-toolbar>
+<ion-header>
+  <app-toolbar></app-toolbar>
 </ion-header>
 
-<ion-content [fullscreen]="true">
-  <ion-header collapse="condense">
-    <ion-toolbar>
-      <ion-title size="large">Tab 1</ion-title>
-    </ion-toolbar>
-  </ion-header>
+<ion-content fullscreen="true" mode="ios">
 
-  <app-explore-container name="Tab 1 page"></app-explore-container>
+  <div *ngIf="user">
+
+    <ion-refresher slot="fixed" (ionRefresh)="doRefresh($event)" mode="md">
+      <ion-refresher-content></ion-refresher-content>
+    </ion-refresher>
+
+    <ion-slides pager="true" [options]="slideOpts" class="banners">
+      <ion-slide>
+        <img src="../../assets/ezcarebanner.png" />
+      </ion-slide>
+      <ion-slide>
+        <img src="../../assets/banner1.jpeg" />
+      </ion-slide>
+      <ion-slide>
+        <img src="../../assets/banner3.webp" />
+      </ion-slide>
+    </ion-slides>
+
+    <ion-card-title class="chooseCar">
+      Hey, <span class="lighter" *ngIf="user && user.cust_name">{{ user.cust_name }}</span>
+    </ion-card-title>
+
+    <ion-card mode="ios" *ngIf="!cPolicy">
+      <img class="ez-card-bg" src="../../assets/sports-car.png" style="height: 250px; bottom: -110px; left: -20px;">
+      <div class="flex">
+        <div class="flex-left">
+          <ion-card-title>
+            <ion-icon name="car-sport-outline" class="carIcon"></ion-icon>
+
+          </ion-card-title>
+        </div>
+        <div class="flex-right">
+          <ion-card class="chooseCarDropdown" mode="ios">
+            <ion-select mode="ios" style="width: 100%;" interface="action-sheet">
+              <ion-select-option>
+
+              </ion-select-option>
+            </ion-select>
+          </ion-card>
+        </div>
+      </div>
+
+      <div class="listWrapper">
+        <ion-grid>
+          <ion-row>
+            <ion-col size="6">
+              <span class="bold">Vehicle Model:</span>
+            </ion-col>
+            <ion-col size="6">
+              <ion-skeleton-text animated style="width: 60%"></ion-skeleton-text>
+            </ion-col>
+          </ion-row>
+          <ion-row>
+            <ion-col size="6">
+              <span class="bold">Reg No:</span>
+            </ion-col>
+            <ion-col size="6">
+              <ion-skeleton-text animated style="width: 60%"></ion-skeleton-text>
+            </ion-col>
+          </ion-row>
+          <ion-row>
+            <ion-col size="6">
+              <span class="bold">Chassis No:</span>
+            </ion-col>
+            <ion-col size="6">
+
+            </ion-col>
+          </ion-row>
+          <ion-row>
+            <ion-col size="6">
+              <span class="bold">Engine No:</span>
+            </ion-col>
+            <ion-col size="6">
+              <ion-skeleton-text animated style="width: 60%"></ion-skeleton-text>
+            </ion-col>
+          </ion-row>
+          <ion-row>
+            <ion-col size="6">
+              <span class="bold">Date Activate:</span>
+            </ion-col>
+            <ion-col size="6">
+              <ion-skeleton-text animated style="width: 60%"></ion-skeleton-text>
+            </ion-col>
+          </ion-row>
+          <ion-row>
+            <ion-col size="6">
+              <span class="bold">Date Expired:</span>
+            </ion-col>
+            <ion-col size="6">
+              <ion-skeleton-text animated style="width: 60%"></ion-skeleton-text>
+            </ion-col>
+          </ion-row>
+          <ion-row>
+            <ion-col size="6">
+              <span class="bold">First Mileage Reg:</span>
+            </ion-col>
+            <ion-col size="6">
+              <ion-skeleton-text animated style="width: 60%"></ion-skeleton-text>
+            </ion-col>
+          </ion-row>
+        </ion-grid>
+      </div>
+    </ion-card>
+
+    <ion-card mode="ios" *ngIf="cPolicy">
+
+      <img class="ez-card-bg" src="../../assets/sports-car.png" style="height: 250px; bottom: -110px; left: -20px;">
+
+      <div class="flex">
+        <div class="flex-left">
+          <ion-card-title>
+            <ion-icon name="car-sport-outline" class="carIcon"></ion-icon>
+
+          </ion-card-title>
+        </div>
+        <div class="flex-right">
+          <ion-card class="chooseCarDropdown" mode="ios">
+            <ion-list lines="none">
+              <ion-item *ngIf="user && policies">
+                <ion-select [value]="cPolicy.id" mode="ios" style="width: 100%;" interface="action-sheet"
+                  (ionChange)="changeCar($event);">
+                  <ion-select-option *ngFor="let policy of policies" [value]="policy.id">
+                    {{ policy.cust_vehicleregno }}
+                  </ion-select-option>
+                </ion-select>
+              </ion-item>
+            </ion-list>
+          </ion-card>
+        </div>
+      </div>
+
+      <div class="listWrapper">
+        <ion-grid>
+          <ion-row>
+            <ion-col size="6">
+              <span class="bold">Vehicle Model:</span>
+            </ion-col>
+            <ion-col size="6" *ngIf="cPolicy">
+              {{ cPolicy.vehicle_maker.name }} {{ cPolicy.vehicle_model.name }}
+            </ion-col>
+          </ion-row>
+          <ion-row>
+            <ion-col size="6">
+              <span class="bold">Reg No:</span>
+            </ion-col>
+            <ion-col size="6" *ngIf="cPolicy">
+              {{ cPolicy.cust_vehicleregno }}
+            </ion-col>
+          </ion-row>
+          <ion-row>
+            <ion-col size="6">
+              <span class="bold">Chassis No:</span>
+            </ion-col>
+            <ion-col size="6" *ngIf="cPolicy">
+              {{ cPolicy.cust_vehiclechasisno }}
+            </ion-col>
+          </ion-row>
+          <ion-row>
+            <ion-col size="6">
+              <span class="bold">Engine No:</span>
+            </ion-col>
+            <ion-col size="6" *ngIf="cPolicy">
+              {{ cPolicy.cust_vehicleengineno }}
+            </ion-col>
+          </ion-row>
+          <ion-row>
+            <ion-col size="6">
+              <span class="bold">Date Activate:</span>
+            </ion-col>
+            <ion-col size="6" *ngIf="cPolicy">
+              {{ cPolicy.cust_dateactivated }}
+            </ion-col>
+          </ion-row>
+          <ion-row>
+            <ion-col size="6">
+              <span class="bold">Date Expired:</span>
+            </ion-col>
+            <ion-col size="6" *ngIf="cPolicy">
+              {{ cPolicy.cust_dateexpired }}
+            </ion-col>
+          </ion-row>
+          <ion-row>
+            <ion-col size="6">
+              <span class="bold">First Mileage Reg:</span>
+            </ion-col>
+            <ion-col size="6" *ngIf="cPolicy">
+              {{ cPolicy.cust_vehiclemileage }}
+            </ion-col>
+          </ion-row>
+        </ion-grid>
+      </div>
+    </ion-card>
+
+    <ion-card mode="ios">
+
+      <img class="ez-card-bg" src="../../assets/gear.png" style="height: 230px; right: -67px; top: -70px;">
+
+      <div class="flex">
+        <div class="flex-left">
+          <ion-card-title>
+            <ion-icon name="cog-outline" class="carIcon"></ion-icon>
+
+          </ion-card-title>
+        </div>
+        <div class="flex-right">
+          <ion-card-title style="margin-top: 14px; font-size: 20px;" *ngIf="cService">
+            Next Service
+          </ion-card-title>
+          <ion-card-title style="margin-top: 14px; font-size: 20px;" *ngIf="!cService">
+            Next Service (reminder)
+          </ion-card-title>
+        </div>
+      </div>
+
+      <div class="listWrapper">
+
+        <ion-grid
+          *ngIf="cService && (cService.service_type_id == 1 || cService.service_type_id == 3) && cService.engine_oil_type_id == 1">
+          <ion-row>
+            <ion-col size="12">
+              <span class="bold" style="color: #4fb31d;">Engine Oil (Semi)</span>
+            </ion-col>
+          </ion-row>
+          <ion-row>
+            <ion-col size="6">
+              <span class="bold">Next Mileage:</span>
+            </ion-col>
+            <ion-col size="6">
+              {{ cService.next_due_mileage }} KM
+            </ion-col>
+          </ion-row>
+          <ion-row>
+            <ion-col size="6">
+              <span class="bold">Next Due:</span>
+            </ion-col>
+            <ion-col size="6">
+              {{ cService.next_due_date | date : "d MMMM, y" }}
+            </ion-col>
+          </ion-row>
+          <ion-row>
+            <ion-col size="12">
+              <span class="bold" style="color: #c73126;">(Whichever come first)</span>
+            </ion-col>
+          </ion-row>
+        </ion-grid>
+
+        <ion-grid
+          *ngIf="cService && (cService.service_type_id == 1 || cService.service_type_id == 3) && cService.engine_oil_type_id == 2">
+          <ion-row>
+            <ion-col size="12">
+              <span class="bold" style="color: #4fb31d;">Engine Oil (Fully)</span>
+            </ion-col>
+          </ion-row>
+          <ion-row>
+            <ion-col size="6">
+              <span class="bold">Next Mileage:</span>
+            </ion-col>
+            <ion-col size="6">
+              {{ cService.next_due_mileage }} KM
+            </ion-col>
+          </ion-row>
+          <ion-row>
+            <ion-col size="6">
+              <span class="bold">Next Due:</span>
+            </ion-col>
+            <ion-col size="6">
+              {{ cService.next_due_date | date : "d MMMM, y" }}
+            </ion-col>
+          </ion-row>
+          <ion-row>
+            <ion-col size="12">
+              <span class="bold" style="color: #c73126;">(Whichever come first)</span>
+            </ion-col>
+          </ion-row>
+        </ion-grid>
+
+        <ion-grid *ngIf="cService && (cService.service_type_id == 2 || cService.service_type_id == 3)">
+          <ion-row>
+            <ion-col size="12">
+              <span class="bold" style="color: #4fb31d;">ATF Oil</span>
+            </ion-col>
+          </ion-row>
+          <ion-row>
+            <ion-col size="6">
+              <span class="bold">Next Mileage:</span>
+            </ion-col>
+            <ion-col size="6">
+              {{ cService.next_due_mileage_atf }} KM
+            </ion-col>
+          </ion-row>
+          <ion-row>
+            <ion-col size="6">
+              <span class="bold">Next Due:</span>
+            </ion-col>
+            <ion-col size="6">
+              {{ cService.next_due_date_atf | date : "d/MM/y" }}
+            </ion-col>
+          </ion-row>
+          <ion-row>
+            <ion-col size="12">
+              <span class="bold" style="color: #c73126;">(Whichever come first)</span>
+            </ion-col>
+          </ion-row>
+        </ion-grid>
+
+        <ion-grid *ngIf="!cService && tempService">
+          <ion-row>
+            <ion-col size="12">
+              <span class="bold" style="color: #4fb31d;">Engine Oil (Semi)</span>
+            </ion-col>
+          </ion-row>
+          <ion-row>
+            <ion-col size="6">
+              <span class="bold">Next Mileage:</span>
+            </ion-col>
+            <ion-col size="6">
+              {{ tempService.next_due_mileage_semi }} KM
+            </ion-col>
+          </ion-row>
+          <ion-row>
+            <ion-col size="6">
+              <span class="bold">Next Due:</span>
+            </ion-col>
+            <ion-col size="6">
+              {{ tempService.next_due_date_semi | date : "d/MM/y" }}
+            </ion-col>
+          </ion-row>
+          <ion-row>
+            <ion-col size="12">
+              <span class="bold" style="color: #c73126;">(Whichever come first)</span>
+            </ion-col>
+          </ion-row>
+
+          <ion-row>
+            <ion-col size="12">
+              <span class="bold" style="color: #4fb31d;">Engine Oil (Fully)</span>
+            </ion-col>
+          </ion-row>
+          <ion-row>
+            <ion-col size="6">
+              <span class="bold">Next Mileage:</span>
+            </ion-col>
+            <ion-col size="6">
+              {{ tempService.next_due_mileage_fully }} KM
+            </ion-col>
+          </ion-row>
+          <ion-row>
+            <ion-col size="6">
+              <span class="bold">Next Due:</span>
+            </ion-col>
+            <ion-col size="6">
+              {{ tempService.next_due_date_fully | date : "d/MM/y" }}
+            </ion-col>
+          </ion-row>
+          <ion-row>
+            <ion-col size="12">
+              <span class="bold" style="color: #c73126;">(Whichever come first)</span>
+            </ion-col>
+          </ion-row>
+
+          <ion-row>
+            <ion-col size="12">
+              <span class="bold" style="color: #4fb31d;">ATF Oil</span>
+            </ion-col>
+          </ion-row>
+          <ion-row>
+            <ion-col size="6">
+              <span class="bold">Next Mileage:</span>
+            </ion-col>
+            <ion-col size="6">
+              {{ tempService.next_due_mileage_atf }} KM
+            </ion-col>
+          </ion-row>
+          <ion-row>
+            <ion-col size="6">
+              <span class="bold">Next Due:</span>
+            </ion-col>
+            <ion-col size="6">
+              {{ tempService.next_due_date_atf | date : "d/MM/y" }}
+            </ion-col>
+          </ion-row>
+          <ion-row>
+            <ion-col size="12">
+              <span class="bold" style="color: #c73126;">(Whichever come first)</span>
+            </ion-col>
+          </ion-row>
+        </ion-grid>
+      </div>
+
+    </ion-card>
+
+    <ion-card mode="ios">
+
+      <div class="flex">
+        <div class="flex-left">
+          <ion-card-title>
+            <ion-icon name="book-outline" class="carIcon"></ion-icon>
+
+          </ion-card-title>
+        </div>
+        <div class="flex-right">
+          <ion-card-title style="margin-top: 14px; font-size: 20px;">Warranty Policy</ion-card-title>
+        </div>
+      </div>
+
+      <div class="listWrapper">
+        <ion-grid>
+          <ion-row>
+            <ion-col size="6">
+              <span class="bold">Plan name:</span>
+            </ion-col>
+            <ion-col size="6" *ngIf="cPolicy">
+              {{ cPolicy.plan.plan_desc }}
+            </ion-col>
+          </ion-row>
+          <ion-row>
+            <ion-col size="6">
+              <span class="bold" style="color: blue;">Click here to view</span>
+            </ion-col>
+            <!-- <ion-col size="6" *ngIf="cPolicy">
+              {{ cPolicy.plan.plan_desc }}
+            </ion-col> -->
+          </ion-row>
+        </ion-grid>
+      </div>
+
+    </ion-card>
+
+  </div>
+
+  <div *ngIf="staff">
+
+    <ion-slides pager="true" [options]="slideOpts" class="banners">
+      <ion-slide>
+        <img src="../../assets/ezcarebanner.png" />
+      </ion-slide>
+      <ion-slide>
+        <img src="../../assets/banner1.jpeg" />
+      </ion-slide>
+      <ion-slide>
+        <img src="../../assets/banner3.webp" />
+      </ion-slide>
+    </ion-slides>
+
+    <ion-card-title class="chooseCar">
+      Hey,
+      <span class="lighter" *ngIf="staff && staff.user_fullname">{{ staff.user_name }}</span>
+    </ion-card-title>
+
+    <ion-card mode="ios" *ngIf="!cPolicy">
+      <div class="flex">
+        <div class="flex-left">
+          <ion-card-title>
+            <ion-icon name="person-outline" class="carIcon"></ion-icon>
+
+          </ion-card-title>
+        </div>
+      </div>
+
+      <div class="listWrapper">
+        <ion-grid>
+          <ion-row>
+            <ion-col size="6">
+              <span class="bold">Name:</span>
+            </ion-col>
+            <ion-col size="6">
+              {{ staff.user_fullname }}
+            </ion-col>
+          </ion-row>
+        </ion-grid>
+      </div>
+    </ion-card>
+
+  </div>
+
+  <!-- <ion-fab vertical="bottom" horizontal="center" slot="fixed" *ngIf="user">
+    <ion-fab-button color="danger">
+      <ion-icon color="light" name="call-outline"></ion-icon>
+    </ion-fab-button>
+    <ion-fab-list side="top">
+      <ion-fab-button color="success" (click)="whatsapp()">
+        <ion-icon name="logo-whatsapp"></ion-icon>
+      </ion-fab-button>
+      <ion-label>Whatsapp x</ion-label>
+      <ion-fab-button color="success" (click)="call()">
+        <ion-icon name="call-outline"></ion-icon>
+      </ion-fab-button>
+      <ion-label>Call</ion-label>
+    </ion-fab-list>
+  </ion-fab> -->
+
+  <ion-fab vertical="bottom" horizontal="center" slot="fixed" *ngIf="user" class="ez-fab" style="left: 40%;">
+    <ion-fab-button color="danger" (click)="call()">
+      <ion-icon name="call-outline"></ion-icon>
+    </ion-fab-button>
+  </ion-fab>
+
+  <ion-fab vertical="bottom" horizontal="center" slot="fixed" *ngIf="user" class="ez-fab">
+    <ion-fab-button color="success" style="margin-left: 35px;" (click)="whatsapp()">
+      <ion-icon name="logo-whatsapp"></ion-icon>
+    </ion-fab-button>
+  </ion-fab>
+
 </ion-content>

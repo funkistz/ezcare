@@ -1,0 +1,295 @@
+<ion-header>
+  <ion-toolbar mode="ios" color="primary">
+    <ion-buttons slot="start">
+      <ion-back-button></ion-back-button>
+    </ion-buttons>
+    <ion-title>
+      View Service
+    </ion-title>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content>
+
+  <ion-card mode="ios">
+
+    <div class="flex">
+      <div class="flex-left">
+        <ion-card-title>
+          <ion-icon name="car-sport-outline" class="carIcon"></ion-icon>
+
+        </ion-card-title>
+      </div>
+    </div>
+
+    <div class="listWrapper" *ngIf="service">
+      <ion-grid>
+        <ion-row>
+          <ion-col size="6">
+            <span class="bold">Policy No:</span>
+          </ion-col>
+          <ion-col size="6">
+            {{ service.policy.cust_policyno }}
+          </ion-col>
+        </ion-row>
+        <ion-row>
+          <ion-col size="6">
+            <span class="bold">Name:</span>
+          </ion-col>
+          <ion-col size="6">
+            {{ service.policy.cust_name }}
+          </ion-col>
+        </ion-row>
+        <ion-row>
+          <ion-col size="6">
+            <span class="bold">Car:</span>
+          </ion-col>
+          <ion-col size="6">
+            {{ service.policy.cust_vehicledesc }}
+          </ion-col>
+        </ion-row>
+        <ion-row>
+          <ion-col size="6">
+            <span class="bold">Registration no:</span>
+          </ion-col>
+          <ion-col size="6">
+            {{ service.policy.cust_vehicleregno }}
+          </ion-col>
+        </ion-row>
+
+        <br>
+
+        <ion-row>
+          <ion-col size="6">
+            <span class="bold">Service Type:</span>
+          </ion-col>
+          <ion-col size="6">
+            <div *ngIf="service.service_type_id == 1">Engine Oil</div>
+            <div *ngIf="service.service_type_id == 2">ATF Oil</div>
+            <div *ngIf="service.service_type_id == 3">Engine Oil + ATF Oil</div>
+          </ion-col>
+        </ion-row>
+
+        <ion-row *ngIf="service.service_type_id == 1 || service.service_type_id == 3">
+          <ion-col size="6">
+            <span class="bold">Engine Oil Type:</span>
+          </ion-col>
+          <ion-col size="6">
+            <div *ngIf="service.engine_oil_type_id == 1">Semi</div>
+            <div *ngIf="service.engine_oil_type_id == 2">Fully</div>
+          </ion-col>
+        </ion-row>
+
+        <ion-row>
+          <ion-col size="6">
+            <span class="bold">Invoice Number:</span>
+          </ion-col>
+          <ion-col size="6">
+            {{ service.invoice_no }}
+          </ion-col>
+        </ion-row>
+
+        <ion-row>
+          <ion-col size="6">
+            <span class="bold">Invoice Date:</span>
+          </ion-col>
+          <ion-col size="6">
+            {{ service.invoice_date | date : "d/MM/y" }}
+          </ion-col>
+        </ion-row>
+
+        <ion-row>
+          <ion-col size="6">
+            <span class="bold">Current Mileage (KM):</span>
+          </ion-col>
+          <ion-col size="6">
+            {{ service.current_mileage }}
+          </ion-col>
+        </ion-row>
+
+        <ion-row>
+          <ion-col size="6">
+            <span class="bold">Workshop Name:</span>
+          </ion-col>
+          <ion-col size="6">
+            {{ service.workshop_name }}
+          </ion-col>
+        </ion-row>
+
+        <ion-row>
+          <ion-col size="6">
+            <span class="bold">Remarks:</span>
+          </ion-col>
+          <ion-col size="6">
+            {{ service.remarks }}
+          </ion-col>
+        </ion-row>
+
+        <br>
+
+        <div
+          *ngIf="service && (service.service_type_id == 1 || service.service_type_id == 3) && service.engine_oil_type_id == 1">
+          <ion-row>
+            <ion-col size="12">
+              <span class="bold" style="color: #ffc409;">Engine Oil (Semi)</span>
+            </ion-col>
+          </ion-row>
+          <ion-row>
+            <ion-col size="6">
+              <span class="bold">Next Mileage:</span>
+            </ion-col>
+            <ion-col size="6">
+              {{ service.next_due_mileage }} KM
+            </ion-col>
+          </ion-row>
+          <ion-row>
+            <ion-col size="6">
+              <span class="bold">Next Due:</span>
+            </ion-col>
+            <ion-col size="6">
+              {{ service.next_due_date | date : "d MMMM, y" }}
+            </ion-col>
+          </ion-row>
+          <ion-row>
+            <ion-col size="12">
+              <span class="bold" style="color: #c73126;">(Whichever come first)</span>
+            </ion-col>
+          </ion-row>
+        </div>
+
+        <div
+          *ngIf="service && (service.service_type_id == 1 || service.service_type_id == 3) && service.engine_oil_type_id == 2">
+          <ion-row>
+            <ion-col size="12">
+              <span class="bold" style="color: #ffc409;">Engine Oil (Fully)</span>
+            </ion-col>
+          </ion-row>
+          <ion-row>
+            <ion-col size="6">
+              <span class="bold">Next Mileage:</span>
+            </ion-col>
+            <ion-col size="6">
+              {{ service.next_due_mileage }} KM
+            </ion-col>
+          </ion-row>
+          <ion-row>
+            <ion-col size="6">
+              <span class="bold">Next Due:</span>
+            </ion-col>
+            <ion-col size="6">
+              {{ service.next_due_date | date : "d MMMM, y" }}
+            </ion-col>
+          </ion-row>
+          <ion-row>
+            <ion-col size="12">
+              <span class="bold" style="color: #c73126;">(Whichever come first)</span>
+            </ion-col>
+          </ion-row>
+        </div>
+
+        <div *ngIf="service && (service.service_type_id == 2 || service.service_type_id == 3)">
+          <ion-row>
+            <ion-col size="12">
+              <span class="bold" style="color: #ffc409;">ATF Oil</span>
+            </ion-col>
+          </ion-row>
+          <ion-row>
+            <ion-col size="6">
+              <span class="bold">Next Mileage:</span>
+            </ion-col>
+            <ion-col size="6">
+              {{ service.next_due_mileage_atf }} KM
+            </ion-col>
+          </ion-row>
+          <ion-row>
+            <ion-col size="6">
+              <span class="bold">Next Due:</span>
+            </ion-col>
+            <ion-col size="6">
+              {{ service.next_due_date_atf | date : "d MMMM, y" }}
+            </ion-col>
+          </ion-row>
+          <ion-row>
+            <ion-col size="12">
+              <span class="bold" style="color: #c73126;">(Whichever come first)</span>
+            </ion-col>
+          </ion-row>
+        </div>
+
+      </ion-grid>
+    </div>
+  </ion-card>
+
+  <ion-card mode="ios">
+
+    <div class="flex">
+      <div class="flex-left">
+        <ion-card-title>
+          <ion-icon name="document-text-outline" class="carIcon"></ion-icon>
+        </ion-card-title>
+      </div>
+      <div class="flex-right">
+        <ion-card-title style="margin-top: 14px; font-size: 18px;">Reminder Sticker</ion-card-title>
+      </div>
+    </div>
+
+    <ion-card-content>
+      <ion-grid>
+        <ion-row>
+          <ion-col size="6">
+          </ion-col>
+        </ion-row>
+      </ion-grid>
+    </ion-card-content>
+
+  </ion-card>
+
+  <ion-card mode="ios">
+
+    <div class="flex">
+      <div class="flex-left">
+        <ion-card-title>
+          <ion-icon name="document-text-outline" class="carIcon"></ion-icon>
+        </ion-card-title>
+      </div>
+      <div class="flex-right">
+        <ion-card-title style="margin-top: 14px; font-size: 18px;">Workshop Receipt</ion-card-title>
+      </div>
+    </div>
+
+    <ion-card-content>
+      <ion-grid>
+        <ion-row>
+          <ion-col size="6">
+          </ion-col>
+        </ion-row>
+      </ion-grid>
+    </ion-card-content>
+
+  </ion-card>
+
+  <ion-card mode="ios">
+
+    <div class="flex">
+      <div class="flex-left">
+        <ion-card-title>
+          <ion-icon name="document-text-outline" class="carIcon"></ion-icon>
+        </ion-card-title>
+      </div>
+      <div class="flex-right">
+        <ion-card-title style="margin-top: 14px; font-size: 18px;">Mileage Image</ion-card-title>
+      </div>
+    </div>
+
+    <ion-card-content>
+      <ion-grid>
+        <ion-row>
+          <ion-col size="6">
+          </ion-col>
+        </ion-row>
+      </ion-grid>
+    </ion-card-content>
+
+  </ion-card>
+
+</ion-content>

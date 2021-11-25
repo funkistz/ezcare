@@ -1,0 +1,35 @@
+<ion-header>
+  <ion-toolbar mode="ios" class="ez-toolbar" color="primary">
+    <img src="../../assets/Ezcarehorizontal.png" class="logo" />
+
+    <ion-title size="large">
+    </ion-title>
+
+    <ion-buttons slot="end">
+      <ion-button color="light" style="margin: 14px 5px; font-size: 18px;">
+        <ion-icon name="notifications-outline"></ion-icon>
+      </ion-button>
+    </ion-buttons>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content>
+
+  <ion-text>
+    <h2 class="ez-title bold">Workshops</h2>
+  </ion-text>
+
+  <div class="map-wrapper">
+    <div id="map_center">
+      <!-- <img src="assets/icon/location-marker.png" /> -->
+    </div>
+    <div #map id="map"></div>
+  </div>
+
+</ion-content>
+
+<ion-footer>
+  <ion-toolbar style="padding-left: 30px; padding-right: 30px;">
+    <ion-button expand="block" shape="round" color="danger" (click)="mobileService()">Mobile Service</ion-button>
+  </ion-toolbar>
+</ion-footer>
