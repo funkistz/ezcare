@@ -16,11 +16,11 @@
 <ion-content>
 
   <ion-text>
-    <h2 class="ez-title bold">Customer Services</h2>
+    <h2 class="ez-title bold" style="margin-top: 30px;">Customer Services</h2>
   </ion-text>
 
   <ion-toolbar mode="ios" style="margin-top: 20px;">
-    <ion-searchbar mode="ios" placeholder="Enter Policy ID and click search" [(ngModel)]="searchText"></ion-searchbar>
+    <ion-searchbar mode="ios" placeholder="Enter Policy ID or Reg No" [(ngModel)]="searchText"></ion-searchbar>
     <ion-buttons slot="end">
       <ion-button (click)="searchServices()">
         Search
@@ -28,8 +28,8 @@
     </ion-buttons>
   </ion-toolbar>
 
-  <ion-card mode="ios">
-    <div class="flex">
+  <ion-card mode="ios" style="margin-top: 15px;">
+    <div class="flex" style="padding-left:10px;">
       <div class="flex-left">
         <ion-card-title>
           <ion-icon name="cog-outline" class="carIcon"></ion-icon>
@@ -40,7 +40,7 @@
       </div>
     </div>
 
-    <ion-card-content style="padding-top:0; padding-bottom: 40px;">
+    <ion-card-content style="padding-left:10px; padding-top:0; padding-bottom: 40px;">
       <ion-list mode="ios">
         <ion-item class="ez-item" *ngFor="let service of services" (click)="viewService(service.id)">
           <ion-thumbnail slot="start" class="ez-square-badge">
@@ -86,7 +86,28 @@
           </ion-note> -->
         </ion-item>
 
-        <ion-item *ngIf="isSearched && !services">
+        <ion-item class="ez-item" *ngIf="isSearching">
+          <ion-label>
+            <h2>
+              <ion-skeleton-text animated style="width: 60%"></ion-skeleton-text>
+            </h2>
+            <h2>
+              <ion-skeleton-text animated style="width: 60%"></ion-skeleton-text>
+            </h2>
+          </ion-label>
+          <ion-note slot="end">
+          </ion-note>
+        </ion-item>
+
+        <ion-item class="ez-item" *ngIf="!services && !isSearched && !isSearching">
+          <ion-label>
+            <h2 style="text-overflow: initial; white-space: normal;">
+              Please search by policy ID or registration number to view services.
+            </h2>
+          </ion-label>
+        </ion-item>
+
+        <ion-item *ngIf="isSearched && !services && !isSearching">
           No service record
         </ion-item>
 

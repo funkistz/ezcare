@@ -19,7 +19,8 @@ export class HelperService {
       message: message,
       duration: 2000,
       position: 'top',
-      translucent: true
+      translucent: true,
+      mode: 'ios'
     });
     toast.present();
   }
@@ -27,13 +28,40 @@ export class HelperService {
   async presentLoading(message = 'Please wait...') {
     this.loading = await this.loadingController.create({
       message: message,
+      mode: 'ios',
     });
     await this.loading.present();
   }
 
+  updateLoading(message) {
+    this.loading.setContent(message);
+  }
+
   dissmissLoading() {
-    if (this.loading) {
-      this.loading.dismiss();
-    }
+
+    setTimeout(() => {
+      if (this.loading) {
+        this.loading.dismiss();
+      }
+    }, 500);
+
+  }
+
+  async presentAlertDetails(header, message) {
+    const alert = await this.alertController.create({
+      cssClass: 'my-custom-class',
+      header: header,
+      message: message,
+      mode: 'ios',
+      buttons: [{
+        text: 'Okay',
+        handler: () => {
+          console.log('Confirm Okay');
+        }
+      }
+      ]
+    });
+
+    await alert.present();
   }
 }

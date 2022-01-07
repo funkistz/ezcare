@@ -1,0 +1,215 @@
+<ion-header>
+  <ion-toolbar mode="ios" color="primary">
+    <ion-buttons slot="start">
+      <ion-back-button></ion-back-button>
+    </ion-buttons>
+    <ion-title *ngIf="!inspection_id">
+      Add New Inspection
+    </ion-title>
+    <ion-title *ngIf="inspection_id">
+      View Inspection
+    </ion-title>
+  </ion-toolbar>
+</ion-header>
+
+<ion-backdrop class="ez-backdrop" *ngIf="loading"></ion-backdrop>
+
+<ion-content>
+
+  <ion-img [src]="resizedBase64" *ngIf="resizedBase64"></ion-img>
+
+  <div mode="ios" class="ez-form">
+    <ion-card-content>
+
+      <form [formGroup]="ionicForm" novalidate>
+
+        <ion-list style="margin-bottom: 10px;">
+
+          <ion-list-header style="margin-bottom: 20px;" *ngIf="!inspection_id">
+            <ion-label style="margin: 0;">Inspection Form</ion-label>
+          </ion-list-header>
+
+          <ion-grid *ngIf="!inspection_id">
+            <ion-row>
+              <ion-col size="6" style="height: 140px;" *ngFor="let image of inspectImages; index as i;">
+                <ion-img
+                  style="height: 100%; object-fit: cover; border-radius: 8px; overflow: hidden; border: 2px solid;"
+                  role="button" class="image" [src]="image.base64" *ngIf="image.base64"
+                  (click)="imagePreview(image.base64)">
+                </ion-img>
+                <ion-chip class="chip-close" (click)="removeImage(i)">
+                  <ion-icon name="close"></ion-icon>
+                </ion-chip>
+              </ion-col>
+              <ion-col size="6" style="height: 140px;">
+                <ion-card style="margin: 0; border: 2px solid; height: 100%;" (click)="selectImageSource()">
+                  <ion-icon name="image-outline" style="font-size: 40px; margin: 15px 15px 0 15px; color: black;">
+                  </ion-icon>
+                  <ion-card-header>
+                    <ion-card-title style="font-size: 18px;">Add Image</ion-card-title>
+                  </ion-card-header>
+                </ion-card>
+              </ion-col>
+            </ion-row>
+          </ion-grid>
+
+          <ng-container *ngIf="!inspection_id">
+            <ion-item lines="none" class="ez-input">
+              <ion-label position="floating">
+                Dealer
+              </ion-label>
+              <ion-input placeholder="" formControlName="dealer"></ion-input>
+            </ion-item>
+
+            <ion-item lines="none" class="ez-input">
+              <ion-label position="floating">
+                Vehicle
+              </ion-label>
+              <ion-input placeholder="" formControlName="vehicle"></ion-input>
+            </ion-item>
+
+            <ion-item lines="none" class="ez-input">
+              <ion-label position="floating">
+                Chassis
+              </ion-label>
+              <ion-input placeholder="" formControlName="chassis"></ion-input>
+            </ion-item>
+
+            <ion-item lines="none" class="ez-input">
+              <ion-label position="floating">
+                Remarks
+              </ion-label>
+              <ion-textarea placeholder="" formControlName="remarks" rows="4"></ion-textarea>
+            </ion-item>
+
+            <ion-item lines="none" class="ez-input">
+              <ion-label position="floating">
+                Marketing officer
+              </ion-label>
+              <ion-select placeholder="Select One" formControlName="marketing_officer" interface="action-sheet"
+                value="">
+                <ion-select-option value="">
+                  Please select
+                </ion-select-option>
+                <ion-select-option [value]="staff" *ngFor="let staff of staffs">
+                  {{ staff.name }}
+                </ion-select-option>
+              </ion-select>
+            </ion-item>
+          </ng-container>
+
+          <ion-grid *ngIf="inspection_id && inspection">
+            <ion-row>
+              <ion-col size="6" style="height: 140px;" *ngFor="let image of inspection.images; index as i;">
+                <ion-img
+                  style="height: 100%; object-fit: cover; border-radius: 8px; overflow: hidden; border: 2px solid;"
+                  role="button" class="image" [src]="image.image_link" *ngIf="image.image_link">
+                </ion-img>
+              </ion-col>
+            </ion-row>
+          </ion-grid>
+
+          <ng-container *ngIf="inspection_id">
+            <ion-item lines="none" class="ez-input">
+              <ion-label position="floating">
+                Dealer
+              </ion-label>
+              <ion-input placeholder="" formControlName="dealer" readonly></ion-input>
+            </ion-item>
+
+            <ion-item lines="none" class="ez-input">
+              <ion-label position="floating">
+                Vehicle
+              </ion-label>
+              <ion-input placeholder="" formControlName="vehicle" readonly></ion-input>
+            </ion-item>
+
+            <ion-item lines="none" class="ez-input">
+              <ion-label position="floating">
+                Chassis
+              </ion-label>
+              <ion-input placeholder="" formControlName="chassis" readonly></ion-input>
+            </ion-item>
+
+            <ion-item lines="none" class="ez-input">
+              <ion-label position="floating">
+                Remarks
+              </ion-label>
+              <ion-textarea placeholder="" formControlName="remarks" rows="4" readonly></ion-textarea>
+            </ion-item>
+
+            <ion-item lines="none" class="ez-input">
+              <ion-label position="floating">
+                Marketing officer
+              </ion-label>
+              <ion-input placeholder="" [value]="inspection.marketing_officer.name" readonly *ngIf="inspection">
+              </ion-input>
+            </ion-item>
+
+            <ion-item lines="none" class="ez-input" *ngIf="inspection">
+              <ion-label position="floating">
+                Status
+              </ion-label>
+              <ion-input placeholder="" [value]="inspection.status" readonly></ion-input>
+            </ion-item>
+
+            <ion-item lines="none" class="ez-input" *ngIf="inspection">
+              <ion-label position="floating">
+                Status Remarks
+              </ion-label>
+              <ion-textarea placeholder="" [value]="inspection.status_remarks" rows="4" readonly></ion-textarea>
+            </ion-item>
+
+          </ng-container>
+
+        </ion-list>
+      </form>
+    </ion-card-content>
+
+    <ion-card mode="ios" *ngIf="inspection && !inspection.status">
+      <ion-card-content style="padding-top: 0;">
+        <ion-grid>
+          <ion-row>
+            <ion-col size="12">
+              <ion-item fill="outline" mode="md" class="ez-material-input" style="margin: 20px 0 0 0;">
+                <ion-label position="floating">Remarks</ion-label>
+                <ion-textarea [(ngModel)]="remarks"></ion-textarea>
+              </ion-item>
+            </ion-col>
+          </ion-row>
+          <ion-row>
+            <ion-col size="6">
+              <ion-button expand="block" color="success" (click)="action('proceed')">
+                <ion-icon slot="start" name="checkmark-outline"></ion-icon>
+                Proceed
+              </ion-button>
+            </ion-col>
+            <ion-col size="6">
+              <ion-button expand="block" color="danger" (click)="action('rejected')">
+                <ion-icon slot="start" name="close-outline"></ion-icon>
+                Reject
+              </ion-button>
+            </ion-col>
+          </ion-row>
+        </ion-grid>
+
+      </ion-card-content>
+
+    </ion-card>
+  </div>
+
+</ion-content>
+
+<ion-footer class="ion-no-border">
+  <ion-toolbar>
+    <ion-button expand="full" (click)="addInspection()" *ngIf="!loading && inspectImages.length > 0 && !inspection_id">
+      Submit Inspection
+    </ion-button>
+    <ion-button expand="full" *ngIf="!loading && inspectImages.length == 0 && !inspection_id" disabled>
+      Submit Inspection
+    </ion-button>
+    <ion-button fill="clear" color="dark ion-text-capitalize" *ngIf="loading" expand="full">
+      {{ loadingText }} <ion-spinner name="dots" color="dark"></ion-spinner>
+    </ion-button>
+  </ion-toolbar>
+</ion-footer>

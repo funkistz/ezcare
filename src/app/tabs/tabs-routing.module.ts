@@ -4,7 +4,7 @@ import { TabsPage } from './tabs.page';
 
 const routes: Routes = [
   {
-    path: 'tabs',
+    path: '',
     component: TabsPage,
     children: [
       {
@@ -81,6 +81,23 @@ const routes: Routes = [
           {
             path: 'view-service',
             loadChildren: () => import('../view-service/view-service.module').then(m => m.ViewServicePageModule)
+          },
+        ]
+      },
+      {
+        path: 'staff-logs',
+        children: [
+          {
+            path: '',
+            loadChildren: () => import('../staff-logs/staff-logs.module').then(m => m.StaffLogsPageModule),
+          },
+          {
+            path: 'view-logs',
+            loadChildren: () => import('../staff-view-logs/staff-view-logs.module').then(m => m.StaffViewLogsPageModule)
+          },
+          {
+            path: 'add-logs',
+            loadChildren: () => import('../staff-add-logs/staff-add-logs.module').then(m => m.StaffAddLogsPageModule)
           },
         ]
       },

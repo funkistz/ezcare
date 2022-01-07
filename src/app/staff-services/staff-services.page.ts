@@ -70,7 +70,7 @@ export class StaffServicesPage implements OnInit {
         service_id: service_id
       }
     };
-    this.router.navigate(['/tabs/staff-services/view-service'], navigationExtras)
+    this.router.navigate(['/staff-tabs/staff-services/view-service'], navigationExtras)
 
   }
 

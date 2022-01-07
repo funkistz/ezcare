@@ -2,6 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { AuthenticationService } from '../services/authentication.service';
 import { Storage } from '@capacitor/storage';
 import { Router, NavigationExtras, ActivatedRoute } from '@angular/router';
+import { PhotoViewer } from '@awesome-cordova-plugins/photo-viewer/ngx';
 
 @Component({
   selector: 'app-view-service',
@@ -16,6 +17,7 @@ export class ViewServicePage implements OnInit {
   constructor(
     private authService: AuthenticationService,
     private route: ActivatedRoute, private router: Router,
+    private photoViewer: PhotoViewer,
   ) { }
 
   ngOnInit() {
@@ -56,6 +58,12 @@ export class ViewServicePage implements OnInit {
           event.target.complete();
         }
       });
+
+  }
+
+  imagePreview(src) {
+
+    this.photoViewer.show(src);
 
   }
 

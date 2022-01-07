@@ -8,6 +8,14 @@ import { NavController } from '@ionic/angular';
 import { Camera, CameraResultType, CameraSource, Photo } from '@capacitor/camera';
 import { Filesystem, Directory } from '@capacitor/filesystem';
 import { Storage } from '@capacitor/storage';
+import { HelperService } from '../services/helper.service';
+import { decode } from "base64-arraybuffer";
+import * as moment from 'moment';
+import { AngularFireStorage, AngularFireUploadTask } from '@angular/fire/compat/storage';
+import { AngularFirestore, AngularFirestoreCollection } from '@angular/fire/compat/firestore';
+import { Observable } from 'rxjs';
+import { finalize, tap } from 'rxjs/operators';
+import { AlertController } from '@ionic/angular';
 
 @Component({
   selector: 'app-staff-add-claims',
@@ -16,14 +24,31 @@ import { Storage } from '@capacitor/storage';
 })
 export class StaffAddClaimsPage implements OnInit {
 
+  policyFound = false;
+  claim_types;
+  ezcareStaff;
+  claim;
   staff;
   loading;
   ionicForm: FormGroup;
   reportImages = [];
   quotationImages = [];
+  reportImagesUrl = [];
+  quotationImagesUrl = [];
   // images: ApiImage[] = [];
   @ViewChild('fileInput', { static: false }) fileInput: ElementRef;
 
+  // File upload task 
+  fileUploadTask: AngularFireUploadTask;
+
+  // Upload progress
+  percentageVal: Observable<number>;
+
+  // Track file uploading with snapshot
+  trackSnapshot: Observable<any>;
+
+  // Uploaded File URL
+  UploadedImageURL: Observable<string>;
 
   constructor(
     public formBuilder: FormBuilder,
@@ -34,7 +59,11 @@ export class StaffAddClaimsPage implements OnInit {
     public toastController: ToastController,
     private navCtrl: NavController,
     private plt: Platform,
-    private actionSheetCtrl: ActionSheetController
+    private actionSheetCtrl: ActionSheetController,
+    private helper: HelperService,
+    private afs: AngularFirestore,
+    private afStorage: AngularFireStorage,
+    public alertController: AlertController
   ) { }
 
   ngOnInit() {
@@ -42,7 +71,12 @@ export class StaffAddClaimsPage implements OnInit {
     this.getStaff();
 
     this.ionicForm = this.formBuilder.group({
-      reg_no: ['', [Validators.required]],
+      reg_no: ['utm7977', [Validators.required]],
+      claim_type_id: ['', [Validators.required]],
+      claim_date: ['', [Validators.required]],
+      mileage: ['', [Validators.required]],
+      home_or_workshop: ['', [Validators.required]],
+      marketing_officer: ['', [Validators.required]],
       // engine_oil_type_id: ['', []],
       // invoice_no: ['', [Validators.required]],
       // invoice_date: [currentDate, [Validators.required]],
@@ -55,7 +89,30 @@ export class StaffAddClaimsPage implements OnInit {
 
       // workshop_name: ['', [Validators.required]],
       // remarks: ['', []],
-    })
+    });
+
+    this.authService.getGenerals().subscribe(
+      data => {
+        console.log('wtf', data);
+
+        if (data && data.data) {
+
+          let temp = data.data;
+
+          if (temp.claim_types) {
+            this.claim_types = temp.claim_types;
+          }
+
+          if (temp.staffs) {
+            this.ezcareStaff = temp.staffs;
+          }
+
+        }
+
+      }, error => {
+        console.log('wtf', error);
+
+      });
 
   }
 
@@ -69,6 +126,72 @@ export class StaffAddClaimsPage implements OnInit {
     // this.api.getImages().subscribe(images => {
     //   this.images = images;
     // });
+  }
+
+  searchCar() {
+
+    let search = this.ionicForm.value.reg_no;
+
+    console.log(search);
+
+    this.getClaims(search);
+
+  }
+
+  async getClaims(search, event = null) {
+
+    this.policyFound = false;
+    this.claim = null;
+    this.reportImages = [];
+    this.quotationImages = [];
+    this.reportImagesUrl = [];
+    this.quotationImagesUrl = [];
+
+    this.helper.presentLoading();
+
+    this.authService.searchClaims(search, true).subscribe(
+      data => {
+
+        this.helper.dissmissLoading();
+        if (data && data.data) {
+
+          this.policyFound = true;
+          if (event) {
+            event.target.complete();
+          }
+
+          if (data.data) {
+            console.log('no data');
+            this.claim = data.data[0];
+
+            if (this.claim && this.claim.claim_type_id) {
+              this.ionicForm.controls["claim_type_id"].setValue(this.claim.claim_type_id);
+            }
+            if (this.claim && this.claim.claim_date) {
+              let date = moment(this.claim.claim_date).format('DD-MM-YYYY');
+              console.log('date', date);
+              this.ionicForm.controls["claim_date"].setValue(date);
+            }
+            if (this.claim && this.claim.mileage) {
+              this.ionicForm.controls["mileage"].setValue(this.claim.mileage);
+            }
+            if (this.claim && this.claim.home_or_workshop) {
+              this.ionicForm.controls["home_or_workshop"].setValue(this.claim.home_or_workshop);
+            }
+            if (this.claim && this.claim.marketing_officer) {
+              this.ionicForm.controls["marketing_officer"].setValue(this.claim.marketing_officer);
+            }
+          }
+          console.log('claims', this.claim);
+        }
+      }, error => {
+        this.helper.dissmissLoading();
+        this.helper.presentAlertDetails('Error', 'No car found.');
+        console.log(error);
+        if (event) {
+          event.target.complete();
+        }
+      });
   }
 
   async selectImageSource(type) {
@@ -117,38 +240,74 @@ export class StaffAddClaimsPage implements OnInit {
       source
     });
 
-    const base64Data = await this.readAsBase64(image);
-
-    const blobData = this.b64toBlob(image.base64String, `image/${image.format}`);
-    const imageName = 'Give me a name';
-
-
-    if (type == 'report') {
-
-      this.reportImages.push({
-        id: Date.now(),
-        base64: "data:image/jpeg;base64, " + image.base64String,
-        blobData: blobData,
-        format: image.format
-      });
-
-    } else if (type == 'quotation') {
-
-      this.quotationImages.push({
-        id: Date.now(),
-        base64: "data:image/jpeg;base64, " + image.base64String,
-        blobData: blobData,
-        format: image.format
-      });
-
-    }
+    // const base64Data = await this.readAsBase64(image);
 
     // const blobData = this.b64toBlob(image.base64String, `image/${image.format}`);
-    // const imageName = 'Give me a name';
 
-    // this.api.uploadImage(blobData, imageName, image.format).subscribe((newImage: ApiImage) => {
-    //   this.images.push(newImage);
-    // });
+    const blob = new Blob([new Uint8Array(decode(image.base64String))], {
+      type: `image/${image.format}`,
+    });
+    let filename: string = "" + moment().unix();
+
+    const file = new File([blob], filename, {
+      lastModified: moment().unix(),
+      type: blob.type,
+    });
+
+    let data: any = {};
+    data = this.ionicForm.value;
+    this.reportImagesUrl = [];
+    this.quotationImagesUrl = [];
+
+    if (this.claim && this.claim.id) {
+      const alert = await this.alertController.create({
+        header: 'Claim Exist!',
+        message: 'Are you sure want to upload the image?',
+        buttons: [
+          {
+            text: 'Cancel',
+            role: 'cancel',
+            cssClass: 'secondary',
+            handler: (blah) => {
+            }
+          }, {
+            text: 'Upload',
+            handler: () => {
+              this.processUpload(file, data.reg_no, type);
+            }
+          }
+        ]
+      });
+      await alert.present();
+
+    } else {
+      if (type == 'report') {
+        this.reportImages.push({
+          id: Date.now(),
+          base64: "data:image/jpeg;base64, " + image.base64String,
+          file: file,
+          format: image.format
+        });
+      } else if (type == 'quotation') {
+        this.quotationImages.push({
+          id: Date.now(),
+          base64: "data:image/jpeg;base64, " + image.base64String,
+          file: file,
+          format: image.format
+        });
+      }
+    }
+  }
+
+  async processUpload(file, reg_no, type) {
+    this.helper.presentLoading();
+    let downloadURL = await this.uploadToFirebase(file, reg_no, type, true);
+
+    if (type == 'report') {
+      this.updateClaimAttachment(this.claim.id, downloadURL.url, 'storeReport');
+    } else if (type == 'quotation') {
+      this.updateClaimAttachment(this.claim.id, downloadURL.url, 'storeQuotation');
+    }
   }
 
   private async readAsBase64(photo: Photo) {
@@ -215,54 +374,201 @@ export class StaffAddClaimsPage implements OnInit {
     return blob;
   }
 
-  addClaim() {
+  async addClaim() {
 
     console.log('add');
-    this.presentLoading();
+    this.helper.presentLoading();
 
     let data: any = {};
     data = this.ionicForm.value;
     data.status = 'pending';
     data.created_by = this.staff.user_id;
 
+    console.log('data', data);
+
+    for (const reportImage of this.reportImages) {
+      let upload = await this.uploadToFirebase(reportImage.file, data.reg_no, 'report');
+      console.log('finish... report', upload.url);
+      this.reportImagesUrl.push({
+        name: upload.filename,
+        image_link: upload.url,
+      });
+    }
+
+    for (const quotationImage of this.quotationImages) {
+      let upload2 = await this.uploadToFirebase(quotationImage.file, data.reg_no, 'quotation');
+      console.log('finish... quotation', upload2.url2);
+      this.quotationImagesUrl.push({
+        name: upload2.filename,
+        image_link: upload2.url,
+      });
+    }
+
+    console.log('finish... all');
+    console.log('reports', this.reportImagesUrl);
+    console.log('quotations', this.quotationImagesUrl);
+
+    data.reports = this.reportImagesUrl;
+    data.quotations = this.quotationImagesUrl;
+
     this.authService.addClaim(data).subscribe(
       result => {
 
-        this.dissmissLoading();
-        this.presentToast('Claim added successfully');
+        this.helper.dissmissLoading();
+        this.helper.presentToast('Claim added successfully');
         // this.isSubmitted = true;
         // this.navCtrl.back();
         console.log(result);
+
+        setTimeout(() => {
+          this.searchCar();
+        }, 500);
 
         // if (data && data) {
         // }
       }, error => {
         console.log(error);
-        this.dissmissLoading();
-        this.presentToast(error.error.message);
+        this.helper.dissmissLoading();
+        this.helper.presentToast(error.error.message);
       });
 
   }
 
-  async presentLoading() {
-    this.loading = await this.loadingController.create({
-      message: 'Please wait...',
-    });
-    await this.loading.present();
+  updateClaimAttachment(claim_id, image_link, type) {
+
+    let data: any = {};
+    data.claim_id = claim_id;
+    data.image_link = image_link;
+
+    this.authService.updateClaimAttachment(claim_id, data, type).subscribe(
+      result => {
+
+        this.helper.dissmissLoading();
+        this.helper.presentToast('Claim update successfully');
+        this.searchCar();
+        console.log(result);
+
+      }, error => {
+        console.log(error);
+        this.helper.dissmissLoading();
+        this.helper.presentToast(error.error.message);
+      });
+
   }
 
-  dissmissLoading() {
-    if (this.loading) {
-      this.loading.dismiss();
-    }
-  }
+  async uploadToFirebase(file, reg_no, type, isUpdate = false): Promise<any> {
 
-  async presentToast(message) {
-    const toast = await this.toastController.create({
-      message: message,
-      duration: 3000
+    return new Promise(async (resolve, reject) => {
+
+      console.log('uploading...');
+
+      const filename = new Date().getTime() + '_' + reg_no;
+
+      // Storage path
+      const fileStoragePath = `claims/${new Date().getTime()}_${reg_no}`;
+
+      // Image reference
+      const imageRef = this.afStorage.ref(fileStoragePath);
+
+      // File upload task
+      this.fileUploadTask = this.afStorage.upload(fileStoragePath, file);
+      // Show uploading progress
+      this.percentageVal = this.fileUploadTask.percentageChanges();
+
+      await this.fileUploadTask.snapshotChanges().pipe(
+        finalize(async () => {
+          console.log('finish fileUploadTask');
+
+          await imageRef.getDownloadURL().subscribe(downloadURL => {
+
+            resolve({
+              name: filename,
+              url: downloadURL,
+            });
+
+          });
+        })
+      ).toPromise();
+
+
     });
-    toast.present();
+    console.log('uploading...');
+
+    const filename = new Date().getTime() + '_' + reg_no;
+
+    // Storage path
+    const fileStoragePath = `claims/${new Date().getTime()}_${reg_no}`;
+
+    // Image reference
+    const imageRef = this.afStorage.ref(fileStoragePath);
+
+    // File upload task
+    this.fileUploadTask = this.afStorage.upload(fileStoragePath, file);
+    // Show uploading progress
+    this.percentageVal = this.fileUploadTask.percentageChanges();
+
+
+    // await this.fileUploadTask.snapshotChanges().pipe(
+    //   finalize(async () => {
+    //     console.log('finish fileUploadTask');
+
+    //     await imageRef.getDownloadURL().subscribe(downloadURL => {
+    //       console.log('downloadURL', downloadURL);
+    //       downloadURLlink = downloadURLlink;
+
+    //       if (type == 'report') {
+
+    //         if (isUpdate) {
+    //           this.updateClaimAttachment(this.claim.id, downloadURL, 'storeReport');
+    //         } else {
+    //           this.reportImagesUrl.push({
+    //             name: filename,
+    //             image_link: downloadURL,
+    //           });
+    //         }
+
+    //       } else if (type == 'quotation') {
+
+    //         if (isUpdate) {
+    //           this.updateClaimAttachment(this.claim.id, downloadURL, 'storeQuotation');
+    //         } else {
+    //           this.quotationImagesUrl.push({
+    //             name: filename,
+    //             image_link: downloadURL,
+    //           });
+    //         }
+
+    //       }
+
+    //     });
+    //   })
+    // ).toPromise();
+
+    // return downloadURLlink;
+
+    // this.trackSnapshot = this.fileUploadTask.snapshotChanges().pipe(
+
+    //   finalize(() => {
+    //     console.log('finalize');
+
+    //     // Retreive uploaded image storage path
+    //     this.UploadedImageURL = imageRef.getDownloadURL();
+    //     this.UploadedImageURL.subscribe(resp => {
+
+    //       // resp; this is image path 
+
+    //       console.log('image path', resp);
+
+    //     }, error => {
+    //       console.log(error);
+    //     })
+    //   }),
+    //   tap(snap => {
+    //     console.log('trackSnapshot');
+    //     // this.imgSize = snap.totalBytes;
+    //   })
+    // )
+
   }
 
 }

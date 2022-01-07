@@ -1,5 +1,16 @@
 <ion-header>
-  <app-toolbar></app-toolbar>
+  <ion-toolbar mode="ios" class="ez-toolbar" color="primary">
+    <img src="../../assets/Ezcarehorizontal.png" class="logo" />
+
+    <ion-title size="large">
+    </ion-title>
+
+    <ion-buttons slot="end">
+      <ion-button color="light" style="margin: 14px 5px; font-size: 18px;">
+        <ion-icon name="notifications-outline"></ion-icon>
+      </ion-button>
+    </ion-buttons>
+  </ion-toolbar>
 </ion-header>
 
 <ion-content fullscreen="true" mode="ios">
@@ -395,7 +406,7 @@
 
     </ion-card>
 
-    <ion-card mode="ios">
+    <ion-card mode="ios" style="margin-bottom: 100px;">
 
       <div class="flex">
         <div class="flex-left">
@@ -409,19 +420,21 @@
         </div>
       </div>
 
-      <div class="listWrapper">
+      <div class="listWrapper" *ngIf="cPolicy">
         <ion-grid>
           <ion-row>
             <ion-col size="6">
               <span class="bold">Plan name:</span>
             </ion-col>
-            <ion-col size="6" *ngIf="cPolicy">
+            <ion-col size="6" *ngIf="cPolicy.plan">
               {{ cPolicy.plan.plan_desc }}
             </ion-col>
           </ion-row>
           <ion-row>
-            <ion-col size="6">
-              <span class="bold" style="color: blue;">Click here to view</span>
+            <ion-col size="6" *ngIf="cPolicy.plan && cPolicy.warranty_plan">
+              <span class="bold" style="color: blue;"
+                (click)="downloadPDF(cPolicy.plan.plan_desc, cPolicy.warranty_plan.file)">Click here to
+                view</span>
             </ion-col>
             <!-- <ion-col size="6" *ngIf="cPolicy">
               {{ cPolicy.plan.plan_desc }}
@@ -430,51 +443,6 @@
         </ion-grid>
       </div>
 
-    </ion-card>
-
-  </div>
-
-  <div *ngIf="staff">
-
-    <ion-slides pager="true" [options]="slideOpts" class="banners">
-      <ion-slide>
-        <img src="../../assets/ezcarebanner.png" />
-      </ion-slide>
-      <ion-slide>
-        <img src="../../assets/banner1.jpeg" />
-      </ion-slide>
-      <ion-slide>
-        <img src="../../assets/banner3.webp" />
-      </ion-slide>
-    </ion-slides>
-
-    <ion-card-title class="chooseCar">
-      Hey,
-      <span class="lighter" *ngIf="staff && staff.user_fullname">{{ staff.user_name }}</span>
-    </ion-card-title>
-
-    <ion-card mode="ios" *ngIf="!cPolicy">
-      <div class="flex">
-        <div class="flex-left">
-          <ion-card-title>
-            <ion-icon name="person-outline" class="carIcon"></ion-icon>
-
-          </ion-card-title>
-        </div>
-      </div>
-
-      <div class="listWrapper">
-        <ion-grid>
-          <ion-row>
-            <ion-col size="6">
-              <span class="bold">Name:</span>
-            </ion-col>
-            <ion-col size="6">
-              {{ staff.user_fullname }}
-            </ion-col>
-          </ion-row>
-        </ion-grid>
-      </div>
     </ion-card>
 
   </div>

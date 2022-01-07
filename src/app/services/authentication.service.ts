@@ -12,7 +12,8 @@ const { Storage } = Plugins;
 export class AuthenticationService {
 
   isAuthenticated: BehaviorSubject<boolean> = new BehaviorSubject<boolean>(null);
-  url = 'http://ezcare.dizbzeulut-xlm41yzvk4dy.p.runcloud.link/api/';
+  // url = 'https://funkistz.site/api/';
+  url = 'https://ezcare.local:8890/api/';
   header;
 
   constructor(
@@ -21,7 +22,9 @@ export class AuthenticationService {
     this.header = {
       headers: new HttpHeaders({
         'Authorization': 'Basic ' + btoa("funkistzgm@gmail.com:ug8YVi3t67"),
-        'Content-Type': 'application/json'
+        'Content-Type': 'application/json',
+        'Accept': 'application/json',
+        'rejectUnauthorized': 'false',
       })
     };
   }
@@ -100,9 +103,14 @@ export class AuthenticationService {
 
   }
 
-  searchClaims(search): Observable<any> {
+  searchClaims(search, exact = false): Observable<any> {
 
-    let params = new HttpParams().set('search', search);
+    let params = new HttpParams().set('search', search).set('exact', exact);
+
+    if (!exact) {
+      params = new HttpParams().set('search', search);
+    }
+
     this.header.params = params;
 
     return this.http.get(this.url + 'claim', this.header);
@@ -130,6 +138,12 @@ export class AuthenticationService {
 
   }
 
+  updateClaimAttachment(claim_id, data, type) {
+
+    return this.http.post(this.url + 'claim/' + type, data, this.header);
+
+  }
+
   uploadImage(image) {
 
     const formData = new FormData();
@@ -137,6 +151,45 @@ export class AuthenticationService {
     // formData.append('name', name);
 
     return this.http.post(this.url + 'claim', formData, this.header);
+  }
+
+  getStaffs() {
+
+    return this.http.get(this.url + 'claim/staffs', this.header);
+
+  }
+
+  getGenerals(): Observable<any> {
+
+    return this.http.get(this.url + 'claim/general', this.header);
+  }
+
+  getReports(user_id): Observable<any> {
+
+    let params = new HttpParams().set('user_id', user_id);
+    this.header.params = params;
+
+    return this.http.get(this.url + 'policy/report', this.header);
+
+  }
+
+  updateClaimStatus(data): Observable<any> {
+
+    return this.http.post(this.url + 'claim/updateStatus', data, this.header);
+
+  }
+
+  getWorkshops(): Observable<any> {
+
+    return this.http.get(this.url + 'workshop', this.header);
+  }
+
+  searchWorkshops(search): Observable<any> {
+
+    let params = new HttpParams().set('search', search);
+    this.header.params = params;
+
+    return this.http.get(this.url + 'workshop', this.header);
   }
 
   // logout(): Promise<void> {

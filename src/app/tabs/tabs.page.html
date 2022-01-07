@@ -7,7 +7,7 @@
     </ion-tab-button>
 
     <ion-tab-button tab="tab2" *ngIf="user">
-      <ion-icon name="cog-outline"></ion-icon>
+      <ion-icon name="build-outline"></ion-icon>
       <ion-label>Services</ion-label>
     </ion-tab-button>
 
@@ -17,17 +17,22 @@
     </ion-tab-button>
 
     <ion-tab-button tab="tab3" *ngIf="user">
-      <ion-icon name="cash-outline"></ion-icon>
+      <ion-icon name="receipt-outline"></ion-icon>
       <ion-label>Claims</ion-label>
     </ion-tab-button>
 
+    <ion-tab-button tab="staff-logs" *ngIf="staff">
+      <ion-icon name="clipboard-outline"></ion-icon>
+      <ion-label>Inspections</ion-label>
+    </ion-tab-button>
+
     <ion-tab-button tab="staff-services" *ngIf="staff">
-      <ion-icon name="cog-outline"></ion-icon>
+      <ion-icon name="build-outline"></ion-icon>
       <ion-label>Services</ion-label>
     </ion-tab-button>
 
     <ion-tab-button tab="staffClaims" *ngIf="staff">
-      <ion-icon name="cog-outline"></ion-icon>
+      <ion-icon name="receipt-outline"></ion-icon>
       <ion-label>Claims</ion-label>
     </ion-tab-button>
 

@@ -47,7 +47,9 @@ export class StaffClaimsPage implements OnInit {
             event.target.complete();
           }
 
-          this.services = data.data;
+          if (data.data.length > 0) {
+            this.services = data.data;
+          }
           console.log('services', this.services);
         }
       }, error => {
@@ -68,13 +70,13 @@ export class StaffClaimsPage implements OnInit {
         claim_id: claim_id
       }
     };
-    this.router.navigate(['/tabs/staffClaims/staff-view-claim'], navigationExtras);
+    this.router.navigate(['/staff-tabs/staffClaims/staff-view-claim'], navigationExtras);
 
   }
 
   addClaim() {
 
-    this.router.navigate(['/tabs/staffClaims/staff-add-claim']);
+    this.router.navigate(['/staff-tabs/staffClaims/staff-add-claim']);
 
   }
 

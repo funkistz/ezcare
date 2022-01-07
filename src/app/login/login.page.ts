@@ -83,7 +83,7 @@ export class LoginPage implements OnInit {
 
     this.authService.loginStaff(this.staffForm.value).subscribe(
       data => {
-        console.log(data);
+        console.log('login data', data);
         this.helper.dissmissLoading();
 
         Storage.set({
@@ -95,7 +95,7 @@ export class LoginPage implements OnInit {
         this.router.navigateByUrl('/');
       }, error => {
         this.error = error.error.message;
-        console.log(error);
+        console.log('login error', error);
         this.helper.presentToast(error.error.message);
 
         this.helper.dissmissLoading();

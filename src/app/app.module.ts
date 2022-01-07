@@ -19,12 +19,12 @@ import { AngularFirestoreModule } from '@angular/fire/compat/firestore';
 import { AngularFireStorageModule } from '@angular/fire/compat/storage';
 
 import { environment } from '../environments/environment';
-
+import { PhotoViewer } from '@awesome-cordova-plugins/photo-viewer/ngx';
+import { DocumentViewer } from '@awesome-cordova-plugins/document-viewer/ngx';
 
 @NgModule({
   declarations: [
     AppComponent,
-    // ToolbarComponent
   ],
   entryComponents: [],
   imports: [
@@ -41,6 +41,8 @@ import { environment } from '../environments/environment';
     Geolocation,
     NativeGeocoder,
     CallNumber,
+    PhotoViewer,
+    DocumentViewer,
     { provide: RouteReuseStrategy, useClass: IonicRouteStrategy }
   ],
   bootstrap: [AppComponent],

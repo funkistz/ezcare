@@ -1,0 +1,155 @@
+<ion-header>
+  <ion-toolbar mode="ios" class="ez-toolbar" color="primary">
+    <img src="../../assets/Ezcarehorizontal.png" class="logo" />
+
+    <ion-title size="large">
+    </ion-title>
+
+    <ion-buttons slot="end">
+      <ion-button color="light" style="margin: 14px 5px; font-size: 18px;">
+        <ion-icon name="notifications-outline"></ion-icon>
+      </ion-button>
+    </ion-buttons>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content fullscreen="true" mode="ios">
+
+  <ion-slides pager="true" [options]="slideOpts" class="banners">
+    <ion-slide>
+      <img src="../../assets/ezcarebanner.png" />
+    </ion-slide>
+    <ion-slide>
+      <img src="../../assets/banner1.jpeg" />
+    </ion-slide>
+    <ion-slide>
+      <img src="../../assets/banner3.webp" />
+    </ion-slide>
+  </ion-slides>
+
+  <ion-card-title class="chooseCar">
+    Hey,
+    <span class="lighter" *ngIf="staff && staff.user_fullname">{{ staff.user_name }}</span>
+  </ion-card-title>
+
+  <ion-grid>
+    <ion-row>
+      <h4 style="margin: 20px 15px 0 15px;">This month</h4>
+    </ion-row>
+    <ion-row>
+      <ion-col>
+        <ion-card style="margin: 10px 5px 0 10px;" color="primary">
+          <ion-card-header>
+            <ion-card-subtitle>Sales unit</ion-card-subtitle>
+            <ion-card-title *ngIf="reports && reports.total_sales">
+              {{ reports.total_sales }}
+            </ion-card-title>
+            <ion-card-title *ngIf="!reports">
+              -
+            </ion-card-title>
+            <ion-card-title *ngIf="reports && !reports.total_sales">
+              0
+            </ion-card-title>
+          </ion-card-header>
+        </ion-card>
+      </ion-col>
+      <ion-col>
+        <ion-card style="margin: 10px 10px 0 5px;" color="success">
+          <ion-card-header>
+            <ion-card-subtitle>Sales total</ion-card-subtitle>
+            <ion-card-title *ngIf="reports && reports.total_sales_rm">
+              RM {{ reports.total_sales_rm }}
+            </ion-card-title>
+            <ion-card-title *ngIf="!reports">
+              -
+            </ion-card-title>
+            <ion-card-title *ngIf="reports && !reports.total_sales_rm">
+              0
+            </ion-card-title>
+          </ion-card-header>
+        </ion-card>
+      </ion-col>
+    </ion-row>
+  </ion-grid>
+
+  <ion-card style="margin-bottom: 0px;">
+    <ion-card-header>
+      Sales Report
+    </ion-card-header>
+    <ion-card-content>
+      <ion-grid>
+        <ion-row>
+          <ion-col size="12">
+            <canvas #barCanvas style="position: relative;"></canvas>
+          </ion-col>
+          <ion-col size="12">
+            <canvas #barCanvas2 style="position: relative;"></canvas>
+          </ion-col>
+        </ion-row>
+      </ion-grid>
+    </ion-card-content>
+  </ion-card>
+
+  <ion-grid class="ion-no-padding">
+    <ion-row>
+      <ion-col size="12">
+        <ion-card style="margin-bottom: 0;" (click)="goLog()">
+          <ion-icon name="clipboard-outline" style="font-size: 40px; margin: 15px 15px 0 15px; color: black;">
+          </ion-icon>
+          <ion-card-header>
+            <ion-card-title style="font-size: 22px;">Inspection</ion-card-title>
+          </ion-card-header>
+
+
+        </ion-card>
+      </ion-col>
+      <ion-col size="6">
+        <ion-card style="margin-top: 12px; margin-right: 7px;" (click)="goService()">
+          <ion-icon name="build-outline" style="font-size: 40px; margin: 15px 15px 0 15px; color: black;">
+          </ion-icon>
+          <ion-card-header>
+            <ion-card-title style="font-size: 22px;">Services</ion-card-title>
+          </ion-card-header>
+        </ion-card>
+      </ion-col>
+      <ion-col size="6">
+        <ion-card style="margin-top: 12px; margin-left: 7px;" (click)="goClaim()">
+          <ion-icon name="receipt-outline" style="font-size: 40px; margin: 15px 15px 0 15px; color: black;">
+          </ion-icon>
+          <ion-card-header>
+            <ion-card-title style="font-size: 22px;">Claims</ion-card-title>
+          </ion-card-header>
+        </ion-card>
+      </ion-col>
+    </ion-row>
+  </ion-grid>
+
+  <!-- <ion-fab vertical="bottom" horizontal="center" slot="fixed" *ngIf="user">
+    <ion-fab-button color="danger">
+      <ion-icon color="light" name="call-outline"></ion-icon>
+    </ion-fab-button>
+    <ion-fab-list side="top">
+      <ion-fab-button color="success" (click)="whatsapp()">
+        <ion-icon name="logo-whatsapp"></ion-icon>
+      </ion-fab-button>
+      <ion-label>Whatsapp x</ion-label>
+      <ion-fab-button color="success" (click)="call()">
+        <ion-icon name="call-outline"></ion-icon>
+      </ion-fab-button>
+      <ion-label>Call</ion-label>
+    </ion-fab-list>
+  </ion-fab> -->
+
+  <ion-fab vertical="bottom" horizontal="center" slot="fixed" *ngIf="user" class="ez-fab" style="left: 40%;">
+    <ion-fab-button color="danger" (click)="call()">
+      <ion-icon name="call-outline"></ion-icon>
+    </ion-fab-button>
+  </ion-fab>
+
+  <ion-fab vertical="bottom" horizontal="center" slot="fixed" *ngIf="user" class="ez-fab">
+    <ion-fab-button color="success" style="margin-left: 35px;" (click)="whatsapp()">
+      <ion-icon name="logo-whatsapp"></ion-icon>
+    </ion-fab-button>
+  </ion-fab>
+
+</ion-content>

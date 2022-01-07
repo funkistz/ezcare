@@ -22,7 +22,7 @@
             <ion-label style="margin: 0;">Service Form</ion-label>
           </ion-list-header>
 
-          <ion-item lines="none" class="ez-select">
+          <ion-item fill="outline" mode="md" class="ez-material-input">
             <ion-label position="floating">
               Service Type*
             </ion-label>
@@ -30,11 +30,11 @@
               formControlName="service_type_id" (ionChange)="serviceTypeChange($event);">
               <ion-select-option value="1">Engine Oil</ion-select-option>
               <ion-select-option value="2">ATF Oil</ion-select-option>
-              <ion-select-option value="3">Engine Oil + ATF Oil</ion-select-option>
+              <!-- <ion-select-option value="3">Engine Oil + ATF Oil</ion-select-option> -->
             </ion-select>
           </ion-item>
 
-          <ion-item lines="none" class="ez-select" *ngIf="serviceType == 1 || serviceType == 3">
+          <ion-item fill="outline" mode="md" class="ez-material-input" *ngIf="serviceType == 1 || serviceType == 3">
             <ion-label position="floating">
               Engine Oil Type*
             </ion-label>
@@ -45,17 +45,19 @@
             </ion-select>
           </ion-item>
 
-          <ion-item lines="none" class="ez-input">
+          <ion-item fill="outline" mode="md" class="ez-material-input">
             <ion-label position="floating">Invoice Number*</ion-label>
             <ion-input placeholder="" formControlName="invoice_no"></ion-input>
           </ion-item>
 
-          <ion-item lines="none" class="ez-input">
+          <ion-item fill="outline" mode="md" class="ez-material-input">
             <ion-label position="floating">Invoice Date*</ion-label>
-            <ion-datetime placeholder="" formControlName="invoice_date" [value]="defaultDate"></ion-datetime>
+            <ion-input placeholder="" formControlName="invoice_date" type="date" class="ion-text-start"
+              [value]="defaultDate">
+            </ion-input>
           </ion-item>
 
-          <ion-item lines="none" class="ez-input" *ngIf="serviceType">
+          <ion-item fill="outline" mode="md" class="ez-material-input" *ngIf="serviceType">
             <ion-label position="floating">Current Mileage (KM)*</ion-label>
             <ion-input placeholder="" formControlName="current_mileage" (ionChange)="currentMileageChange($event)"
               (keypress)="numberOnlyValidation($event)" type="number">
@@ -69,15 +71,16 @@
               </ion-label>
             </ion-list-header>
 
-            <ion-item lines="none" class="ez-input">
+            <ion-item fill="outline" mode="md" class="ez-material-input">
               <ion-label position="floating">Next Service Due (KM)</ion-label>
               <ion-input placeholder="" formControlName="next_due_mileage" (keypress)="numberOnlyValidation($event)"
                 type="number"></ion-input>
             </ion-item>
 
-            <ion-item lines="none" class="ez-input">
+            <ion-item fill="outline" mode="md" class="ez-material-input">
               <ion-label position="floating">Next Service Due (Date)</ion-label>
-              <ion-datetime placeholder="" formControlName="next_due_date"></ion-datetime>
+              <ion-input placeholder="" formControlName="next_due_date" type="date" class="ion-text-start">
+              </ion-input>
             </ion-item>
           </div>
 
@@ -88,41 +91,99 @@
               </ion-label>
             </ion-list-header>
 
-            <ion-item lines="none" class="ez-input">
+            <ion-item fill="outline" mode="md" class="ez-material-input">
               <ion-label position="floating">Next Service Due (KM)</ion-label>
               <ion-input placeholder="" formControlName="next_due_mileage_atf" (keypress)="numberOnlyValidation($event)"
                 type="number"></ion-input>
             </ion-item>
 
-            <ion-item lines="none" class="ez-input">
+            <ion-item fill="outline" mode="md" class="ez-material-input">
               <ion-label position="floating">Next Service Due (Date)</ion-label>
-              <ion-datetime placeholder="" formControlName="next_due_date_atf">
-              </ion-datetime>
+              <ion-input placeholder="" formControlName="next_due_date_atf" type="date" class="ion-text-start">
+              </ion-input>
             </ion-item>
           </div>
 
 
-          <ion-item lines="none" class="ez-input">
+          <ion-item fill="outline" mode="md" class="ez-material-input">
             <ion-label position="floating">Workshop Name*</ion-label>
             <ion-input placeholder="" formControlName="workshop_name"></ion-input>
           </ion-item>
 
-          <ion-item lines="none" class="ez-input">
+          <ion-item fill="outline" mode="md" class="ez-material-input">
             <ion-label position="floating">Remarks</ion-label>
             <ion-input placeholder="" formControlName="remarks"></ion-input>
           </ion-item>
 
-          <ion-list-header>
+          <ion-list-header style="margin-bottom: 20px;">
             <ion-label>Attachment</ion-label>
           </ion-list-header>
 
-          <ion-row>
-            <ion-col>
-              <ion-button expand="block" color="success">Upload Reminder Sticker</ion-button>
-              <ion-button expand="block" color="success">Upload Workshop Receipt</ion-button>
-              <ion-button expand="block" color="success">Upload Mileage Image</ion-button>
-            </ion-col>
-          </ion-row>
+          <ion-button class="ez-icon-btn" expand="block" shape="round" (click)="selectImageSource('reminder')"
+            color="warning">
+            <ion-icon slot="start" name="images-outline" class="ez-icon-btn-left"></ion-icon>
+            <span>Add Reminder Sticker</span>
+          </ion-button>
+
+          <ion-grid>
+            <ion-row>
+              <ng-container *ngIf="claim">
+                <ion-col size="6" *ngFor="let image of claim.claim_reports">
+                  <ion-img style="border:1px solid; margin: 5px;" role="button" class="image" [src]="image.image_link"
+                    *ngIf="image.image_link"></ion-img>
+                </ion-col>
+              </ng-container>
+
+              <ion-col size="6" *ngFor="let image of reminderImages">
+                <ion-img style="border:1px solid; margin: 5px;" role="button" class="image" [src]="image.base64"
+                  *ngIf="image.base64"></ion-img>
+              </ion-col>
+            </ion-row>
+          </ion-grid>
+
+          <ion-button class="ez-icon-btn" expand="block" shape="round" (click)="selectImageSource('receipt')"
+            color="warning">
+            <ion-icon slot="start" name="images-outline" class="ez-icon-btn-left"></ion-icon>
+            <span>Add Workshop Receipt</span>
+          </ion-button>
+
+          <ion-grid>
+            <ion-row>
+              <ng-container *ngIf="claim">
+                <ion-col size="6" *ngFor="let image of claim.claim_reports">
+                  <ion-img style="border:1px solid; margin: 5px;" role="button" class="image" [src]="image.image_link"
+                    *ngIf="image.image_link"></ion-img>
+                </ion-col>
+              </ng-container>
+
+              <ion-col size="6" *ngFor="let image of receiptImages">
+                <ion-img style="border:1px solid; margin: 5px;" role="button" class="image" [src]="image.base64"
+                  *ngIf="image.base64"></ion-img>
+              </ion-col>
+            </ion-row>
+          </ion-grid>
+
+          <ion-button class="ez-icon-btn" expand="block" shape="round" (click)="selectImageSource('mileage')"
+            color="warning">
+            <ion-icon slot="start" name="images-outline" class="ez-icon-btn-left"></ion-icon>
+            <span>Add Mileage Image</span>
+          </ion-button>
+
+          <ion-grid>
+            <ion-row>
+              <ng-container *ngIf="claim">
+                <ion-col size="6" *ngFor="let image of claim.claim_reports">
+                  <ion-img style="border:1px solid; margin: 5px;" role="button" class="image" [src]="image.image_link"
+                    *ngIf="image.image_link"></ion-img>
+                </ion-col>
+              </ng-container>
+
+              <ion-col size="6" *ngFor="let image of mileageImages">
+                <ion-img style="border:1px solid; margin: 5px;" role="button" class="image" [src]="image.base64"
+                  *ngIf="image.base64"></ion-img>
+              </ion-col>
+            </ion-row>
+          </ion-grid>
 
         </ion-list>
 

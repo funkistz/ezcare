@@ -1,0 +1,39 @@
+{
+  "project_info": {
+    "project_number": "956722301990",
+    "project_id": "ezcare-3b463",
+    "storage_bucket": "ezcare-3b463.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:956722301990:android:1197266dede3e6cbfaaae7",
+        "android_client_info": {
+          "package_name": "io.ezcare.ezcare"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "956722301990-7eeuudpmjhchpo6i93tp878p4tl6qo2l.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCCy7XEeXkcu4f2JA-hIRsIqKi2AiWP6s8"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "956722301990-7eeuudpmjhchpo6i93tp878p4tl6qo2l.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

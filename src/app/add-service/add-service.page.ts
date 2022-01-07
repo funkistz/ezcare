@@ -1,11 +1,17 @@
 import { Component, OnInit } from '@angular/core';
-import { Camera, CameraResultType } from '@capacitor/camera';
+import { Camera, CameraResultType, CameraSource, Photo } from '@capacitor/camera';
 import { FormGroup, FormBuilder, Validators } from "@angular/forms";
 import { DatePipe } from '@angular/common'
 import { AuthenticationService } from '../services/authentication.service';
 import { ActivatedRoute, Router } from '@angular/router';
-import { LoadingController, ToastController } from '@ionic/angular';
+import { LoadingController, ToastController, ActionSheetController, AlertController } from '@ionic/angular';
 import { NavController } from '@ionic/angular';
+import * as moment from 'moment';
+import { AngularFireStorage, AngularFireUploadTask } from '@angular/fire/compat/storage';
+import { AngularFirestore, AngularFirestoreCollection } from '@angular/fire/compat/firestore';
+import { Observable } from 'rxjs';
+import { finalize, tap } from 'rxjs/operators';
+import { decode } from "base64-arraybuffer";
 
 @Component({
   selector: 'app-add-service',
@@ -22,6 +28,25 @@ export class AddServicePage implements OnInit {
   engineOilType = null;
   policy_id;
 
+  reminderImages = [];
+  receiptImages = [];
+  mileageImages = [];
+  reminderImagesUrl;
+  receiptImagesUrl;
+  mileageImagesUrl;
+
+  // File upload task 
+  fileUploadTask: AngularFireUploadTask;
+
+  // Upload progress
+  percentageVal: Observable<number>;
+
+  // Track file uploading with snapshot
+  trackSnapshot: Observable<any>;
+
+  // Uploaded File URL
+  UploadedImageURL: Observable<string>;
+
   constructor(
     public formBuilder: FormBuilder,
     public datepipe: DatePipe,
@@ -29,7 +54,10 @@ export class AddServicePage implements OnInit {
     private route: ActivatedRoute, private router: Router,
     public loadingController: LoadingController,
     public toastController: ToastController,
-    private navCtrl: NavController
+    private navCtrl: NavController,
+    private actionSheetCtrl: ActionSheetController,
+    public alertController: AlertController,
+    private afStorage: AngularFireStorage,
   ) { }
 
   ngOnInit() {
@@ -119,7 +147,7 @@ export class AddServicePage implements OnInit {
 
   }
 
-  submitForm() {
+  async submitForm() {
     console.log(this.ionicForm.value);
     this.isSubmitted = true;
     if (!this.ionicForm.valid) {
@@ -136,7 +164,34 @@ export class AddServicePage implements OnInit {
       data.next_due_date = this.datepipe.transform(data.next_due_date, 'yyyy-MM-dd');
       data.next_due_date_atf = this.datepipe.transform(data.next_due_date_atf, 'yyyy-MM-dd');
 
-      console.log(data);
+      for (const reportImage of this.reminderImages) {
+        let upload = await this.uploadToFirebase(reportImage.file, data.reg_no, 'report');
+        console.log('finish... report', upload.url);
+        this.reminderImagesUrl.push({
+          name: upload.filename,
+          image_link: upload.url,
+        });
+      }
+      for (const reportImage of this.receiptImages) {
+        let upload = await this.uploadToFirebase(reportImage.file, data.reg_no, 'report');
+        console.log('finish... report', upload.url);
+        this.receiptImagesUrl.push({
+          name: upload.filename,
+          image_link: upload.url,
+        });
+      }
+      for (const reportImage of this.mileageImages) {
+        let upload = await this.uploadToFirebase(reportImage.file, data.reg_no, 'report');
+        console.log('finish... report', upload.url);
+        this.mileageImagesUrl.push({
+          name: upload.filename,
+          image_link: upload.url,
+        });
+      }
+
+      data.reminderImages = this.reminderImagesUrl;
+      data.receiptImages = this.receiptImagesUrl;
+      data.mileageImages = this.mileageImagesUrl;
 
       this.authService.addService(data).subscribe(
         datax => {
@@ -207,5 +262,162 @@ export class AddServicePage implements OnInit {
     toast.present();
   }
 
+  async selectImageSource(type) {
+    const buttons = [
+      {
+        text: 'Take Photo',
+        icon: 'camera',
+        handler: () => {
+          this.addImage(CameraSource.Camera, type);
+        }
+      },
+      {
+        text: 'Choose From Photos',
+        icon: 'image',
+        handler: () => {
+          this.addImage(CameraSource.Photos, type);
+        }
+      }
+    ];
+
+    // Only allow file selection inside a browser
+    // if (!this.plt.is('hybrid')) {
+    //   buttons.push({
+    //     text: 'Choose a File',
+    //     icon: 'attach',
+    //     handler: () => {
+    //       this.fileInput.nativeElement.click();
+    //     }
+    //   });
+    // }
+
+    const actionSheet = await this.actionSheetCtrl.create({
+      header: 'Select Image Source',
+      mode: 'ios',
+      buttons
+    });
+    await actionSheet.present();
+  }
+
+  async addImage(source: CameraSource, type) {
+
+    const image = await Camera.getPhoto({
+      quality: 50,
+      allowEditing: true,
+      resultType: CameraResultType.Base64,
+      source
+    });
+
+    // const base64Data = await this.readAsBase64(image);
+
+    // const blobData = this.b64toBlob(image.base64String, `image/${image.format}`);
+
+    const blob = new Blob([new Uint8Array(decode(image.base64String))], {
+      type: `image/${image.format}`,
+    });
+    let filename: string = "" + moment().unix();
+
+    const file = new File([blob], filename, {
+      lastModified: moment().unix(),
+      type: blob.type,
+    });
+
+    let data: any = {};
+    data = this.ionicForm.value;
+    this.reminderImagesUrl = [];
+    this.receiptImagesUrl = [];
+    this.mileageImagesUrl = [];
+
+    if (type == 'reminder') {
+      this.reminderImages.push({
+        id: Date.now(),
+        base64: "data:image/jpeg;base64, " + image.base64String,
+        file: file,
+        format: image.format
+      });
+    } else if (type == 'receipt') {
+      this.receiptImages.push({
+        id: Date.now(),
+        base64: "data:image/jpeg;base64, " + image.base64String,
+        file: file,
+        format: image.format
+      });
+    } else if (type == 'mileage') {
+      this.mileageImages.push({
+        id: Date.now(),
+        base64: "data:image/jpeg;base64, " + image.base64String,
+        file: file,
+        format: image.format
+      });
+    }
+  }
+
+  convertBlobToBase64 = (blob: Blob) => new Promise((resolve, reject) => {
+    const reader = new FileReader;
+    reader.onerror = reject;
+    reader.onload = () => {
+      resolve(reader.result);
+    };
+    reader.readAsDataURL(blob);
+  });
+
+  b64toBlob(b64Data, contentType = '', sliceSize = 512) {
+    const byteCharacters = atob(b64Data);
+    const byteArrays = [];
+
+    for (let offset = 0; offset < byteCharacters.length; offset += sliceSize) {
+      const slice = byteCharacters.slice(offset, offset + sliceSize);
+
+      const byteNumbers = new Array(slice.length);
+      for (let i = 0; i < slice.length; i++) {
+        byteNumbers[i] = slice.charCodeAt(i);
+      }
+
+      const byteArray = new Uint8Array(byteNumbers);
+      byteArrays.push(byteArray);
+    }
+
+    const blob = new Blob(byteArrays, { type: contentType });
+    return blob;
+  }
+
+  async uploadToFirebase(file, reg_no, type, isUpdate = false): Promise<any> {
+
+    return new Promise(async (resolve, reject) => {
+
+      console.log('uploading...');
+
+      const filename = new Date().getTime() + '_' + reg_no;
+
+      // Storage path
+      const fileStoragePath = `claims/${new Date().getTime()}_${reg_no}`;
+
+      // Image reference
+      const imageRef = this.afStorage.ref(fileStoragePath);
+
+      // File upload task
+      this.fileUploadTask = this.afStorage.upload(fileStoragePath, file);
+      // Show uploading progress
+      this.percentageVal = this.fileUploadTask.percentageChanges();
+
+      await this.fileUploadTask.snapshotChanges().pipe(
+        finalize(async () => {
+          console.log('finish fileUploadTask');
+
+          await imageRef.getDownloadURL().subscribe(downloadURL => {
+
+            resolve({
+              name: filename,
+              url: downloadURL,
+            });
+
+          });
+        })
+      ).toPromise();
+
+
+    });
+
+  }
 
 }

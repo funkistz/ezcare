@@ -163,7 +163,7 @@
 
 .ez-form {
   ion-list-header {
-    padding-left: 12px;
+    padding-left: 0px;
     font-size: 20px;
 
     ion-label {
@@ -227,6 +227,28 @@
     border-radius: 8px;
   }
 
+  ion-select {
+    margin-top: -2px;
+    background-color: #ededed;
+    opacity: 1 !important;
+    --padding-top: 15px !important;
+    --padding-bottom: 15px !important;
+    --padding-start: 12px !important;
+    --padding-end: 12px !important;
+    border-radius: 8px;
+  }
+
+  ion-textarea {
+    margin-top: -2px;
+    background-color: #ededed;
+    opacity: 1 !important;
+    --padding-top: 15px !important;
+    --padding-bottom: 15px !important;
+    --padding-start: 12px !important;
+    --padding-end: 12px !important;
+    border-radius: 8px;
+  }
+
   ion-datetime {
     margin-top: -2px;
     background-color: #ededed;
@@ -253,4 +275,90 @@
 .ez-fab {
   transform: scale(1.2);
   margin-bottom: 5px;
+}
+
+.ez-icon-btn {
+
+  span {
+    padding-left: 45px;
+  }
+}
+
+.ez-icon-btn-left {
+  position: absolute;
+  left: 0;
+  padding-right: 15px;
+  border-right: 1px solid #333;
+}
+
+.required {
+  color: #999;
+}
+
+.ez-input.item-has-value ion-label .required,
+.ez-input.item-has-focus ion-label .required {
+  color: red;
+}
+
+.chip-close {
+  position: absolute;
+  top: 5px;
+  right: 5px;
+  height: 30px;
+  width: 30px;
+  padding: 5px;
+
+  ion-icon {
+    margin: 0;
+  }
+}
+
+
+.ez-backdrop {
+  opacity: 0.5;
+}
+
+.ez-material-input {
+  margin: 20px 0px;
+  border-width: 2px;
+  --border-width: 2px;
+
+  .item-native {
+    border-width: 2px;
+  }
+
+  ion-note {
+    margin-left: 10px;
+    font-size: 14px;
+    padding-top: 10px;
+  }
+}
+
+.ez-alert {
+  margin: 10px 0;
+  background-color: #ffc09b;
+}
+
+.ez-line {
+  display: inline-block;
+  width: 100%;
+  height: 1px;
+  margin: 10px 0;
+  background-color: #cccccc;
+}
+
+
+.required {
+  color: red;
+}
+
+ion-toolbar {
+  --background: transparent;
+}
+
+.btn-big {
+  --padding-top: 25px;
+  --padding-bottom: 25px;
+  font-size: 16px;
+  height: 50px;
 }

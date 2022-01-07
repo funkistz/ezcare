@@ -1,6 +1,8 @@
 import { Component, OnInit, ViewChild, ElementRef } from '@angular/core';
 import { Geolocation } from '@ionic-native/geolocation/ngx';
 import { NativeGeocoder, NativeGeocoderResult, NativeGeocoderOptions } from '@ionic-native/native-geocoder/ngx';
+import { Router } from '@angular/router';
+import { AuthenticationService } from '../services/authentication.service';
 
 declare var google;
 
@@ -17,10 +19,16 @@ export class WorkshopPage implements OnInit {
 
   latitude: number;
   longitude: number;
+  workshops;
+  searchText;
+  autocomplete: { input: string; };
+  markers = [];
 
   constructor(
     private geolocation: Geolocation,
-    private nativeGeocoder: NativeGeocoder
+    private nativeGeocoder: NativeGeocoder,
+    private router: Router,
+    private authService: AuthenticationService,
   ) {
     this.loadMap();
   }
@@ -52,6 +60,10 @@ export class WorkshopPage implements OnInit {
 
         this.getAddressFromCoords(this.map.center.lat(), this.map.center.lng())
       });
+
+      console.log('before getWorkshops');
+      this.getWorkshops();
+
 
     }).catch((error) => {
       console.log('Error getting location', error);
@@ -86,12 +98,86 @@ export class WorkshopPage implements OnInit {
 
   }
 
+  centerMap(lat, lng) {
+    let center = new google.maps.LatLng(lat, lng);
+    this.map.setCenter(center);
+  }
+
+  getMarkers() {
+
+    this.markers.forEach(element => {
+      element.setMap(null);
+    });
+
+    this.markers = [];
+
+    console.log('workshops', this.workshops);
+
+    // tslint:disable-next-line:variable-name
+    for (let _i = 0; _i < this.workshops.length; _i++) {
+      this.addMarkersToMap(this.workshops[_i], _i);
+    }
+  }
+
+  addMarkersToMap(workshop, index) {
+
+    if (index == 0) {
+      this.centerMap(workshop.latitude, workshop.longitude);
+    }
+
+    console.log('workshop', workshop);
+    console.log('index', index);
+
+    const position = new google.maps.LatLng(workshop.latitude, workshop.longitude);
+    this.markers[index] = new google.maps.Marker({ position, title: workshop.name });
+    this.markers[index].setMap(this.map);
+  }
+
   mobileService() {
+
+    this.router.navigateByUrl('/mobile-service');
+    return;
 
     let link = 'https://api.whatsapp.com/send?phone=60132880699&text=hi%20ape%20kabar';
 
     window.open(link, '_system', 'location=yes');
 
+  }
+
+  getWorkshops() {
+    this.authService.getWorkshops().subscribe(
+      data => {
+
+        if (data && data.data) {
+
+          this.workshops = data.data;
+          console.log('workshop', data);
+
+          this.getMarkers();
+
+        }
+      }, error => {
+        console.log(error);
+      });
+  }
+
+  searchWorkshops(event) {
+    console.log(event.detail.value);
+
+    this.authService.searchWorkshops(event.detail.value).subscribe(
+      data => {
+
+        if (data && data.data) {
+
+          this.workshops = data.data;
+          console.log('workshop', data);
+
+          this.getMarkers();
+
+        }
+      }, error => {
+        console.log(error);
+      });
   }
 
 }

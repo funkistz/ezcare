@@ -3,6 +3,9 @@ import { Storage } from '@capacitor/storage';
 import { AuthenticationService } from '../services/authentication.service';
 import { Browser } from '@capacitor/browser';
 import { CallNumber } from '@ionic-native/call-number/ngx';
+import { Router, NavigationExtras } from '@angular/router';
+import { DocumentViewer, DocumentViewerOptions } from '@awesome-cordova-plugins/document-viewer/ngx';
+import { Capacitor } from '@capacitor/core';
 
 @Component({
   selector: 'app-tab1',
@@ -18,10 +21,17 @@ export class Tab1Page {
   services;
   cService;
   tempService;
+  slideOpts = {
+    initialSlide: 0,
+    speed: 200,
+    autoplay: true
+  };
 
   constructor(
     private authService: AuthenticationService,
     private callNumber: CallNumber,
+    private router: Router,
+    private document: DocumentViewer
   ) {
   }
 
@@ -186,6 +196,34 @@ export class Tab1Page {
     this.callNumber.callNumber("60132880013", true)
       .then(res => console.log('Launched dialer!', res))
       .catch(err => console.log('Error launching dialer', err));
+
+  }
+
+  goLog() {
+    this.router.navigate(['/tabs/staff-log']);
+  }
+
+  goService() {
+    this.router.navigate(['/tabs/staff-services']);
+  }
+
+  goClaim() {
+    this.router.navigate(['/tabs/staffClaims']);
+  }
+
+  downloadPDF(name, url) {
+
+    if (Capacitor.getPlatform() === 'web') {
+      window.open(url);
+    } else {
+
+      const options: DocumentViewerOptions = {
+        title: name
+      }
+
+      this.document.viewDocument(url, 'application/pdf', options)
+
+    }
 
   }
 
