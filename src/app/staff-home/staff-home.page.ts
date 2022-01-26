@@ -60,7 +60,7 @@ export class StaffHomePage {
     if (staff) {
       this.staff = JSON.parse(staff);
       console.log('staff', this.staff);
-      this.getReport(this.staff.staff_id);
+      this.getReport(event, this.staff.staff_id);
     }
   }
 
@@ -259,6 +259,18 @@ export class StaffHomePage {
         },
         options: {
           indexAxis: 'y',
+          scales: {
+            y: {
+              ticks: {
+                precision: 0
+              }
+            },
+            x: {
+              ticks: {
+                precision: 0
+              }
+            }
+          }
         }
       });
     }
@@ -292,6 +304,18 @@ export class StaffHomePage {
         },
         options: {
           indexAxis: 'y',
+          scales: {
+            y: {
+              ticks: {
+                precision: 0
+              }
+            },
+            x: {
+              ticks: {
+                precision: 0
+              }
+            }
+          }
         }
       });
     }
@@ -382,7 +406,7 @@ export class StaffHomePage {
 
   }
 
-  getReport(id) {
+  getReport(event, id) {
 
     this.authService.getReports(id).subscribe(
       data => {
@@ -394,9 +418,17 @@ export class StaffHomePage {
           );
         }
 
+        if (event) {
+          event.target.complete();
+        }
+
         console.log(data);
       }, error => {
         console.log(error);
+
+        if (event) {
+          event.target.complete();
+        }
       });
   }
 

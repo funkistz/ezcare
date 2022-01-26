@@ -1,0 +1,41 @@
+<ion-header>
+  <ion-toolbar mode="ios" color="primary">
+    <ion-buttons slot="start">
+      <ion-back-button></ion-back-button>
+    </ion-buttons>
+    <ion-title>
+      Workshop
+    </ion-title>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content>
+
+  <ion-list *ngIf="workshops" mode="ios">
+    <ion-item button (click)="view(workshop.id)" detail *ngFor="let workshop of workshops">
+      <ion-label>
+        <h3>
+          {{ workshop.name }}
+        </h3>
+        <p>
+          {{ workshop.desc }}
+        </p>
+        <p>
+          {{ workshop.state }}
+        </p>
+        <p>
+          <ion-badge *ngIf="!workshop.is_active || workshop.is_active == '0'" color="warning">Inactive</ion-badge>
+        </p>
+      </ion-label>
+    </ion-item>
+  </ion-list>
+
+</ion-content>
+
+<ion-footer>
+  <ion-toolbar style="padding: 0 8px;">
+    <ion-button expand="block" (click)="add()">
+      Add New
+    </ion-button>
+  </ion-toolbar>
+</ion-footer>

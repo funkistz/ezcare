@@ -2,6 +2,8 @@ import { Component, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
 import { Storage } from '@capacitor/storage';
 import { Browser } from '@capacitor/browser';
+import { AuthenticationService } from '../services/authentication.service';
+import { HelperService } from '../services/helper.service';
 
 @Component({
   selector: 'app-setting',
@@ -10,9 +12,16 @@ import { Browser } from '@capacitor/browser';
 })
 export class SettingPage implements OnInit {
 
-  constructor(private router: Router) { }
+  generals;
+
+  constructor(
+    private router: Router,
+    private authService: AuthenticationService,
+    private helper: HelperService,
+  ) { }
 
   ngOnInit() {
+    this.getGenerals();
   }
 
   logout() {
@@ -25,13 +34,15 @@ export class SettingPage implements OnInit {
 
   aboutUs() {
 
-    this.inAppBrowser('https://www.ezcare-warranty.com/about/');
+    console.log(this.generals.about_us_link);
+    this.inAppBrowser(this.generals.about_us_link);
 
   }
 
   contactUs() {
 
-    this.inAppBrowser('https://www.ezcare-warranty.com/contactus/');
+    console.log(this.generals.contact_us_link);
+    this.inAppBrowser(this.generals.contact_us_link);
 
   }
 
@@ -48,6 +59,22 @@ export class SettingPage implements OnInit {
     const openCapacitorSite = async () => {
       await Browser.open({ url: link });
     };
+
+  }
+
+  getGenerals() {
+
+    this.authService.getSettings().subscribe(
+      data => {
+
+        if (data && data.data) {
+          this.generals = data.data[0];
+        }
+
+        console.log(data);
+      }, error => {
+        console.log(error);
+      });
 
   }
 

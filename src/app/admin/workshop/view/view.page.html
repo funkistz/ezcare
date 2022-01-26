@@ -1,0 +1,109 @@
+<ion-header>
+  <ion-toolbar mode="ios" color="primary">
+    <ion-buttons slot="start">
+      <ion-back-button></ion-back-button>
+    </ion-buttons>
+    <ion-title>
+      View Workshop
+    </ion-title>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content>
+
+  <ion-img [src]="image_link"></ion-img>
+
+  <form [formGroup]="ionicForm" novalidate class="ion-padding">
+
+    <ion-list>
+
+      <ion-item fill="outline" mode="md" class="ez-material-input">
+        <ion-label position="floating">Image Url: </ion-label>
+        <ion-input formControlName="image_url" (change)="imageChange()">
+        </ion-input>
+      </ion-item>
+
+      <ion-item fill="outline" mode="md" class="ez-material-input">
+        <ion-label position="floating">Name <span class="required">*</span>: </ion-label>
+        <ion-input formControlName="name">
+        </ion-input>
+      </ion-item>
+
+      <ion-item fill="outline" mode="md" class="ez-material-input">
+        <ion-label position="floating">Description: </ion-label>
+        <ion-input formControlName="desc">
+        </ion-input>
+      </ion-item>
+
+      <ion-item fill="outline" mode="md" class="ez-material-input">
+        <ion-label position="floating">Phone <span class="required">*</span>: </ion-label>
+        <ion-input formControlName="phone">
+        </ion-input>
+      </ion-item>
+
+      <ion-item fill="outline" mode="md" class="ez-material-input">
+        <ion-label position="floating">Phone 2: </ion-label>
+        <ion-input formControlName="phone2">
+        </ion-input>
+      </ion-item>
+
+      <ion-row>
+        <ion-col class="ion-no-padding ion-padding-end">
+          <ion-item fill="outline" mode="md" class="ez-material-input">
+            <ion-label position="floating">Latitude <span class="required">*</span>: </ion-label>
+            <ion-input formControlName="latitude">
+            </ion-input>
+          </ion-item>
+        </ion-col>
+        <ion-col class="ion-no-padding ion-padding-start">
+          <ion-item fill="outline" mode="md" class="ez-material-input">
+            <ion-label position="floating">Longitude <span class="required">*</span>: </ion-label>
+            <ion-input formControlName="longitude">
+            </ion-input>
+          </ion-item>
+        </ion-col>
+      </ion-row>
+
+      <ion-item fill="outline" mode="md" class="ez-material-input">
+        <ion-label position="floating">Address <span class="required">*</span>: </ion-label>
+        <ion-textarea formControlName="address1">
+        </ion-textarea>
+      </ion-item>
+
+      <ion-item fill="outline" mode="md" class="ez-material-input">
+        <ion-label position="floating">Address 2: </ion-label>
+        <ion-textarea formControlName="address2">
+        </ion-textarea>
+      </ion-item>
+
+      <ion-item fill="outline" mode="md" class="ez-material-input">
+        <ion-label position="floating">City <span class="required">*</span>: </ion-label>
+        <ion-input formControlName="city">
+        </ion-input>
+      </ion-item>
+
+      <ion-item fill="outline" mode="md" class="ez-material-input">
+        <ion-label position="floating">State <span class="required">*</span>: </ion-label>
+        <ion-select placeholder="Please Select" formControlName="state">
+          <ion-select-option [value]="state" *ngFor="let state of states">{{ state }}</ion-select-option>
+        </ion-select>
+      </ion-item>
+
+      <ion-item fill="outline" mode="md" class="ez-material-input">
+        <ion-label position="floating">Postcode <span class="required">*</span>: </ion-label>
+        <ion-input formControlName="postcode">
+        </ion-input>
+      </ion-item>
+
+    </ion-list>
+
+    <ion-button type="submit" expand="block" (click)="submit()" *ngIf="ionicForm.valid">
+      Submit
+    </ion-button>
+    <ion-button expand="block" *ngIf="!ionicForm.valid" disabled>
+      Submit
+    </ion-button>
+
+  </form>
+
+</ion-content>

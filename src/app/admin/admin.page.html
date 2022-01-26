@@ -1,0 +1,42 @@
+<ion-header>
+  <ion-toolbar mode="ios" color="primary">
+    <ion-buttons slot="start">
+      <ion-back-button></ion-back-button>
+    </ion-buttons>
+    <ion-title>
+      Admin
+    </ion-title>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content>
+
+  <ion-list>
+    <ion-item (click)="goPage('general')">
+      <ion-label>
+        General
+      </ion-label>
+    </ion-item>
+    <ion-item (click)="goPage('staff')">
+      <ion-label>
+        Staffs
+      </ion-label>
+    </ion-item>
+    <ion-item (click)="goPage('banner')">
+      <ion-label>
+        Banners
+      </ion-label>
+    </ion-item>
+    <ion-item (click)="goPage('workshop')">
+      <ion-label>
+        Workshop
+      </ion-label>
+    </ion-item>
+    <ion-item (click)="goPage('warranty')">
+      <ion-label>
+        Warranty Files
+      </ion-label>
+    </ion-item>
+  </ion-list>
+
+</ion-content>

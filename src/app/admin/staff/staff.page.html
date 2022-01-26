@@ -1,0 +1,35 @@
+<ion-header>
+  <ion-toolbar mode="ios" color="primary">
+    <ion-buttons slot="start">
+      <ion-back-button></ion-back-button>
+    </ion-buttons>
+    <ion-title>
+      Staff
+    </ion-title>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content>
+
+  <ion-list *ngIf="staffs" mode="ios">
+    <ion-item button (click)="viewStaff(staff.id)" detail *ngFor="let staff of staffs">
+      <ion-label>
+        <h3>
+          {{ staff.name }}
+        </h3>
+        <p *ngIf="staff.position">
+          {{ staff.position }}
+        </p>
+        <p *ngIf="!staff.position">
+          -
+        </p>
+        <p>
+          <ion-badge *ngIf="staff.user" color="success">Assigned to {{ staff.user.user_name }}</ion-badge>
+          <ion-badge *ngIf="!staff.user" color="danger">No user assigned</ion-badge>
+        </p>
+
+      </ion-label>
+    </ion-item>
+  </ion-list>
+
+</ion-content>

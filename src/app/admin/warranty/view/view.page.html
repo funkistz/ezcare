@@ -1,0 +1,50 @@
+<ion-header>
+  <ion-toolbar mode="ios" color="primary">
+    <ion-buttons slot="start">
+      <ion-back-button></ion-back-button>
+    </ion-buttons>
+    <ion-title>
+      View Warranty
+    </ion-title>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content>
+
+  <ion-grid *ngIf="warranty">
+    <ion-row>
+      <ion-col>Name:</ion-col>
+      <ion-col>
+        {{ warranty.name }}
+      </ion-col>
+    </ion-row>
+    <ion-row>
+      <ion-col>File:</ion-col>
+      <ion-col>
+        {{ warranty.file }}
+      </ion-col>
+    </ion-row>
+    <ion-row>
+      <ion-col>
+        <ion-button expand="block" (click)="getFile()">File</ion-button>
+      </ion-col>
+    </ion-row>
+    <ion-row>
+      <ion-col>
+        <ion-item fill="outline" mode="md" class="ez-material-input">
+          <ion-label position="floating">
+            File Link
+          </ion-label>
+          <ion-input [(ngModel)]="file_link"></ion-input>
+        </ion-item>
+      </ion-col>
+    </ion-row>
+    <ion-row>
+      <ion-col>
+        <ion-button expand="block" *ngIf="!file_link" disabled>Update</ion-button>
+        <ion-button expand="block" (click)="update()" *ngIf="file_link">Update</ion-button>
+      </ion-col>
+    </ion-row>
+  </ion-grid>
+
+</ion-content>

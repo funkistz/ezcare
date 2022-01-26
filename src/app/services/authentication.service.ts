@@ -14,6 +14,7 @@ export class AuthenticationService {
   isAuthenticated: BehaviorSubject<boolean> = new BehaviorSubject<boolean>(null);
   // url = 'https://funkistz.site/api/';
   url = 'https://ezcare.local:8890/api/';
+  // url = 'https://ezcare-warranty.com/ezcare/public/api/';
   header;
 
   constructor(
@@ -29,8 +30,20 @@ export class AuthenticationService {
     };
   }
 
+  resetHeader() {
+    this.header = {
+      headers: new HttpHeaders({
+        'Authorization': 'Basic ' + btoa("funkistzgm@gmail.com:ug8YVi3t67"),
+        'Content-Type': 'application/json',
+        'Accept': 'application/json',
+        'rejectUnauthorized': 'false',
+      })
+    };
+  }
+
   login(credentials: { registration_number, policy_number }): Observable<any> {
 
+    this.resetHeader();
     return this.http.post(this.url + 'loginCustomer', credentials, this.header);
 
     // return this.http.post(this.url, credentials).pipe(
@@ -49,11 +62,13 @@ export class AuthenticationService {
 
   loginStaff(credentials: { username, password }): Observable<any> {
 
+    this.resetHeader();
     return this.http.post(this.url + 'loginStaff', credentials, this.header);
   }
 
   getServices(policy_id): Observable<any> {
 
+    this.resetHeader();
     let params = new HttpParams().set('policy_id', policy_id);
     this.header.params = params;
 
@@ -63,12 +78,14 @@ export class AuthenticationService {
 
   getService(service_id): Observable<any> {
 
+    this.resetHeader();
     return this.http.get(this.url + 'service/' + service_id, this.header);
 
   }
 
   searchServices(search): Observable<any> {
 
+    this.resetHeader();
     let params = new HttpParams().set('search', search);
     this.header.params = params;
 
@@ -78,6 +95,7 @@ export class AuthenticationService {
 
   getPoliciesByIC(cust_ic): Observable<any> {
 
+    this.resetHeader();
     let params = new HttpParams().set('customer_ic', cust_ic);
     this.header.params = params;
 
@@ -87,6 +105,7 @@ export class AuthenticationService {
 
   getClaims(policy_id): Observable<any> {
 
+    this.resetHeader();
     let params = new HttpParams().set('policy_id', policy_id);
     this.header.params = params;
 
@@ -99,12 +118,14 @@ export class AuthenticationService {
     // let params = new HttpParams().set('claim_id', claim_id);
     // this.header.params = params;
 
+    this.resetHeader();
     return this.http.get(this.url + 'claim/' + claim_id, this.header);
 
   }
 
   searchClaims(search, exact = false): Observable<any> {
 
+    this.resetHeader();
     let params = new HttpParams().set('search', search).set('exact', exact);
 
     if (!exact) {
@@ -119,6 +140,7 @@ export class AuthenticationService {
 
   addService(data): Observable<any> {
 
+    this.resetHeader();
     return this.http.post(this.url + 'service', data, this.header);
 
   }
@@ -128,24 +150,28 @@ export class AuthenticationService {
     // let params = new HttpParams().set('image', data);
     // this.header.params = params;
 
+    this.resetHeader();
     return this.http.post(this.url + 'claim', data, this.header);
 
   }
 
   updateClaim(claim_id, data) {
 
+    this.resetHeader();
     return this.http.put(this.url + 'claim/' + claim_id, data, this.header);
 
   }
 
   updateClaimAttachment(claim_id, data, type) {
 
+    this.resetHeader();
     return this.http.post(this.url + 'claim/' + type, data, this.header);
 
   }
 
   uploadImage(image) {
 
+    this.resetHeader();
     const formData = new FormData();
     formData.append('image', image.blobData, `myimage.${image.format}`);
     // formData.append('name', name);
@@ -155,17 +181,34 @@ export class AuthenticationService {
 
   getStaffs() {
 
-    return this.http.get(this.url + 'claim/staffs', this.header);
+    this.resetHeader();
+    return this.http.get(this.url + 'staffs', this.header);
+
+  }
+
+  getStaff(id) {
+
+    this.resetHeader();
+    return this.http.get(this.url + 'staffs/' + id, this.header);
+
+  }
+
+  updateStaff(id, data): Observable<any> {
+
+    this.resetHeader();
+    return this.http.put(this.url + 'staffs/' + id, data, this.header);
 
   }
 
   getGenerals(): Observable<any> {
 
+    this.resetHeader();
     return this.http.get(this.url + 'claim/general', this.header);
   }
 
   getReports(user_id): Observable<any> {
 
+    this.resetHeader();
     let params = new HttpParams().set('user_id', user_id);
     this.header.params = params;
 
@@ -175,21 +218,72 @@ export class AuthenticationService {
 
   updateClaimStatus(data): Observable<any> {
 
+    this.resetHeader();
     return this.http.post(this.url + 'claim/updateStatus', data, this.header);
 
   }
 
-  getWorkshops(): Observable<any> {
+  getWorkshops(is_all = 0): Observable<any> {
+
+    this.resetHeader();
+    let params = new HttpParams().set('is_all', is_all);
+    this.header.params = params;
 
     return this.http.get(this.url + 'workshop', this.header);
   }
 
+  getWorkshop(id): Observable<any> {
+
+    this.resetHeader();
+    return this.http.get(this.url + 'workshop/' + id, this.header);
+  }
+
+  updateWorkshop(id, data): Observable<any> {
+
+    this.resetHeader();
+    return this.http.put(this.url + 'workshop/' + id, data, this.header);
+
+  }
+
+  addWorkshop(data): Observable<any> {
+
+    this.resetHeader();
+    return this.http.post(this.url + 'workshop', data, this.header);
+
+  }
+
   searchWorkshops(search): Observable<any> {
 
+    this.resetHeader();
     let params = new HttpParams().set('search', search);
     this.header.params = params;
 
     return this.http.get(this.url + 'workshop', this.header);
+  }
+
+  getWarrantyPlans(): Observable<any> {
+
+    this.resetHeader();
+    return this.http.get(this.url + 'warrantyPlan', this.header);
+  }
+
+  getWarrantyPlan(id): Observable<any> {
+
+    this.resetHeader();
+    return this.http.get(this.url + 'warrantyPlan/' + id, this.header);
+  }
+
+  updateWarrantyPlan(id, data): Observable<any> {
+
+    this.resetHeader();
+    return this.http.put(this.url + 'warrantyPlan/' + id, data, this.header);
+
+  }
+
+  getSettings(): Observable<any> {
+
+    this.resetHeader();
+    return this.http.get(this.url + 'generals', this.header);
   }
 
   // logout(): Promise<void> {

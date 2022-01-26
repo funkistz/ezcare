@@ -21,6 +21,8 @@ import { AngularFireStorageModule } from '@angular/fire/compat/storage';
 import { environment } from '../environments/environment';
 import { PhotoViewer } from '@awesome-cordova-plugins/photo-viewer/ngx';
 import { DocumentViewer } from '@awesome-cordova-plugins/document-viewer/ngx';
+import { Chooser } from '@awesome-cordova-plugins/chooser/ngx';
+
 
 @NgModule({
   declarations: [
@@ -43,6 +45,7 @@ import { DocumentViewer } from '@awesome-cordova-plugins/document-viewer/ngx';
     CallNumber,
     PhotoViewer,
     DocumentViewer,
+    Chooser,
     { provide: RouteReuseStrategy, useClass: IonicRouteStrategy }
   ],
   bootstrap: [AppComponent],

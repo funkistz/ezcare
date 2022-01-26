@@ -1,0 +1,69 @@
+<ion-header>
+  <ion-toolbar mode="ios" color="primary">
+    <ion-buttons slot="start">
+      <ion-back-button></ion-back-button>
+    </ion-buttons>
+    <ion-title>
+      View Staff
+    </ion-title>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content>
+
+  <ion-grid *ngIf="staff">
+    <ion-row>
+      <ion-col>Name:</ion-col>
+      <ion-col>
+        {{ staff.name }}
+      </ion-col>
+    </ion-row>
+    <ion-row>
+      <ion-col>Full Name:</ion-col>
+      <ion-col>
+        {{ staff.description }}
+      </ion-col>
+    </ion-row>
+    <ion-row>
+      <ion-col>Position:</ion-col>
+      <ion-col>
+        {{ staff.position }}
+      </ion-col>
+    </ion-row>
+    <ion-row>
+      <ion-col>IC:</ion-col>
+      <ion-col>
+        {{ staff.ic }}
+      </ion-col>
+    </ion-row>
+    <ion-row>
+      <ion-col>Phone:</ion-col>
+      <ion-col>
+        {{ staff.phone1 }}
+      </ion-col>
+    </ion-row>
+    <ion-row>
+      <ion-col>
+        <ion-item fill="outline" mode="md" class="ez-material-input">
+          <ion-label position="floating">
+            Assigned User
+          </ion-label>
+          <ion-select value="brown" okText="Okay" cancelText="Dismiss" interface="action-sheet"
+            placeholder="Please choose" (ionChange)="changeUserId($event);" [(value)]="user_id">
+            <ion-select-option [value]="user.user_id" *ngFor="let user of users">
+              {{ user.user_fullname }}
+            </ion-select-option>
+          </ion-select>
+        </ion-item>
+      </ion-col>
+
+    </ion-row>
+    <ion-row>
+      <ion-col>
+        <ion-button expand="block" *ngIf="!user_id" disabled>Update</ion-button>
+        <ion-button expand="block" (click)="updateStaffUser()" *ngIf="user_id">Update</ion-button>
+      </ion-col>
+    </ion-row>
+  </ion-grid>
+
+</ion-content>
