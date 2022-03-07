@@ -4,11 +4,112 @@
       <ion-back-button></ion-back-button>
     </ion-buttons>
     <ion-title>
-      Banner
+      Banners
     </ion-title>
   </ion-toolbar>
 </ion-header>
 
 <ion-content>
 
+  <ion-card>
+    <img [src]="image.base64" *ngIf="image" />
+
+    <!-- <ion-list style="margin-bottom: 10px;">
+      <ion-item lines="none">
+        <ion-button color="success" expand="block" (click)="selectImageSource()">Upload New Banner</ion-button>
+      </ion-item>
+      <ion-item lines="none">
+        <ion-toggle mode="ios"></ion-toggle>
+        <ion-label style="margin: 10px 0 10px 8px;">Active</ion-label>
+      </ion-item>
+    </ion-list> -->
+
+    <ion-card-content>
+      <ion-text>
+        *Please use 16:9 ratio image
+        <br>
+        (example: 1920x1080)
+      </ion-text>
+      <ion-button class="ion-margin-top ion-margin-bottom" color="light" expand="block" (click)="selectImageSource()">
+        <ion-icon slot="start" name="image-outline"></ion-icon>
+        Select Image
+      </ion-button>
+      <ion-button color="success" expand="block" (click)="upload()" *ngIf="image">
+        <ion-icon slot="start" name="cloud-upload-outline"></ion-icon>
+        Upload Banner
+      </ion-button>
+      <ion-button color="success" expand="block" *ngIf="!image" disabled>
+        <ion-icon slot="start" name="cloud-upload-outline"></ion-icon>
+        Upload Banner
+      </ion-button>
+    </ion-card-content>
+
+  </ion-card>
+
+  <ion-list>
+
+    <ion-reorder-group disabled="false" (ionItemReorder)="onRenderItems($event)">
+
+      <ion-item *ngFor="let banner of banners" class="ion-no-padding">
+        <ion-thumbnail slot="start" style="width: 40%; height: auto; margin: 0;">
+          <img [src]="banner.image_url" />
+        </ion-thumbnail>
+        <ion-grid>
+          <ion-row>
+            <ion-col size="12">
+              <ion-item lines="none">
+                <ion-toggle mode="ios" [(ngModel)]="banner.active"></ion-toggle>
+                <ion-label style="margin: 10px 0 10px 8px;">Active</ion-label>
+              </ion-item>
+            </ion-col>
+            <ion-col size="12">
+              <ion-item lines="none" mode="md" fill="outline">
+                <ion-label position="floating">External Link:</ion-label>
+                <ion-textarea mode="ios" [(ngModel)]="banner.link"></ion-textarea>
+              </ion-item>
+            </ion-col>
+            <ion-col size="12">
+              <ion-item lines="none">
+                <ion-button color="danger" (click)="removeImage(banner.id)">
+                  <ion-icon slot="start" name="trash-outline"></ion-icon>
+                  Remove
+                </ion-button>
+              </ion-item>
+            </ion-col>
+          </ion-row>
+        </ion-grid>
+        <ion-reorder slot="end"></ion-reorder>
+      </ion-item>
+
+      <!-- <ion-item *ngFor="let banner of banners" style="--padding: 0;">
+        <ion-reorder slot="end"></ion-reorder>
+        <img [src]="banner.image_url" />
+
+        <ion-grid>
+          <ion-row>
+            <ion-col size="4" style="padding-top: 10px;">Is Active:</ion-col>
+            <ion-col size="8">
+              <ion-toggle mode="ios" [(ngModel)]="banner.active"></ion-toggle>
+            </ion-col>
+          </ion-row>
+          <ion-row>
+            <ion-col size="12">
+              <ion-item fill="outline" mode="md" class="ez-material-input" style="margin: 0;">
+                <ion-label position="floating">
+                  Position:
+                </ion-label>
+                <ion-input [(ngModel)]="banner.position" type="number"></ion-input>
+              </ion-item>
+            </ion-col>
+          </ion-row>
+        </ion-grid>
+
+      </ion-item> -->
+    </ion-reorder-group>
+  </ion-list>
+
 </ion-content>
+
+<ion-footer class="ion-padding">
+  <ion-button expand="block" (click)="updateBanners()">Update</ion-button>
+</ion-footer>

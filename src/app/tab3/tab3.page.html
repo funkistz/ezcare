@@ -19,12 +19,18 @@
     <h2 class="ez-title bold">Customer Claims</h2>
   </ion-text>
 
-  <ion-grid>
-    <ion-searchbar mode="ios"></ion-searchbar>
-  </ion-grid>
+  <div class="ion-padding ion-text-center" *ngIf="!services">
+    <ion-spinner></ion-spinner>
+  </div>
 
-  <ion-card mode="ios">
-    <div class="flex">
+  <ion-card mode="ios" *ngIf="services && services.length == 0" style="margin-top: 20px;">
+    <div class="ion-text-center">
+      <h4>No claim record</h4>
+    </div>
+  </ion-card>
+
+  <ion-card mode="ios" *ngIf="services && services.length > 0">
+    <!-- <div class="flex">
       <div class="flex-left">
         <ion-card-title>
           <ion-icon name="cash-outline" class="carIcon"></ion-icon>
@@ -33,9 +39,9 @@
       <div class="flex-right">
         <ion-card-title style="margin-top: 14px; font-size: 20px;">Claims</ion-card-title>
       </div>
-    </div>
+    </div> -->
 
-    <ion-card-content style="padding-top:0; padding-bottom: 40px;">
+    <ion-card-content style="padding-bottom: 40px;">
       <ion-list mode="ios">
         <ion-item class="ez-item" *ngFor="let service of services" (click)="viewClaim(service.id)">
           <ion-label>

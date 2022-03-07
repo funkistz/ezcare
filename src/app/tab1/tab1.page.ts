@@ -6,6 +6,8 @@ import { CallNumber } from '@ionic-native/call-number/ngx';
 import { Router, NavigationExtras } from '@angular/router';
 import { DocumentViewer, DocumentViewerOptions } from '@awesome-cordova-plugins/document-viewer/ngx';
 import { Capacitor } from '@capacitor/core';
+import { AngularFirestore } from '@angular/fire/compat/firestore';
+import { PreviewAnyFile } from '@awesome-cordova-plugins/preview-any-file/ngx';
 
 @Component({
   selector: 'app-tab1',
@@ -26,13 +28,22 @@ export class Tab1Page {
     speed: 200,
     autoplay: true
   };
+  settings;
+  banners;
+  serviceLoaded = false;
 
   constructor(
     private authService: AuthenticationService,
     private callNumber: CallNumber,
     private router: Router,
-    private document: DocumentViewer
+    private document: DocumentViewer,
+    private firestore: AngularFirestore,
+    private previewAnyFile: PreviewAnyFile,
   ) {
+
+    this.getSettingCache();
+    this.getSettings();
+    this.getBanners();
   }
 
   ionViewDidEnter() {
@@ -53,7 +64,6 @@ export class Tab1Page {
 
       if (staff) {
         this.staff = JSON.parse(staff);
-        console.log('staff', this.staff);
       }
 
 
@@ -61,7 +71,7 @@ export class Tab1Page {
 
       user = JSON.parse(user);
       this.user = user;
-      console.log(this.user.cust_id);
+      console.log('user', this.user);
 
       if (!policy_id) {
         policy_id = this.user.cust_id;
@@ -75,7 +85,6 @@ export class Tab1Page {
 
     this.authService.getServices(policy_id).subscribe(
       data => {
-
 
         if (data && data.data) {
 
@@ -103,7 +112,6 @@ export class Tab1Page {
 
           let services = data.data;
           this.cService = services[services.length - 1];
-          console.log('cService', this.cService);
 
         }
       }, error => {
@@ -124,7 +132,6 @@ export class Tab1Page {
       copy.setDate(0);
     }
 
-    console.log(copy);
     return copy;
   }
 
@@ -143,9 +150,10 @@ export class Tab1Page {
           this.policies.forEach(poli => {
             if (poli.id == policy_id) {
               this.cPolicy = poli;
-              console.log('cPolicy', this.cPolicy);
             }
           });
+
+          console.log('policies', this.policies);
 
           this.getServices(policy_id, event);
 
@@ -173,14 +181,14 @@ export class Tab1Page {
 
   whatsapp() {
 
-    console.log('whatsapp');
-
-    const ws = ["60132880013", "60132880135"];
+    const ws = this.settings.whatsapp;
     const random = Math.floor(Math.random() * ws.length);
+
+    const wsTemplate = this.settings.whatsapp_template;
 
     // https://api.whatsapp.com/send?phone=919756054965&amp;text=I%20want%20to%20find%20out%20about%20your%20products
 
-    let link = 'https://api.whatsapp.com/send?phone=' + ws[random] + '&text=hi%20ape%20kabar';
+    let link = 'https://api.whatsapp.com/send?phone=' + ws[random] + '&text=' + wsTemplate;
 
 
     window.open(link, '_system', 'location=yes');
@@ -193,7 +201,12 @@ export class Tab1Page {
 
   call() {
 
-    this.callNumber.callNumber("60132880013", true)
+    const call = this.settings.generals_phones;
+    const random = Math.floor(Math.random() * call.length);
+
+    console.log('calling ', call[random]);
+
+    this.callNumber.callNumber(call[random], true)
       .then(res => console.log('Launched dialer!', res))
       .catch(err => console.log('Error launching dialer', err));
 
@@ -211,22 +224,79 @@ export class Tab1Page {
     this.router.navigate(['/tabs/staffClaims']);
   }
 
-  downloadPDF(name, url) {
+  async downloadPDF(name, url) {
 
     if (Capacitor.getPlatform() === 'web') {
       window.open(url);
     } else {
 
-      const options: DocumentViewerOptions = {
-        title: name
-      }
+      this.previewAnyFile.previewPath(url).subscribe(
+        doc => {
 
-      this.document.viewDocument(url, 'application/pdf', options)
+        }, error => {
+          console.log(error);
+        }
+      )
+
+      // const options: DocumentViewerOptions = {
+      //   title: name
+      // }
+
+      // this.document.viewDocument(url, 'application/pdf', options)
 
     }
 
   }
 
+  async getSettingCache() {
 
+    let { value }: any = await Storage.get({ key: 'settings' });
+    this.settings = JSON.parse(value);
+  }
+
+  getSettings() {
+
+    return this.firestore.collection('generals').doc('settings')
+      .valueChanges()
+      .subscribe(singleDoc => {
+
+        this.settings = singleDoc;
+        console.log('settings firebase', this.settings);
+
+        Storage.set({
+          key: 'settings',
+          value: JSON.stringify(this.settings),
+        });
+      }, error => {
+        console.log(error);
+      });
+  }
+
+  getBanners() {
+
+    this.authService.getBanners(0).subscribe(
+      (data: any) => {
+
+        if (data && data.data) {
+
+          console.log('is same', this.banners != data.data);
+
+          if (this.banners != data.data) {
+            console.log('reassign banner');
+            this.banners = data.data;
+          }
+        }
+
+      }, error => {
+        console.log('error', error);
+      });
+
+  }
+
+  externalLink(link) {
+    if (link) {
+      window.open(link, '_system', 'location=yes');
+    }
+  }
 
 }

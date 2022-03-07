@@ -6,6 +6,8 @@ import { CallNumber } from '@ionic-native/call-number/ngx';
 import { Router, NavigationExtras } from '@angular/router';
 import { Chart, registerables } from 'chart.js';
 Chart.register(...registerables);
+import { AngularFirestore } from '@angular/fire/compat/firestore';
+import * as moment from 'moment';
 
 @Component({
   selector: 'app-staff-home',
@@ -32,21 +34,72 @@ export class StaffHomePage {
   barChart: any;
   barChart2: any;
   reports;
+  reportsYearly;
+
+  inspectionReports = {
+    pending: 0,
+    approved: 0,
+    rejected: 0,
+  }
+
+  reportYear;
+  reportMonth;
+  reportMonth2;
+  years = [];
+  months = ["All", "Jan", "Feb", "Mar", "Apr", "May", "Jun",
+    "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+  months2 = [];
+  staffs;
+  userReport;
+  banners;
 
   constructor(
     private authService: AuthenticationService,
     private callNumber: CallNumber,
     private router: Router,
+    private firestore: AngularFirestore,
   ) {
   }
 
   ionViewDidEnter() {
     console.log('enter staff');
     this.checkUser();
+    this.getBanners();
   }
 
   ngAfterViewInit() {
     // this.barChartMethod();
+    this.getInspections();
+    this.getYears();
+    this.getStaff();
+  }
+
+  getYears() {
+
+    this.reportYear = new Date().getFullYear();
+    this.reportMonth = "All";
+    this.reportMonth2 = moment().format('MMM');
+    this.months2 = [];
+
+    let months = moment.monthsShort();
+
+    for (let month of months) {
+
+      this.months2.push(month);
+      if (month == moment().format('MMM')) {
+        break;
+      }
+    }
+
+    var currentYear = new Date().getFullYear();
+    let startYear;
+    startYear = startYear || 2017;
+    while (startYear <= currentYear) {
+      this.years.push(startYear++);
+    }
+
+    this.years.reverse();
+    console.log('years', this.years);
   }
 
   async checkUser(event = null, policy_id = null) {
@@ -59,8 +112,14 @@ export class StaffHomePage {
 
     if (staff) {
       this.staff = JSON.parse(staff);
+
+      if (!this.userReport) {
+        this.userReport = this.staff.staff_id;
+      }
+
       console.log('staff', this.staff);
-      this.getReport(event, this.staff.staff_id);
+      this.getReport(event, this.userReport, moment().month(this.reportMonth2).format("M"));
+      this.getReportYearly(event, this.userReport, this.reportYear, this.reportMonth);
     }
   }
 
@@ -193,7 +252,7 @@ export class StaffHomePage {
   }
 
   goLog() {
-    this.router.navigate(['/staff-tabs/staff-log']);
+    this.router.navigate(['/staff-tabs/staff-logs']);
   }
 
   goService() {
@@ -229,6 +288,8 @@ export class StaffHomePage {
       label.push(report.month_name);
 
     });
+
+    console.log('dataRM', dataRM);
 
     if (this.barChart) {
       this.barChart.data = {
@@ -279,7 +340,7 @@ export class StaffHomePage {
       this.barChart2.data = {
         labels: label,
         datasets: [{
-          label: 'Sales Unit',
+          label: 'Policy unit',
           data: data,
           backgroundColor: 'rgba(255, 99, 132, 0.2)',
           borderColor: 'rgba(255,99,132,1)',
@@ -294,7 +355,7 @@ export class StaffHomePage {
         data: {
           labels: label,
           datasets: [{
-            label: 'Sales Unit',
+            label: 'Policy unit',
             data: data,
             backgroundColor: 'rgba(255, 99, 132, 0.2)',
             borderColor: 'rgba(255,99,132,1)',
@@ -406,23 +467,27 @@ export class StaffHomePage {
 
   }
 
-  getReport(event, id) {
+  getReport(event, id, month = null) {
 
-    this.authService.getReports(id).subscribe(
+    if (!month) {
+      month = moment().format('M');
+    }
+
+    this.authService.getReports(id, month).subscribe(
       data => {
 
         if (data && data.data) {
           this.reports = data.data;
-          this.barChartMethod(
-            this.reports.months
-          );
+          // this.barChartMethod(
+          //   this.reports.months
+          // );
         }
 
         if (event) {
           event.target.complete();
         }
 
-        console.log(data);
+        console.log('report', data);
       }, error => {
         console.log(error);
 
@@ -432,4 +497,166 @@ export class StaffHomePage {
       });
   }
 
+  getReportYearly(event, id, year = null, month = 'All') {
+
+    if (!year) {
+      year = moment().year();
+      console.log('year', year);
+    }
+
+    if (!id) {
+      id = this.userReport;
+    }
+
+    this.reportsYearly = null;
+
+    if (month && month != 'All') {
+      month = moment().month(month).format("M");
+    }
+
+    this.authService.getReportsYearly(id, year, month).subscribe(
+      data => {
+
+        if (data && data.data) {
+          this.reportsYearly = data.data;
+        }
+
+        if (event) {
+          event.target.complete();
+        }
+
+        console.log('reportsYearly', data);
+      }, error => {
+        console.log(error);
+
+        if (event) {
+          event.target.complete();
+        }
+      });
+
+  }
+
+  async getInspections() {
+
+    let inspectionsTemp;
+
+    let unsubscribe = this.firestore.collection('inspections').snapshotChanges().subscribe((res) => {
+
+      inspectionsTemp = res.map((t) => {
+
+        return {
+          id: t.payload.doc.id,
+          ...t.payload.doc.data() as any
+        };
+      });
+
+      console.log('inspectionsTemp', inspectionsTemp);
+
+      this.inspectionReports.pending = 0;
+      this.inspectionReports.approved = 0;
+      this.inspectionReports.rejected = 0;
+
+      inspectionsTemp.forEach(inspect => {
+
+        if (inspect.marketing_officer.id == this.userReport) {
+          if (inspect.status == 'pending') {
+            this.inspectionReports.pending++;
+          } else if (inspect.status == 'proceed') {
+            this.inspectionReports.approved++;
+          } else if (inspect.status == 'rejected') {
+            this.inspectionReports.rejected++;
+          }
+        }
+
+      });
+
+      console.log('inspectionReports', this.inspectionReports);
+
+
+
+    });
+
+
+  }
+
+  changeReportYear() {
+    console.log('reportYear', this.reportYear);
+
+    this.getReportYearly(null, this.userReport, this.reportYear, this.reportMonth);
+  }
+
+  changeReportMonth() {
+    console.log('reportMonth', this.reportYear);
+
+    this.getReport(null, this.userReport, moment().month(this.reportMonth2).format("M"));
+  }
+
+  getStaff() {
+
+    console.log('getStaff');
+
+    this.authService.getStaffs().subscribe(
+      (data: any) => {
+
+        console.log('getStaff');
+
+        if (data && data.data) {
+          console.log(data);
+          this.staffs = data.data;
+        }
+
+        console.log('staffs', data);
+      }, error => {
+        console.log('error', error);
+      });
+
+  }
+
+  changeUser($event) {
+
+    console.log($event.target.value);
+    this.reports = null;
+    this.reportsYearly = null;
+    this.userReport = $event.target.value;
+
+    this.getReport(null, $event.target.value);
+    this.getReportYearly(null, $event.target.value, this.reportYear, this.reportMonth);
+
+  }
+
+  goPolicyPage(staff_id, type) {
+
+    console.log(staff_id);
+
+    let navigationExtras: NavigationExtras = {
+      queryParams: {
+        staff_id: staff_id,
+        status: type,
+      }
+    };
+
+    this.router.navigate(['/policy'], navigationExtras);
+  }
+
+  getBanners() {
+
+    this.authService.getBanners(0).subscribe(
+      (data: any) => {
+
+        if (data && data.data) {
+          this.banners = data.data;
+        }
+
+        console.log('banners', data);
+      }, error => {
+        console.log('error', error);
+      });
+
+  }
+
+  externalLink(link) {
+    if (link) {
+      window.open(link, '_system', 'location=yes');
+    }
+  }
 }

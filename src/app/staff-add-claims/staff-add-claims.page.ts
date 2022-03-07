@@ -50,6 +50,8 @@ export class StaffAddClaimsPage implements OnInit {
   // Uploaded File URL
   UploadedImageURL: Observable<string>;
 
+  isLoading = false;
+
   constructor(
     public formBuilder: FormBuilder,
     public datepipe: DatePipe,
@@ -71,11 +73,12 @@ export class StaffAddClaimsPage implements OnInit {
     this.getStaff();
 
     this.ionicForm = this.formBuilder.group({
-      reg_no: ['utm7977', [Validators.required]],
+      reg_no: ['', [Validators.required]],
       claim_type_id: ['', [Validators.required]],
       claim_date: ['', [Validators.required]],
       mileage: ['', [Validators.required]],
       home_or_workshop: ['', [Validators.required]],
+      workshop_name: ['', []],
       marketing_officer: ['', [Validators.required]],
       // engine_oil_type_id: ['', []],
       // invoice_no: ['', [Validators.required]],
@@ -90,6 +93,15 @@ export class StaffAddClaimsPage implements OnInit {
       // workshop_name: ['', [Validators.required]],
       // remarks: ['', []],
     });
+
+    this.route.queryParams.subscribe(params => {
+      if (params && params.reg_no) {
+        this.ionicForm.controls["reg_no"].setValue(params.reg_no);
+
+        this.searchCar();
+      }
+    });
+
 
     this.authService.getGenerals().subscribe(
       data => {
@@ -147,25 +159,26 @@ export class StaffAddClaimsPage implements OnInit {
     this.reportImagesUrl = [];
     this.quotationImagesUrl = [];
 
-    this.helper.presentLoading();
+    this.isLoading = true;
 
-    this.authService.searchClaims(search, true).subscribe(
+    this.authService.findClaim(search).subscribe(
       data => {
+        console.log('data', data);
 
-        this.helper.dissmissLoading();
+        this.isLoading = false;
+        this.policyFound = true;
+
         if (data && data.data) {
 
-          this.policyFound = true;
           if (event) {
             event.target.complete();
           }
 
           if (data.data) {
-            console.log('no data');
-            this.claim = data.data[0];
+            this.claim = data.data;
 
             if (this.claim && this.claim.claim_type_id) {
-              this.ionicForm.controls["claim_type_id"].setValue(this.claim.claim_type_id);
+              this.ionicForm.controls["claim_type_id"].setValue(Number(this.claim.claim_type_id));
             }
             if (this.claim && this.claim.claim_date) {
               let date = moment(this.claim.claim_date).format('DD-MM-YYYY');
@@ -183,9 +196,10 @@ export class StaffAddClaimsPage implements OnInit {
             }
           }
           console.log('claims', this.claim);
+          console.log('claim_type_id', this.claim.claim_type_id);
         }
       }, error => {
-        this.helper.dissmissLoading();
+        this.isLoading = false;
         this.helper.presentAlertDetails('Error', 'No car found.');
         console.log(error);
         if (event) {

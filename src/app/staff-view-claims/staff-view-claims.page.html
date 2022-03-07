@@ -3,6 +3,9 @@
     <ion-buttons slot="start">
       <ion-back-button></ion-back-button>
     </ion-buttons>
+    <ion-buttons slot="end" *ngIf="claim && claim.status == 'pending' && staff && staff.user_role == 5">
+      <ion-button (click)="edit(claim.policy.cust_vehicleregno)">Edit</ion-button>
+    </ion-buttons>
     <ion-title>
       View Claim
     </ion-title>
@@ -102,7 +105,15 @@
               <span class="bold">Home/Workshop:</span>
             </ion-col>
             <ion-col size="6" *ngIf="claim">
-              {{ claim.home_or_workshop }}
+              {{ claim.home_or_workshop | titlecase }}
+            </ion-col>
+          </ion-row>
+          <ion-row>
+            <ion-col size="6">
+              <span class="bold">Workshop Name:</span>
+            </ion-col>
+            <ion-col size="6" *ngIf="claim &&  claim.workshop_name">
+              {{ claim.workshop_name | titlecase }}
             </ion-col>
           </ion-row>
           <ion-row>
@@ -141,7 +152,7 @@
             <ion-col size="6" *ngIf="claim.creator">
               <span class="bold">Created By:</span>
             </ion-col>
-            <ion-col size="6">
+            <ion-col size="6" *ngIf="claim.creator">
               {{ claim.creator.user_fullname }}
             </ion-col>
           </ion-row>
@@ -149,7 +160,7 @@
             <ion-col size="6">
               <span class="bold">Approver:</span>
             </ion-col>
-            <ion-col size="6">
+            <ion-col size="6" *ngIf="claim.approver">
               {{ claim.approver.user_fullname }}
             </ion-col>
           </ion-row>

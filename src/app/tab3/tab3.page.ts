@@ -23,12 +23,16 @@ export class Tab3Page {
     this.checkUser();
   }
 
+  ionViewDidEnter() {
+    this.checkUser();
+  }
+
   async checkUser(event = null) {
     let { value }: any = await Storage.get({ key: 'user' });
-    console.log(value);
+    // console.log(value);
     value = JSON.parse(value);
     this.user = value;
-    console.log(this.user.cust_id);
+    // console.log(this.user.cust_id);
 
     this.getPolicies(this.user.cust_ic, event);
     this.getClaims(this.user.cust_id, event);

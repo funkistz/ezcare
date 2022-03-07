@@ -103,7 +103,8 @@
               <ion-col size="6" style="height: 140px;" *ngFor="let image of inspection.images; index as i;">
                 <ion-img
                   style="height: 100%; object-fit: cover; border-radius: 8px; overflow: hidden; border: 2px solid;"
-                  role="button" class="image" [src]="image.image_link" *ngIf="image.image_link">
+                  role="button" class="image" [src]="image.image_link" *ngIf="image.image_link"
+                  (click)="imagePreview(image.base64)">
                 </ion-img>
               </ion-col>
             </ion-row>
@@ -151,6 +152,9 @@
                 Status
               </ion-label>
               <ion-input placeholder="" [value]="inspection.status" readonly></ion-input>
+              <ion-text *ngIf="inspection && inspection.status_changed_by && inspection.status_changed_by.name"
+                color="success">
+                Status Updated By: {{ inspection.status_changed_by.name }}</ion-text>
             </ion-item>
 
             <ion-item lines="none" class="ez-input" *ngIf="inspection">
@@ -165,43 +169,45 @@
         </ion-list>
       </form>
     </ion-card-content>
-
-    <ion-card mode="ios" *ngIf="inspection && !inspection.status">
-      <ion-card-content style="padding-top: 0;">
-        <ion-grid>
-          <ion-row>
-            <ion-col size="12">
-              <ion-item fill="outline" mode="md" class="ez-material-input" style="margin: 20px 0 0 0;">
-                <ion-label position="floating">Remarks</ion-label>
-                <ion-textarea [(ngModel)]="remarks"></ion-textarea>
-              </ion-item>
-            </ion-col>
-          </ion-row>
-          <ion-row>
-            <ion-col size="6">
-              <ion-button expand="block" color="success" (click)="action('proceed')">
-                <ion-icon slot="start" name="checkmark-outline"></ion-icon>
-                Proceed
-              </ion-button>
-            </ion-col>
-            <ion-col size="6">
-              <ion-button expand="block" color="danger" (click)="action('rejected')">
-                <ion-icon slot="start" name="close-outline"></ion-icon>
-                Reject
-              </ion-button>
-            </ion-col>
-          </ion-row>
-        </ion-grid>
-
-      </ion-card-content>
-
-    </ion-card>
   </div>
 
 </ion-content>
 
 <ion-footer class="ion-no-border">
-  <ion-toolbar>
+
+  <div
+    *ngIf="inspection && (!inspection.status || inspection.status == 'pending')  && (staff.user_role == 1 || staff.user_role == 5)">
+    <ion-card-content style="padding-top: 0;">
+      <ion-grid>
+        <ion-row>
+          <ion-col size="12">
+            <ion-item fill="outline" mode="md" class="ez-material-input" style="margin: 20px 0 0 0;">
+              <ion-label position="floating">Remarks</ion-label>
+              <ion-textarea [(ngModel)]="remarks"></ion-textarea>
+            </ion-item>
+          </ion-col>
+        </ion-row>
+        <ion-row>
+          <ion-col size="6">
+            <ion-button expand="block" color="success" (click)="action('proceed')">
+              <ion-icon slot="start" name="checkmark-outline"></ion-icon>
+              Proceed
+            </ion-button>
+          </ion-col>
+          <ion-col size="6">
+            <ion-button expand="block" color="danger" (click)="action('rejected')">
+              <ion-icon slot="start" name="close-outline"></ion-icon>
+              Reject
+            </ion-button>
+          </ion-col>
+        </ion-row>
+      </ion-grid>
+
+    </ion-card-content>
+
+  </div>
+
+  <ion-toolbar *ngIf="!inspection" style="padding: 5px 10px;">
     <ion-button expand="full" (click)="addInspection()" *ngIf="!loading && inspectImages.length > 0 && !inspection_id">
       Submit Inspection
     </ion-button>

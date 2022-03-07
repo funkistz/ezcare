@@ -66,6 +66,7 @@ export class StaffViewClaimsPage implements OnInit {
     private afs: AngularFirestore,
     private afStorage: AngularFireStorage,
     private datePipe: DatePipe,
+    private firestore: AngularFirestore,
   ) { }
 
   ngOnInit() {
@@ -223,7 +224,7 @@ export class StaffViewClaimsPage implements OnInit {
 
   }
 
-  async selectImageSource(type) {
+  async selectImageSource(type = null) {
     const buttons = [
       {
         text: 'Take Photo',
@@ -432,6 +433,7 @@ export class StaffViewClaimsPage implements OnInit {
     console.log('data', data);
 
     if (this.input_status == 'paid') {
+
       data.type = this.input_type;
       data.mileage = this.input_mileage;
       data.amount = this.input_amount;
@@ -453,17 +455,55 @@ export class StaffViewClaimsPage implements OnInit {
     }
 
     this.authService.updateClaimStatus(data).subscribe(
-      data => {
-        console.log(data);
+      data2 => {
+
+        this.addNotification(data.status);
+
+        console.log(data2);
         this.helper.dissmissLoading();
         this.helper.presentToast('Status updated');
         this.actionType = null;
         this.getClaim(this.claim_id);
+        this.statusImages = [];
+        this.statusImagesUrl = [];
       }, error => {
         console.log(error);
         this.helper.presentToast(error.error.message);
         this.helper.dissmissLoading();
       });
+
+  }
+
+  edit(reg_no) {
+
+    let navigationExtras: NavigationExtras = {
+      queryParams: {
+        reg_no: reg_no
+      }
+    };
+    this.router.navigate(['/staff-tabs/staffClaims/staff-add-claim/'], navigationExtras);
+  }
+
+  addNotification(status) {
+
+    console.log('this.claim', this.claim);
+
+    let data = {
+      title: 'Claim for reg no: ' + this.claim.policy.cust_vehicleregno + ' has been ' + status + '!',
+      body: 'Tap here to check it out!',
+      data: this.claim,
+      user_id: 'staff_' + this.claim.marketing_officer.id,
+      data_add: new Date(),
+    };
+
+    this.firestore.collection('/notifications/').add(data).then(() => {
+      console.log('success');
+
+    }).catch(error => {
+
+      this.helper.presentToast(error);
+
+    });
 
   }
 

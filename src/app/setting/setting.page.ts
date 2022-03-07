@@ -1,9 +1,10 @@
 import { Component, OnInit } from '@angular/core';
-import { Router } from '@angular/router';
+import { Router, NavigationExtras } from '@angular/router';
 import { Storage } from '@capacitor/storage';
 import { Browser } from '@capacitor/browser';
 import { AuthenticationService } from '../services/authentication.service';
 import { HelperService } from '../services/helper.service';
+import { AngularFirestore } from '@angular/fire/compat/firestore';
 
 @Component({
   selector: 'app-setting',
@@ -13,15 +14,19 @@ import { HelperService } from '../services/helper.service';
 export class SettingPage implements OnInit {
 
   generals;
+  settings;
+  staff;
 
   constructor(
     private router: Router,
     private authService: AuthenticationService,
     private helper: HelperService,
+    private firestore: AngularFirestore,
   ) { }
 
   ngOnInit() {
-    this.getGenerals();
+    this.checkUser();
+    this.getSettings();
   }
 
   logout() {
@@ -32,24 +37,50 @@ export class SettingPage implements OnInit {
     this.router.navigate(['/login']);
   }
 
-  aboutUs() {
+  async aboutUs() {
 
-    console.log(this.generals.about_us_link);
-    this.inAppBrowser(this.generals.about_us_link);
-
-  }
-
-  contactUs() {
-
-    console.log(this.generals.contact_us_link);
-    this.inAppBrowser(this.generals.contact_us_link);
+    console.log(this.settings.about_us_link);
+    // this.inAppBrowser({ url: this.settings.about_us_link });
+    await Browser.open({ url: this.settings.about_us_link });
 
   }
 
-  facebook() {
+  async contactUs() {
 
-    this.inAppBrowser('https://www.facebook.com/ezcarewarrantyOfficial/');
+    console.log(this.settings.contact_us_link);
+    // this.inAppBrowser({ url: this.settings.contact_us_link });
+    await Browser.open({ url: this.settings.contact_us_link });
 
+  }
+
+  async facebook() {
+
+    // this.inAppBrowser({ url: this.settings.facebook });
+    // await Browser.open({ url: this.settings.facebook });
+    window.open(this.settings.facebook, '_system', 'location=yes');
+
+  }
+
+  async tiktok() {
+
+    // this.inAppBrowser({ url: this.settings.tiktok });
+    // await Browser.open({ url: this.settings.tiktok });
+    window.open(this.settings.tiktok, '_system', 'location=yes');
+
+
+  }
+
+  admin() {
+    this.router.navigate(['/admin']);
+  }
+
+  policy() {
+    let navigationExtras: NavigationExtras = {
+      queryParams: {
+        // policy: this.settings.policy
+      }
+    };
+    this.router.navigate(['/privacy-policy'], navigationExtras);
   }
 
   inAppBrowser(link) {
@@ -60,6 +91,24 @@ export class SettingPage implements OnInit {
       await Browser.open({ url: link });
     };
 
+  }
+
+  getSettings() {
+
+    return this.firestore.collection('generals').doc('settings')
+      .valueChanges()
+      .subscribe(singleDoc => {
+
+        console.log(singleDoc);
+        this.settings = singleDoc;
+
+        Storage.set({
+          key: 'privacy_policy',
+          value: this.settings.policy,
+        });
+      }, error => {
+        console.log(error);
+      });
   }
 
   getGenerals() {
@@ -75,6 +124,14 @@ export class SettingPage implements OnInit {
       }, error => {
         console.log(error);
       });
+
+  }
+
+  async checkUser() {
+
+    let { value }: any = await Storage.get({ key: 'staff' });
+    this.staff = JSON.parse(value);
+    console.log('enter staff', this.staff);
 
   }
 

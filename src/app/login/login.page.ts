@@ -86,6 +86,8 @@ export class LoginPage implements OnInit {
         console.log('login data', data);
         this.helper.dissmissLoading();
 
+        data.data.last_login = new Date();
+
         Storage.set({
           key: 'staff',
           value: JSON.stringify(data.data),

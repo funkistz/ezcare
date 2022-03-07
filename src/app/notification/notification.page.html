@@ -12,4 +12,18 @@
 
 <ion-content>
 
+  <div class="ion-padding ion-text-center" *ngIf="!notifications">
+    <ion-spinner></ion-spinner>
+  </div>
+
+  <ion-list>
+    <ion-item *ngFor="let notification of notifications">
+      <ion-label>
+        <h2>{{ notification.title }}</h2>
+        <p>{{ notification.text }}.</p>
+      </ion-label>
+    </ion-item>
+
+  </ion-list>
+
 </ion-content>

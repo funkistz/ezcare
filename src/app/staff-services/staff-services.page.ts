@@ -1,6 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { AuthenticationService } from '../services/authentication.service';
 import { Router, NavigationExtras } from '@angular/router';
+import { Storage } from '@capacitor/storage';
 
 @Component({
   selector: 'app-staff-services',
@@ -9,6 +10,9 @@ import { Router, NavigationExtras } from '@angular/router';
 })
 export class StaffServicesPage implements OnInit {
 
+  user;
+  staff;
+  segment = 'mine';
   searchText = '';
   services;
   isSearched = false;
@@ -20,6 +24,38 @@ export class StaffServicesPage implements OnInit {
   ) { }
 
   ngOnInit() {
+    this.checkUser();
+  }
+
+  async checkUser(event = null, policy_id = null) {
+
+    this.user = null;
+    this.staff = null;
+
+    let { value }: any = await Storage.get({ key: 'staff' });
+    let staff = value;
+
+    if (staff) {
+      this.staff = JSON.parse(staff);
+      console.log(this.staff);
+      this.getServices('');
+    }
+
+  }
+
+  segmentChanged(ev: any) {
+
+    this.segment = ev.detail.value;
+    this.getServices(this.searchText);
+  }
+
+  searchClaims(event) {
+
+    this.isSearching = true;
+    this.services = null;
+
+    this.getServices(event.target.value);
+
   }
 
   searchServices() {
@@ -35,7 +71,19 @@ export class StaffServicesPage implements OnInit {
 
   async getServices(search, event = null) {
 
-    this.authService.searchServices(search).subscribe(
+    this.isSearching = true;
+    this.services = null;
+    let staff_id;
+
+    console.log('search', search);
+
+    if (this.segment == 'mine') {
+      staff_id = this.staff.staff_id;
+    } else {
+      staff_id = 0;
+    }
+
+    this.authService.searchServices(search, staff_id).subscribe(
       data => {
 
         this.isSearching = false;
@@ -48,7 +96,7 @@ export class StaffServicesPage implements OnInit {
           }
 
           this.services = data.data;
-          console.log('services', this.services);
+          console.log('services', data);
         }
       }, error => {
         this.isSearching = false;

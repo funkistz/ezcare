@@ -7,6 +7,8 @@ import {
   PushNotifications,
   Token,
 } from '@capacitor/push-notifications';
+import { AngularFirestore } from '@angular/fire/compat/firestore';
+import { HelperService } from '../services/helper.service';
 
 @Component({
   selector: 'app-starter',
@@ -15,11 +17,20 @@ import {
 })
 export class StarterPage implements OnInit {
 
+  user;
+  staff;
+
   constructor(
     private router: Router,
+    private firestore: AngularFirestore,
+    private helper: HelperService,
   ) { }
 
   ngOnInit() {
+
+  }
+
+  ionViewDidEnter() {
     this.checkUser();
 
     this.startPushNotification();
@@ -44,28 +55,58 @@ export class StarterPage implements OnInit {
     // On success, we should be able to receive notifications
     PushNotifications.addListener('registration',
       (token: Token) => {
-        alert('Push registration success, token: ' + token.value);
+        // alert('Push registration success, token: ' + token.value);
+
+        if (this.staff) {
+          let data = this.staff;
+          data.token = token.value;
+
+          console.log('this.staff.staff_id', this.staff.staff_id);
+          this.firestore.collection('/staffs/').doc('staff_' + this.staff.staff_id).set(data, { merge: true }).then(() => {
+            console.log('success');
+          }).catch(error => {
+
+            this.helper.presentToast('Sorry, there is some error occured when assigning push notification.');
+
+          });
+        } else if (this.user) {
+
+          let data = this.user;
+          data.token = token.value;
+
+          let id = this.user.cust_ic.replace(/[^0-9]/g, '');
+          console.log('customers', id);
+
+          this.firestore.collection('/customers/').doc(id).set(data, { merge: true }).then(() => {
+            console.log('success');
+          }).catch(error => {
+
+            this.helper.presentToast('Sorry, there is some error occured when assigning push notification.');
+
+          });
+        }
+
       }
     );
 
     // Some issue with our setup and push will not work
     PushNotifications.addListener('registrationError',
       (error: any) => {
-        alert('Error on registration: ' + JSON.stringify(error));
+        // alert('Error on registration: ' + JSON.stringify(error));
       }
     );
 
     // Show us the notification payload if the app is open on our device
     PushNotifications.addListener('pushNotificationReceived',
       (notification: PushNotificationSchema) => {
-        alert('Push received: ' + JSON.stringify(notification));
+        // alert('Push received: ' + JSON.stringify(notification));
       }
     );
 
     // Method called when tapping on a notification
     PushNotifications.addListener('pushNotificationActionPerformed',
       (notification: ActionPerformed) => {
-        alert('Push action performed: ' + JSON.stringify(notification));
+        // alert('Push action performed: ' + JSON.stringify(notification));
       }
     );
 
@@ -74,13 +115,14 @@ export class StarterPage implements OnInit {
   async checkUser(event = null, policy_id = null) {
 
     let { value }: any = await Storage.get({ key: 'user' });
-    let user = value;
+    this.user = JSON.parse(value);
+    console.log('enter user', this.user);
 
-    if (!user) {
+    if (!this.user) {
       let { value }: any = await Storage.get({ key: 'staff' });
-      let staff = value;
+      this.staff = JSON.parse(value);
 
-      if (staff) {
+      if (this.staff) {
         console.log('enter staff');
         this.router.navigateByUrl('/staff-tabs/staff-home');
       } else {

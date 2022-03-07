@@ -22,7 +22,7 @@ import { environment } from '../environments/environment';
 import { PhotoViewer } from '@awesome-cordova-plugins/photo-viewer/ngx';
 import { DocumentViewer } from '@awesome-cordova-plugins/document-viewer/ngx';
 import { Chooser } from '@awesome-cordova-plugins/chooser/ngx';
-
+import { PreviewAnyFile } from '@awesome-cordova-plugins/preview-any-file/ngx';
 
 @NgModule({
   declarations: [
@@ -36,7 +36,7 @@ import { Chooser } from '@awesome-cordova-plugins/chooser/ngx';
     HttpClientModule,
     AngularFireModule.initializeApp(environment.firebaseConfig),
     AngularFirestoreModule,
-    AngularFireStorageModule
+    AngularFireStorageModule,
   ],
   providers: [
     DatePipe,
@@ -46,6 +46,7 @@ import { Chooser } from '@awesome-cordova-plugins/chooser/ngx';
     PhotoViewer,
     DocumentViewer,
     Chooser,
+    PreviewAnyFile,
     { provide: RouteReuseStrategy, useClass: IonicRouteStrategy }
   ],
   bootstrap: [AppComponent],

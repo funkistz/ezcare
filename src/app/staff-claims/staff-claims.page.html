@@ -1,46 +1,30 @@
 <ion-header>
-  <ion-toolbar mode="ios" class="ez-toolbar" color="primary">
-    <img src="../../assets/Ezcarehorizontal.png" class="logo" />
-
-    <ion-title size="large">
+  <ion-toolbar mode="md" color="primary">
+    <ion-title>
+      Claims
     </ion-title>
-
-    <ion-buttons slot="end">
-      <ion-button color="light" style="margin: 14px 5px; font-size: 18px;" [routerLink]="['/notification']">
-        <ion-icon name="notifications-outline"></ion-icon>
-      </ion-button>
-    </ion-buttons>
   </ion-toolbar>
+
+  <ion-searchbar mode="ios" placeholder="Enter Policy ID or Reg No" [(ngModel)]="searchText" debounce="100"
+    (ionChange)="searchClaims($event)">
+  </ion-searchbar>
+
+  <ion-segment (ionChange)="segmentChanged($event)" mode="md" [value]="segment">
+    <ion-segment-button value="mine">
+      <ion-label>My Claims</ion-label>
+    </ion-segment-button>
+    <ion-segment-button value="all">
+      <ion-label>View All</ion-label>
+    </ion-segment-button>
+  </ion-segment>
+
 </ion-header>
 
 <ion-content>
 
-  <ion-text>
-    <h2 class="ez-title bold" style="margin-top: 30px;">Customer Claims</h2>
-  </ion-text>
-
-  <ion-toolbar mode="ios" style="margin-top: 20px;">
-    <ion-searchbar mode="ios" placeholder="Enter Policy ID or Reg No" [(ngModel)]="searchText"></ion-searchbar>
-    <ion-buttons slot="end">
-      <ion-button (click)="searchClaims()">
-        Search
-      </ion-button>
-    </ion-buttons>
-  </ion-toolbar>
-
   <ion-card mode="ios" style="margin-top: 15px;">
-    <div class="flex" style="padding-left:10px;">
-      <div class="flex-left">
-        <ion-card-title>
-          <ion-icon name="cash-outline" class="carIcon"></ion-icon>
-        </ion-card-title>
-      </div>
-      <div class="flex-right">
-        <ion-card-title style="margin-top: 14px; font-size: 20px;">Claims</ion-card-title>
-      </div>
-    </div>
 
-    <ion-card-content style="padding-left:10px; padding-top:0; padding-bottom: 40px;">
+    <ion-card-content style="padding-left:10px; padding-bottom: 40px;">
       <ion-list mode="ios">
         <ion-item class="ez-item" *ngFor="let service of services" (click)="viewClaim(service.id)">
           <ion-label>
@@ -91,7 +75,7 @@
 
   </ion-card>
 
-  <ion-fab vertical="bottom" horizontal="end" slot="fixed">
+  <ion-fab vertical="bottom" horizontal="end" slot="fixed" *ngIf="staff && staff.user_role == 5">
     <ion-fab-button color="success" (click)="addClaim()">
       <ion-icon name="add-outline"></ion-icon>
     </ion-fab-button>

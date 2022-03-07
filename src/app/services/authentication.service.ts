@@ -13,8 +13,9 @@ export class AuthenticationService {
 
   isAuthenticated: BehaviorSubject<boolean> = new BehaviorSubject<boolean>(null);
   // url = 'https://funkistz.site/api/';
-  url = 'https://ezcare.local:8890/api/';
-  // url = 'https://ezcare-warranty.com/ezcare/public/api/';
+  // url = 'https://ezcare.local:8890/api/';
+  url = 'https://ezcare-warranty.com/ezcare/public/api/';
+  // url = 'http://app.ezcare-warranty.com/public/api/';
   header;
 
   constructor(
@@ -26,6 +27,8 @@ export class AuthenticationService {
         'Content-Type': 'application/json',
         'Accept': 'application/json',
         'rejectUnauthorized': 'false',
+        // 'Access-Control-Allow-Origin': '*',
+        // 'Access-Control-Allow-Headers': '*',
       })
     };
   }
@@ -37,6 +40,8 @@ export class AuthenticationService {
         'Content-Type': 'application/json',
         'Accept': 'application/json',
         'rejectUnauthorized': 'false',
+        'Access-Control-Allow-Origin': '*',
+        'Access-Control-Allow-Headers': '*',
       })
     };
   }
@@ -66,6 +71,16 @@ export class AuthenticationService {
     return this.http.post(this.url + 'loginStaff', credentials, this.header);
   }
 
+  getBanners(all = null) {
+
+    this.resetHeader();
+    let params = new HttpParams().set('all', all);
+    this.header.params = params;
+
+    return this.http.get(this.url + 'banner', this.header);
+
+  }
+
   getServices(policy_id): Observable<any> {
 
     this.resetHeader();
@@ -83,10 +98,10 @@ export class AuthenticationService {
 
   }
 
-  searchServices(search): Observable<any> {
+  searchServices(search, staff_id = false): Observable<any> {
 
     this.resetHeader();
-    let params = new HttpParams().set('search', search);
+    let params = new HttpParams().set('search', search).set('staff_id', staff_id);
     this.header.params = params;
 
     return this.http.get(this.url + 'service', this.header);
@@ -103,10 +118,18 @@ export class AuthenticationService {
 
   }
 
-  getClaims(policy_id): Observable<any> {
+  getPolicy(id): Observable<any> {
 
     this.resetHeader();
-    let params = new HttpParams().set('policy_id', policy_id);
+
+    return this.http.get(this.url + 'policy/' + id, this.header);
+
+  }
+
+  getClaims(policy_id, staff_id = false): Observable<any> {
+
+    this.resetHeader();
+    let params = new HttpParams().set('policy_id', policy_id).set('staff_id', staff_id);
     this.header.params = params;
 
     return this.http.get(this.url + 'claim', this.header);
@@ -123,18 +146,28 @@ export class AuthenticationService {
 
   }
 
-  searchClaims(search, exact = false): Observable<any> {
+  searchClaims(search, staff_id = false, exact = false): Observable<any> {
 
     this.resetHeader();
-    let params = new HttpParams().set('search', search).set('exact', exact);
+    let params = new HttpParams().set('search', search).set('staff_id', staff_id).set('exact', exact);
 
     if (!exact) {
-      params = new HttpParams().set('search', search);
+      params = new HttpParams().set('search', search).set('staff_id', staff_id);
     }
 
     this.header.params = params;
 
     return this.http.get(this.url + 'claim', this.header);
+
+  }
+
+  findClaim(reg_no): Observable<any> {
+
+    this.resetHeader();
+    let params = new HttpParams().set('reg_no', reg_no);
+    this.header.params = params;
+
+    return this.http.get(this.url + 'claim/find', this.header);
 
   }
 
@@ -179,9 +212,11 @@ export class AuthenticationService {
     return this.http.post(this.url + 'claim', formData, this.header);
   }
 
-  getStaffs() {
+  getStaffs(is_active = false) {
 
     this.resetHeader();
+    let params = new HttpParams().set('is_active', is_active);
+    this.header.params = params;
     return this.http.get(this.url + 'staffs', this.header);
 
   }
@@ -200,19 +235,38 @@ export class AuthenticationService {
 
   }
 
+  getUsers(is_active = false) {
+
+    this.resetHeader();
+    let params = new HttpParams().set('is_active', is_active);
+    this.header.params = params;
+    return this.http.get(this.url + 'staffs/users', this.header);
+
+  }
+
   getGenerals(): Observable<any> {
 
     this.resetHeader();
     return this.http.get(this.url + 'claim/general', this.header);
   }
 
-  getReports(user_id): Observable<any> {
+  getReports(user_id, month): Observable<any> {
 
     this.resetHeader();
-    let params = new HttpParams().set('user_id', user_id);
+    let params = new HttpParams().set('user_id', user_id).set('month', month);
     this.header.params = params;
 
     return this.http.get(this.url + 'policy/report', this.header);
+
+  }
+
+  getReportsYearly(user_id, year, month): Observable<any> {
+
+    this.resetHeader();
+    let params = new HttpParams().set('user_id', user_id).set('year', year).set('month', month);
+    this.header.params = params;
+
+    return this.http.get(this.url + 'policy/reportYearly', this.header);
 
   }
 
@@ -284,6 +338,45 @@ export class AuthenticationService {
 
     this.resetHeader();
     return this.http.get(this.url + 'generals', this.header);
+  }
+
+  addBanners(data): Observable<any> {
+
+    this.resetHeader();
+    return this.http.post(this.url + 'banner', data, this.header);
+
+  }
+
+  updateBanners(data): Observable<any> {
+
+    this.resetHeader();
+    return this.http.put(this.url + 'banner/0', data, this.header);
+
+  }
+
+  deleteBanners(id): Observable<any> {
+
+    this.resetHeader();
+    return this.http.delete(this.url + 'banner/' + id, this.header);
+
+  }
+
+  filterPolicy(filter): Observable<any> {
+
+    this.resetHeader();
+    let params = new HttpParams().set('filter', filter);
+    this.header.params = params;
+
+    return this.http.get(this.url + 'policy/filter', this.header);
+  }
+
+  searchCustomer(search): Observable<any> {
+
+    this.resetHeader();
+    let params = new HttpParams().set('search', search);
+    this.header.params = params;
+
+    return this.http.get(this.url + 'policy/searchCustomer', this.header);
   }
 
   // logout(): Promise<void> {

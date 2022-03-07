@@ -27,6 +27,7 @@ export class AddServicePage implements OnInit {
   serviceType = null;
   engineOilType = null;
   policy_id;
+  policy;
 
   reminderImages = [];
   receiptImages = [];
@@ -58,6 +59,7 @@ export class AddServicePage implements OnInit {
     private actionSheetCtrl: ActionSheetController,
     public alertController: AlertController,
     private afStorage: AngularFireStorage,
+    private firestore: AngularFirestore,
   ) { }
 
   ngOnInit() {
@@ -65,7 +67,8 @@ export class AddServicePage implements OnInit {
     this.route.queryParams.subscribe(params => {
       if (params && params.policy_id) {
         this.policy_id = params.policy_id;
-        console.log(this.policy_id);
+        this.policy = JSON.parse(params.policy);
+        console.log(this.policy);
       }
     });
 
@@ -74,7 +77,7 @@ export class AddServicePage implements OnInit {
     this.ionicForm = this.formBuilder.group({
       service_type_id: ['', [Validators.required]],
       engine_oil_type_id: ['', []],
-      invoice_no: ['', [Validators.required]],
+      invoice_no: ['', []],
       invoice_date: [currentDate, [Validators.required]],
       current_mileage: ['', [Validators.required]],
 
@@ -195,6 +198,8 @@ export class AddServicePage implements OnInit {
 
       this.authService.addService(data).subscribe(
         datax => {
+
+          this.addNotification();
 
           this.dissmissLoading();
           this.presentToast('Service added successfully');
@@ -415,6 +420,28 @@ export class AddServicePage implements OnInit {
         })
       ).toPromise();
 
+
+    });
+
+  }
+
+  addNotification() {
+
+    let data = {
+      title: 'New service has been created for reg no: ' + this.policy.cust_vehicleregno,
+      body: 'Tap here to check it out!',
+      text: 'Reg no: ' + this.policy.cust_vehicleregno + ', Policy no: ' + this.policy.cust_policyno,
+      data: this.policy.cust_vehicleregno,
+      user_id: 'staff_' + this.policy.cust_marketingofficer,
+      data_add: new Date(),
+    };
+
+    this.firestore.collection('/notifications/').add(data).then(() => {
+      console.log('success');
+
+    }).catch(error => {
+
+      // this.helper.presentToast(error);
 
     });
 

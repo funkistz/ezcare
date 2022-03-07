@@ -1,26 +1,20 @@
 <ion-header>
-  <ion-toolbar mode="ios" class="ez-toolbar" color="primary">
-    <img src="../../assets/Ezcarehorizontal.png" class="logo" />
+  <ion-toolbar mode="md" color="primary">
 
-    <ion-title size="large">
+    <ion-title>
+      Settings
     </ion-title>
-
-    <ion-buttons slot="end">
-      <ion-button color="light" style="margin: 14px 5px; font-size: 18px;" [routerLink]="['/notification']">
-        <ion-icon name="notifications-outline"></ion-icon>
-      </ion-button>
-    </ion-buttons>
   </ion-toolbar>
 </ion-header>
 
-<ion-content>
+<ion-content class="ion-padding-top">
 
-  <ion-text>
-    <h2 class="ez-title bold" style="margin-bottom: 20px;">Settings</h2>
-  </ion-text>
+  <div class="ion-padding ion-text-center" *ngIf="!settings">
+    <ion-spinner></ion-spinner>
+  </div>
 
   <!-- <ion-card mode="ios"> -->
-  <ion-list mode="ios">
+  <ion-list mode="ios" *ngIf="settings">
     <!-- <ion-item>
       <ion-label>
         Profile
@@ -49,18 +43,25 @@
       <ion-icon name="logo-facebook" slot="start"></ion-icon>
     </ion-item>
 
-    <ion-item>
+    <ion-item (click)="tiktok()">
       <ion-label>
         Tiktok
       </ion-label>
       <ion-icon name="logo-tiktok" slot="start"></ion-icon>
     </ion-item>
 
-    <ion-item>
+    <ion-item (click)="policy()">
       <ion-label>
         Privacy Policy
       </ion-label>
       <ion-icon name="alert-circle-outline" slot="start"></ion-icon>
+    </ion-item>
+
+    <ion-item (click)="admin()" *ngIf="staff && staff.user_role == 6">
+      <ion-label>
+        Admin
+      </ion-label>
+      <ion-icon name="person-circle-outline" slot="start"></ion-icon>
     </ion-item>
 
     <ion-item (click)="logout()">

@@ -38,7 +38,11 @@
 
         </ion-list>
 
-        <div *ngIf="policyFound">
+        <div class="ion-padding ion-text-center" *ngIf="isLoading">
+          <ion-spinner></ion-spinner>
+        </div>
+
+        <div *ngIf="policyFound && !isLoading">
 
           <div *ngIf="claim" style="margin: 10px; margin-bottom: 20px;">
             <ion-text color="dark">
@@ -69,26 +73,26 @@
 
           <div class="ez-line"></div>
 
-          <ion-item fill="outline" mode="md" class="ez-material-input" *ngIf="!claim">
+          <ion-item fill="outline" mode="md" class="ez-material-input">
             <ion-label position="default">
               Claim Type:
             </ion-label>
             <ion-select placeholder="Select One" formControlName="claim_type_id" interface="action-sheet" mode="ios"
-              [disabled]="claim ? true : false">
-              <ion-select-option value="">
+              [disabled]="claim ? true : false" [value]="claim.claim_type_id">
+              <!-- <ion-select-option value="">
                 Please select
-              </ion-select-option>
+              </ion-select-option> -->
               <ion-select-option [value]="claim_type.id" *ngFor="let claim_type of claim_types">
-                {{ claim_type.name | titlecase }}
+                {{ (claim_type? claim_type.name:'') | titlecase }}
               </ion-select-option>
             </ion-select>
           </ion-item>
 
-          <ion-item fill="outline" mode="md" class="ez-material-input" *ngIf="claim">
+          <!-- <ion-item fill="outline" mode="md" class="ez-material-input" *ngIf="claim">
             <ion-label position="default">Claim Type: </ion-label>
-            <ion-input class="ion-text-end" readonly [value]="claim.claim_type.name | titlecase">
+            <ion-input class="ion-text-end" readonly [value]="claim_type? claim_type.name:'' | titlecase">
             </ion-input>
-          </ion-item>
+          </ion-item> -->
 
           <ion-item fill="outline" mode="md" class="ez-material-input">
             <ion-label position="default">Claim Date: </ion-label>
@@ -121,6 +125,13 @@
             </ion-radio-group>
           </ion-item>
 
+          <ion-item fill="outline" mode="md" class="ez-material-input"
+            *ngIf="this.ionicForm.value.home_or_workshop == 'workshop'">
+            <ion-label position="floating">Workshop Name: </ion-label>
+            <ion-input placeholder="" formControlName="workshop_name" [readonly]="claim ? true : false">
+            </ion-input>
+          </ion-item>
+
           <ion-item fill="outline" mode="md" class="ez-material-input" *ngIf="!claim">
             <ion-label position="floating">
               Marketing Officer:
@@ -131,14 +142,15 @@
                 Please select
               </ion-select-option>
               <ion-select-option [value]="staff.id" *ngFor="let staff of ezcareStaff">
-                {{ staff.name }}
+                {{ staff? staff.name: '' }}
               </ion-select-option>
             </ion-select>
           </ion-item>
 
           <ion-item fill="outline" mode="md" class="ez-material-input" *ngIf="claim">
             <ion-label position="floating">Marketing Officer: </ion-label>
-            <ion-input class="ion-text-end" readonly [value]="claim.marketing_officer.name">
+            <ion-input class="ion-text-end" readonly
+              [value]="claim.marketing_officer? claim.marketing_officer.name: ''">
             </ion-input>
           </ion-item>
 
@@ -202,7 +214,7 @@
 </ion-content>
 
 <ion-footer>
-  <ion-toolbar style="padding-left: 10px; padding-right: 10px;" *ngIf="!claim">
+  <ion-toolbar style="padding-left: 10px; padding-right: 10px;" *ngIf="!claim && !isLoading">
     <ion-button expand="block" (click)="addClaim()" *ngIf="ionicForm.valid">
       Submit Claim
     </ion-button>

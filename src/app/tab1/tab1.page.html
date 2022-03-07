@@ -22,19 +22,18 @@
     </ion-refresher>
 
     <ion-slides pager="true" [options]="slideOpts" class="banners">
-      <ion-slide>
+
+      <ion-slide *ngIf="!banners">
         <img src="../../assets/ezcarebanner.png" />
       </ion-slide>
-      <ion-slide>
-        <img src="../../assets/banner1.jpeg" />
-      </ion-slide>
-      <ion-slide>
-        <img src="../../assets/banner3.webp" />
+
+      <ion-slide *ngFor="let banner of banners" (click)="externalLink(banner.link)">
+        <img [src]="banner.image_url" />
       </ion-slide>
     </ion-slides>
 
     <ion-card-title class="chooseCar">
-      Hey, <span class="lighter" *ngIf="user && user.cust_name">{{ user.cust_name }}</span>
+      Hi, <span class="lighter" *ngIf="user && user.cust_name">{{ user.cust_name }}</span>
     </ion-card-title>
 
     <ion-card mode="ios" *ngIf="!cPolicy">
@@ -153,7 +152,7 @@
               <span class="bold">Vehicle Model:</span>
             </ion-col>
             <ion-col size="6" *ngIf="cPolicy">
-              {{ cPolicy.vehicle_maker.name }} {{ cPolicy.vehicle_model.name }}
+              {{ cPolicy.cust_vehicledesc }}
             </ion-col>
           </ion-row>
           <ion-row>
@@ -201,7 +200,7 @@
               <span class="bold">First Mileage Reg:</span>
             </ion-col>
             <ion-col size="6" *ngIf="cPolicy">
-              {{ cPolicy.cust_vehiclemileage }}
+              {{ cPolicy.cust_vehiclemileage }} KM
             </ion-col>
           </ion-row>
         </ion-grid>
@@ -424,7 +423,7 @@
         <ion-grid>
           <ion-row>
             <ion-col size="6">
-              <span class="bold">Plan name:</span>
+              <span class="bold">Plan Name:</span>
             </ion-col>
             <ion-col size="6" *ngIf="cPolicy.plan">
               {{ cPolicy.plan.plan_desc }}
@@ -463,13 +462,15 @@
     </ion-fab-list>
   </ion-fab> -->
 
-  <ion-fab vertical="bottom" horizontal="center" slot="fixed" *ngIf="user" class="ez-fab" style="left: 40%;">
+  <ion-fab vertical="bottom" horizontal="center" slot="fixed" *ngIf="user && settings && settings.generals_phones"
+    class="ez-fab" style="left: 40%;">
     <ion-fab-button color="danger" (click)="call()">
       <ion-icon name="call-outline"></ion-icon>
     </ion-fab-button>
   </ion-fab>
 
-  <ion-fab vertical="bottom" horizontal="center" slot="fixed" *ngIf="user" class="ez-fab">
+  <ion-fab vertical="bottom" horizontal="center" slot="fixed" *ngIf="user && settings && settings.whatsapp"
+    class="ez-fab">
     <ion-fab-button color="success" style="margin-left: 35px;" (click)="whatsapp()">
       <ion-icon name="logo-whatsapp"></ion-icon>
     </ion-fab-button>

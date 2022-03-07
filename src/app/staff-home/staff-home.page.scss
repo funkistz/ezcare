@@ -1,9 +1,12 @@
 .banners {
-  height: 200px;
+  // height: 250px;
+  min-height: 200px;
   background-color: black;
 
   img {
-    max-height: 100vh;
+    min-height: 200px;
+    max-width: 100vw !important;
+    max-height: 100vh !important;
     // max-width: 100vh;
   }
 }

@@ -46,7 +46,7 @@
           </ion-item>
 
           <ion-item fill="outline" mode="md" class="ez-material-input">
-            <ion-label position="floating">Invoice Number*</ion-label>
+            <ion-label position="floating">Invoice Number</ion-label>
             <ion-input placeholder="" formControlName="invoice_no"></ion-input>
           </ion-item>
 
@@ -127,12 +127,12 @@
 
           <ion-grid>
             <ion-row>
-              <ng-container *ngIf="claim">
+              <!-- <ng-container *ngIf="claim">
                 <ion-col size="6" *ngFor="let image of claim.claim_reports">
                   <ion-img style="border:1px solid; margin: 5px;" role="button" class="image" [src]="image.image_link"
                     *ngIf="image.image_link"></ion-img>
                 </ion-col>
-              </ng-container>
+              </ng-container> -->
 
               <ion-col size="6" *ngFor="let image of reminderImages">
                 <ion-img style="border:1px solid; margin: 5px;" role="button" class="image" [src]="image.base64"
@@ -149,12 +149,12 @@
 
           <ion-grid>
             <ion-row>
-              <ng-container *ngIf="claim">
+              <!-- <ng-container *ngIf="claim">
                 <ion-col size="6" *ngFor="let image of claim.claim_reports">
                   <ion-img style="border:1px solid; margin: 5px;" role="button" class="image" [src]="image.image_link"
                     *ngIf="image.image_link"></ion-img>
                 </ion-col>
-              </ng-container>
+              </ng-container> -->
 
               <ion-col size="6" *ngFor="let image of receiptImages">
                 <ion-img style="border:1px solid; margin: 5px;" role="button" class="image" [src]="image.base64"
@@ -171,12 +171,12 @@
 
           <ion-grid>
             <ion-row>
-              <ng-container *ngIf="claim">
+              <!-- <ng-container *ngIf="claim">
                 <ion-col size="6" *ngFor="let image of claim.claim_reports">
                   <ion-img style="border:1px solid; margin: 5px;" role="button" class="image" [src]="image.image_link"
                     *ngIf="image.image_link"></ion-img>
                 </ion-col>
-              </ng-container>
+              </ng-container> -->
 
               <ion-col size="6" *ngFor="let image of mileageImages">
                 <ion-img style="border:1px solid; margin: 5px;" role="button" class="image" [src]="image.base64"

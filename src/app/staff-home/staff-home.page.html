@@ -20,32 +20,67 @@
   </ion-refresher>
 
   <ion-slides pager="true" [options]="slideOpts" class="banners">
-    <ion-slide>
+
+    <ion-slide *ngIf="!banners">
       <img src="../../assets/ezcarebanner.png" />
     </ion-slide>
-    <ion-slide>
-      <img src="../../assets/banner1.jpeg" />
-    </ion-slide>
-    <ion-slide>
-      <img src="../../assets/banner3.webp" />
+
+    <ion-slide *ngFor="let banner of banners" (click)="externalLink(banner.link)">
+      <img [src]="banner.image_url" />
     </ion-slide>
   </ion-slides>
 
   <ion-card-title class="chooseCar">
-    Hey,
-    <span class="lighter" *ngIf="staff && staff.user_fullname">{{ staff.user_name }}</span>
+    Hi,
+    <span class="lighter" *ngIf="staff && staff.user_fullname">{{ staff.user_fullname }}</span>
   </ion-card-title>
+
+  <ion-card mode="ios" *ngIf="staff && staff.is_manager != 0">
+    <ion-grid class="ion-padding-bottom">
+      <ion-row class="ion-padding-horizontal">
+        <ion-text color="dark">
+          <h5>Filter report by MO:</h5>
+        </ion-text>
+      </ion-row>
+      <ion-row>
+        <ion-item lines="none" class="ez-input" style="width: 100%;">
+          <ion-select placeholder="Select One" interface="action-sheet" [(ngModel)]="userReport" style="width: 100%;"
+            (ionChange)="changeUser($event);">
+            <ion-select-option [value]="staff.id" *ngFor="let staff of staffs">
+              {{ staff.name }}
+            </ion-select-option>
+          </ion-select>
+        </ion-item>
+      </ion-row>
+    </ion-grid>
+  </ion-card>
+
 
   <ion-grid>
     <ion-row>
-      <h4 style="margin: 20px 15px 0 15px;">This month</h4>
+      <ion-col>
+        <h4 style="margin: 20px 15px 0 10px;">By Month</h4>
+      </ion-col>
+      <ion-col size="4">
+        <ion-card mode="ios" style="margin: 10px 10px 0 0;">
+          <ion-select mode="ios" style="width: 100%;" interface="action-sheet" [(ngModel)]="reportMonth2"
+            (ionChange)="changeReportMonth()">
+            <ion-select-option *ngFor="let month of months2" [value]="month">
+              {{ month }}
+            </ion-select-option>
+          </ion-select>
+        </ion-card>
+      </ion-col>
+    </ion-row>
+    <ion-row>
+      <h5 style="margin: 10px 15px 0 15px;">Paid</h5>
     </ion-row>
     <ion-row>
       <ion-col>
-        <ion-card style="margin: 10px 5px 0 10px;" color="primary">
+        <ion-card style="margin: 0 5px 0 6px;" color="primary">
           <ion-card-header>
-            <ion-card-subtitle>Sales unit</ion-card-subtitle>
-            <ion-card-title *ngIf="reports && reports.total_sales">
+            <ion-card-subtitle>Policy unit</ion-card-subtitle>
+            <ion-card-title *ngIf="reports && reports.total_sales" style="font-size: 22px;">
               {{ reports.total_sales }}
             </ion-card-title>
             <ion-card-title *ngIf="!reports">
@@ -58,11 +93,11 @@
         </ion-card>
       </ion-col>
       <ion-col>
-        <ion-card style="margin: 10px 10px 0 5px;" color="success">
+        <ion-card style="margin: 0 6px 0 5px;" color="purple">
           <ion-card-header>
             <ion-card-subtitle>Sales total</ion-card-subtitle>
-            <ion-card-title *ngIf="reports && reports.total_sales_rm">
-              RM {{ reports.total_sales_rm }}
+            <ion-card-title *ngIf="reports && reports.total_sales_rm" style="font-size: 22px;">
+              RM {{ reports.total_sales_rm | number : '1.0-0' }}
             </ion-card-title>
             <ion-card-title *ngIf="!reports">
               -
@@ -74,30 +109,162 @@
         </ion-card>
       </ion-col>
     </ion-row>
+
+    <ion-row>
+      <h5 style="margin: 10px 15px 0 15px;">Unpaid</h5>
+    </ion-row>
+    <ion-row>
+      <ion-col>
+        <ion-card style="margin: 0 5px 0 6px;" color="amber">
+          <ion-card-header>
+            <ion-card-subtitle>Policy unit</ion-card-subtitle>
+            <ion-card-title *ngIf="reports && reports.total_sales_unpaid" style="font-size: 22px;">
+              {{ reports.total_sales_unpaid }}
+            </ion-card-title>
+            <ion-card-title *ngIf="!reports">
+              -
+            </ion-card-title>
+            <ion-card-title *ngIf="reports && !reports.total_sales_unpaid">
+              0
+            </ion-card-title>
+          </ion-card-header>
+        </ion-card>
+      </ion-col>
+      <ion-col>
+        <ion-card style="margin: 0 6px 0 5px;" color="lightamber">
+          <ion-card-header>
+            <ion-card-subtitle>Sales total</ion-card-subtitle>
+            <ion-card-title *ngIf="reports && reports.total_sales_unpaid_rm" style="font-size: 22px;">
+              RM {{ reports.total_sales_unpaid_rm | number : '1.0-0' }}
+            </ion-card-title>
+            <ion-card-title *ngIf="!reports">
+              -
+            </ion-card-title>
+            <ion-card-title *ngIf="reports && !reports.total_sales_unpaid_rm">
+              RM 0
+            </ion-card-title>
+          </ion-card-header>
+        </ion-card>
+      </ion-col>
+    </ion-row>
   </ion-grid>
 
-  <ion-card style="margin-bottom: 0px;">
-    <ion-card-header>
-      Sales Report
-    </ion-card-header>
-    <ion-card-content>
-      <ion-grid>
-        <ion-row>
-          <ion-col size="12">
-            <canvas #barCanvas style="position: relative;"></canvas>
-          </ion-col>
-          <ion-col size="12">
-            <canvas #barCanvas2 style="position: relative;"></canvas>
-          </ion-col>
-        </ion-row>
-      </ion-grid>
-    </ion-card-content>
-  </ion-card>
+  <ion-grid>
+    <ion-row>
+      <ion-col size="4">
+        <h4 style="margin: 20px 15px 0 10px;">By Year</h4>
+      </ion-col>
+      <ion-col size="4">
+        <ion-card mode="ios" style="margin: 10px 0 0 0;">
+          <ion-select mode="ios" style="width: 100%;" interface="action-sheet" [(ngModel)]="reportMonth"
+            (ionChange)="changeReportYear()">
+            <ion-select-option *ngFor="let month of months" [value]="month">
+              {{ month }}
+            </ion-select-option>
+          </ion-select>
+        </ion-card>
+      </ion-col>
+      <ion-col size="4">
+        <ion-card mode="ios" style="margin: 10px 10px 0 0;">
+          <ion-select mode="ios" style="width: 100%;" interface="action-sheet" [(ngModel)]="reportYear"
+            (ionChange)="changeReportYear()">
+            <ion-select-option *ngFor="let year of years" [value]="year">
+              {{ year }}
+            </ion-select-option>
+          </ion-select>
+        </ion-card>
+      </ion-col>
+    </ion-row>
+    <ion-row>
+      <h5 style="margin: 10px 15px 0 15px;">Paid</h5>
+    </ion-row>
+    <ion-row>
+      <ion-col>
+        <ion-card style="margin: 0 5px 0 6px;" color="success">
+          <ion-card-header>
+            <ion-card-subtitle>Policy unit</ion-card-subtitle>
+            <ion-card-title *ngIf="reportsYearly && reportsYearly.total_sales" style="font-size: 22px;">
+              {{ reportsYearly.total_sales }}
+            </ion-card-title>
+            <ion-card-title *ngIf="!reportsYearly">
+              -
+            </ion-card-title>
+            <ion-card-title *ngIf="reportsYearly && !reportsYearly.total_sales">
+              0
+            </ion-card-title>
+          </ion-card-header>
+        </ion-card>
+      </ion-col>
+      <ion-col>
+        <ion-card style="margin: 0 6px 0 5px;" color="lightgreen">
+          <ion-card-header>
+            <ion-card-subtitle>Sales total</ion-card-subtitle>
+            <ion-card-title *ngIf="reportsYearly && reportsYearly.total_sales_rm" style="font-size: 22px;">
+              RM {{ reportsYearly.total_sales_rm | number : '1.0-0' }}
+            </ion-card-title>
+            <ion-card-title *ngIf="!reportsYearly">
+              -
+            </ion-card-title>
+            <ion-card-title *ngIf="reportsYearly && !reportsYearly.total_sales_rm">
+              RM 0
+            </ion-card-title>
+          </ion-card-header>
+        </ion-card>
+      </ion-col>
+    </ion-row>
+  </ion-grid>
+
+  <ion-grid>
+    <ion-row>
+      <ion-col>
+        <ion-card style="margin: 0px 6px 0 5px;" color="danger" (click)="goPolicyPage(userReport, 'expired')">
+          <ion-card-header>
+            <ion-card-subtitle>Policy Expired</ion-card-subtitle>
+            <ion-card-title *ngIf="reports && reports.total_sales_expired" style="font-size: 22px;">
+              {{ reports.total_sales_expired | number : '1.0-0' }}
+            </ion-card-title>
+            <ion-card-title *ngIf="!reports">
+              -
+            </ion-card-title>
+            <ion-card-title *ngIf="reports && !reports.total_sales_expired">
+              0
+            </ion-card-title>
+          </ion-card-header>
+        </ion-card>
+      </ion-col>
+    </ion-row>
+  </ion-grid>
+
+  <!-- <div style="background-color: #cccccc; height: 1px; margin: 18px;"></div> -->
 
   <ion-grid class="ion-no-padding">
     <ion-row>
+      <!-- <ion-col size="12">
+        <ion-card style="margin-bottom: 0; margin-top: 10px;" (click)="goLog()">
+
+          <ion-row>
+            <ion-col size="7">
+              <ion-icon name="car-sport-outline"
+                style="font-size: 40px; margin: 15px 15px 0 15px; color: black; color: #000000;">
+              </ion-icon>
+              <ion-card-header>
+                <ion-card-title style="font-size: 22px;">Policy Expired</ion-card-title>
+              </ion-card-header>
+            </ion-col>
+            <ion-col style="padding:20px;" size="5">
+              <div style="height: 100%; padding-left: 20px; color: #000000;">
+                <ion-row>
+                  <ion-col style="font-size: 50px;">
+                    50
+                  </ion-col>
+                </ion-row>
+              </div>
+            </ion-col>
+          </ion-row>
+        </ion-card>
+      </ion-col> -->
       <ion-col size="12">
-        <ion-card style="margin-bottom: 0;" (click)="goLog()">
+        <ion-card style="margin-bottom: 0; margin-top: 10px;" (click)="goLog()">
 
           <ion-row>
             <ion-col>
@@ -112,10 +279,22 @@
               <div style="height: 100%; padding-left: 20px; border-left: 1px solid #000000; color: #000000;">
                 <ion-row>
                   <ion-col>
+                    Pending:
+                  </ion-col>
+                  <ion-col>
+                    <ion-badge color="primary">
+                      {{ inspectionReports.pending? inspectionReports.pending:'-' }}
+                    </ion-badge>
+                  </ion-col>
+                </ion-row>
+                <ion-row>
+                  <ion-col>
                     Approved:
                   </ion-col>
                   <ion-col>
-                    <ion-badge color="success">12</ion-badge>
+                    <ion-badge color="success">
+                      {{ inspectionReports.approved? inspectionReports.approved:'-' }}
+                    </ion-badge>
                   </ion-col>
                 </ion-row>
                 <ion-row>
@@ -123,7 +302,9 @@
                     Rejected:
                   </ion-col>
                   <ion-col>
-                    <ion-badge color="danger">8</ion-badge>
+                    <ion-badge color="danger">
+                      {{ inspectionReports.rejected? inspectionReports.rejected:'-' }}
+                    </ion-badge>
                   </ion-col>
                 </ion-row>
               </div>
@@ -135,7 +316,7 @@
         </ion-card>
       </ion-col>
       <ion-col size="12">
-        <ion-card style="margin-top: 12px;" (click)="goClaim()">
+        <ion-card style="margin-top: 20px;" (click)="goClaim()">
 
           <ion-row>
             <ion-col>
@@ -153,7 +334,9 @@
                     Pending:
                   </ion-col>
                   <ion-col>
-                    <ion-badge color="warning">11</ion-badge>
+                    <ion-badge color="warning">
+                      {{ this.reports? this.reports.claim_pending:'-' }}
+                    </ion-badge>
                   </ion-col>
                 </ion-row>
                 <ion-row>
@@ -161,7 +344,9 @@
                     Approved:
                   </ion-col>
                   <ion-col>
-                    <ion-badge color="success">20</ion-badge>
+                    <ion-badge color="success">
+                      {{ this.reports? this.reports.claim_approved:'-' }}
+                    </ion-badge>
                   </ion-col>
                 </ion-row>
                 <ion-row>
@@ -169,7 +354,9 @@
                     Paid:
                   </ion-col>
                   <ion-col>
-                    <ion-badge color="light">32</ion-badge>
+                    <ion-badge color="primary">
+                      {{ this.reports? this.reports.claim_paid:'-' }}
+                    </ion-badge>
                   </ion-col>
                 </ion-row>
                 <ion-row>
@@ -177,7 +364,9 @@
                     Rejected:
                   </ion-col>
                   <ion-col>
-                    <ion-badge color="danger">4</ion-badge>
+                    <ion-badge color="danger">
+                      {{ this.reports? this.reports.claim_rejected:'-' }}
+                    </ion-badge>
                   </ion-col>
                 </ion-row>
                 <ion-row>
@@ -185,7 +374,9 @@
                     Void:
                   </ion-col>
                   <ion-col>
-                    <ion-badge color="dark">2</ion-badge>
+                    <ion-badge color="dark">
+                      {{ this.reports? this.reports.claim_void:'-' }}
+                    </ion-badge>
                   </ion-col>
                 </ion-row>
               </div>
@@ -196,6 +387,24 @@
       </ion-col>
     </ion-row>
   </ion-grid>
+
+  <!-- <ion-card style="margin-bottom: 0px; margin-top: 0px;">
+    <ion-card-header>
+      Sales Report
+    </ion-card-header>
+    <ion-card-content>
+      <ion-grid>
+        <ion-row>
+          <ion-col size="12">
+            <canvas #barCanvas style="position: relative;"></canvas>
+          </ion-col>
+          <ion-col size="12">
+            <canvas #barCanvas2 style="position: relative;"></canvas>
+          </ion-col>
+        </ion-row>
+      </ion-grid>
+    </ion-card-content>
+  </ion-card> -->
 
   <!-- <ion-fab vertical="bottom" horizontal="center" slot="fixed" *ngIf="user">
     <ion-fab-button color="danger">

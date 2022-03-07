@@ -36,7 +36,15 @@
 		"classpath": "com.capacitorjs.plugins.storage.StoragePlugin"
 	},
 	{
+		"pkg": "capacitor-call-number",
+		"classpath": "com.devmantosh.callnumber.CallNumber"
+	},
+	{
 		"pkg": "capacitor-file-picker",
 		"classpath": "com.epicshaggy.filepicker.FilePicker"
+	},
+	{
+		"pkg": "capacitor-native-biometric",
+		"classpath": "com.epicshaggy.biometric.NativeBiometric"
 	}
 ]

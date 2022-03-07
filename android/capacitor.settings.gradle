@@ -29,5 +29,11 @@ project(':capacitor-status-bar').projectDir = new File('../node_modules/@capacit
 include ':capacitor-storage'
 project(':capacitor-storage').projectDir = new File('../node_modules/@capacitor/storage/android')
 
+include ':capacitor-call-number'
+project(':capacitor-call-number').projectDir = new File('../node_modules/capacitor-call-number/android')
+
 include ':capacitor-file-picker'
 project(':capacitor-file-picker').projectDir = new File('../node_modules/capacitor-file-picker/android')
+
+include ':capacitor-native-biometric'
+project(':capacitor-native-biometric').projectDir = new File('../node_modules/capacitor-native-biometric/android')

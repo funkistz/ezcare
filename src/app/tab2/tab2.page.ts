@@ -25,6 +25,10 @@ export class Tab2Page {
     this.checkUser();
   }
 
+  ionViewDidEnter() {
+    this.checkUser();
+  }
+
   async checkUser(event = null, policy_id = null) {
     let { value }: any = await Storage.get({ key: 'user' });
     // console.log(value);
@@ -44,8 +48,8 @@ export class Tab2Page {
 
     this.isLoading = true;
 
-    this.services = null;
-    this.cService = null;
+    // this.services = null;
+    // this.cService = null;
 
     this.authService.getServices(policy_id).subscribe(
       data => {
@@ -110,7 +114,8 @@ export class Tab2Page {
   addService(policy_id) {
     let navigationExtras: NavigationExtras = {
       queryParams: {
-        policy_id: policy_id
+        policy_id: policy_id,
+        policy: JSON.stringify(this.cPolicy),
       }
     };
     this.router.navigate(['/tabs/tab2/add-service'], navigationExtras)

@@ -1,0 +1,116 @@
+<ion-header>
+  <ion-toolbar mode="ios" color="primary">
+    <ion-buttons slot="start">
+      <ion-back-button></ion-back-button>
+    </ion-buttons>
+    <ion-title>
+      View Policy
+    </ion-title>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content>
+
+  <ion-spinner name="dots" *ngIf="!loaded" style="width: 100%; margin-top: 20px; font-size: 20px;"></ion-spinner>
+
+  <ion-grid *ngIf="policy">
+    <ion-row>
+      <ion-col>Name:</ion-col>
+      <ion-col>
+        {{ policy.cust_name }}
+      </ion-col>
+    </ion-row>
+    <ion-row>
+      <ion-col>Phone:</ion-col>
+      <ion-col>
+        {{ policy.cust_phone1 }}
+      </ion-col>
+    </ion-row>
+    <ion-row>
+      <ion-col>Policy No:</ion-col>
+      <ion-col>
+        {{ policy.cust_policyno }}
+      </ion-col>
+    </ion-row>
+    <ion-row>
+      <ion-col>Reg No:</ion-col>
+      <ion-col>
+        {{ policy.cust_vehicleregno }}
+      </ion-col>
+    </ion-row>
+    <ion-row>
+      <ion-col>Vehicle:</ion-col>
+      <ion-col>
+        {{ policy.cust_vehicledesc }}
+      </ion-col>
+    </ion-row>
+    <ion-row>
+      <ion-col>Activated Date:</ion-col>
+      <ion-col>
+        {{ policy.cust_dateactivated | date: 'dd/MM/YYYY' }}
+      </ion-col>
+    </ion-row>
+    <ion-row>
+      <ion-col>
+        <ion-text color="danger">
+          Expired Date:
+        </ion-text>
+      </ion-col>
+      <ion-col>
+        <ion-text color="danger">
+          {{ policy.cust_dateexpired | date: 'dd/MM/YYYY' }}
+        </ion-text>
+      </ion-col>
+    </ion-row>
+    <ion-row>
+      <ion-col>Is Paid:</ion-col>
+      <ion-col>
+        {{ policy.cust_paid? 'Yes':'No' }}
+      </ion-col>
+    </ion-row>
+    <ion-row>
+      <ion-col>Marketing Officer:</ion-col>
+      <ion-col *ngIf="policy.marketing_officer">
+        {{ policy.marketing_officer.name }}
+      </ion-col>
+    </ion-row>
+    <ion-row>
+      <ion-col>Dealer:</ion-col>
+      <ion-col *ngIf="policy.marketing_officer">
+        {{ policy.cust_dealer }}
+      </ion-col>
+    </ion-row>
+    <ion-row>
+      <ion-col>Branch:</ion-col>
+      <ion-col *ngIf="policy.marketing_officer">
+        {{ policy.branch.branch }}
+      </ion-col>
+    </ion-row>
+    <ion-row>
+      <ion-col>Created At:</ion-col>
+      <ion-col>
+        {{ policy.cre_dte_tme | date: 'dd/MM/YYYY' }}
+      </ion-col>
+    </ion-row>
+  </ion-grid>
+
+</ion-content>
+
+<ion-footer *ngIf="policy && policy.cust_phone1 && policy.cust_phone1 != '-'">
+  <ion-grid>
+    <ion-row>
+      <ion-col size="6">
+        <ion-button expand="block" color="primary" (click)="call()">
+          <ion-icon slot="start" name="call-outline"></ion-icon>
+          Call
+        </ion-button>
+      </ion-col>
+      <ion-col size="6">
+        <ion-button expand="block" color="success" (click)="whatsapp()">
+          <ion-icon slot="start" name="logo-whatsapp"></ion-icon>
+          Whatsapp
+        </ion-button>
+      </ion-col>
+    </ion-row>
+  </ion-grid>
+</ion-footer>

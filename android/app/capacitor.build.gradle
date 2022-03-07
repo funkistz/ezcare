@@ -18,8 +18,12 @@ dependencies {
     implementation project(':capacitor-push-notifications')
     implementation project(':capacitor-status-bar')
     implementation project(':capacitor-storage')
+    implementation project(':capacitor-call-number')
     implementation project(':capacitor-file-picker')
+    implementation project(':capacitor-native-biometric')
+    implementation "com.soundcloud.android:android-crop:1.0.0@aar"
     implementation "androidx.appcompat:appcompat:1.0.0"
+    implementation "androidx.appcompat:appcompat:1.3.1"
 }
 apply from: "../../node_modules/com-sarriaroman-photoviewer/src/android/photoviewer.gradle"
 

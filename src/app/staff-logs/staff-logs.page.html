@@ -1,25 +1,33 @@
 <ion-header>
-  <ion-toolbar mode="ios" class="ez-toolbar" color="primary">
-    <img src="../../assets/Ezcarehorizontal.png" class="logo" />
-
-    <ion-title size="large">
+  <ion-toolbar mode="md" color="primary">
+    <ion-title>
+      Inspections
     </ion-title>
-
-    <ion-buttons slot="end">
-      <ion-button color="light" style="margin: 14px 5px; font-size: 18px;" [routerLink]="['/notification']">
-        <ion-icon name="notifications-outline"></ion-icon>
-      </ion-button>
-    </ion-buttons>
   </ion-toolbar>
-  <ion-searchbar mode="ios"></ion-searchbar>
+
+  <ion-searchbar mode="ios" (ionInput)="searching($event)" debounce="100" placeholder="Search by dealer or MO">
+  </ion-searchbar>
+
+  <ion-segment (ionChange)="segmentChanged($event)" mode="md" [value]="segment">
+    <ion-segment-button value="mine">
+      <ion-label>My Inspections</ion-label>
+    </ion-segment-button>
+    <ion-segment-button value="all">
+      <ion-label>View All</ion-label>
+    </ion-segment-button>
+  </ion-segment>
 </ion-header>
 
 <ion-content>
 
 
-  <ion-text>
-    <h2 class="ez-title bold" style="margin-top: 30px;">Staff Logs</h2>
-  </ion-text>
+  <!-- <ion-text>
+    <h2 class="ez-title bold" style="margin-top: 30px;">Staff Inspections</h2>
+  </ion-text> -->
+
+  <h6 *ngIf="loaded && inspections && inspections.length == 0" class="ion-text-center">
+    No inspection available
+  </h6>
 
   <ion-card mode="ios" *ngFor="let inspection of inspections" (click)="viewLog(inspection.id)"
     style="margin-top: 10px; margin-bottom: 10px;">

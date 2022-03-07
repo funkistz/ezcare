@@ -30,7 +30,7 @@ export class StaffAddLogsPage implements OnInit {
   loading;
   loadingText = '';
   ionicForm: FormGroup;
-  staff;
+  staff: any = {};
   staffs = [];
   inspectImages = [];
   inspectImagesUrl = [];
@@ -77,6 +77,8 @@ export class StaffAddLogsPage implements OnInit {
       date: ['', []],
     })
 
+    this.getStaff();
+
     this.route.queryParams.subscribe(params => {
       if (params && params.inspection_id) {
         this.inspection_id = params.inspection_id;
@@ -85,7 +87,6 @@ export class StaffAddLogsPage implements OnInit {
         this.getInspection(this.inspection_id);
 
       } else {
-        this.getStaff();
         this.getStaffs();
       }
     });
@@ -95,7 +96,7 @@ export class StaffAddLogsPage implements OnInit {
   async getStaff() {
     let { value }: any = await Storage.get({ key: 'staff' });
     this.staff = JSON.parse(value);
-    console.log(this.staff);
+    console.log('staff', this.staff);
   }
 
   getInspection(id) {
@@ -296,6 +297,7 @@ export class StaffAddLogsPage implements OnInit {
     data.images = [];
     data.created_by = this.staff.user_id;
     data.created_by_name = this.staff.user_fullname;
+    data.status = 'pending';
 
     let index = 1;
     for (const inspectImage of this.inspectImages) {
@@ -344,6 +346,10 @@ export class StaffAddLogsPage implements OnInit {
     this.loadingText = 'Please wait ';
 
     this.firestore.doc<any>('inspections/' + this.inspection_id).update({
+      status_changed_by: {
+        id: this.staff.staff_id,
+        name: this.staff.user_fullname,
+      },
       status: status,
       status_remarks: this.remarks,
     }).then(() => {

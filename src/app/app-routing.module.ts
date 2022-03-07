@@ -76,15 +76,23 @@ const routes: Routes = [
   },
   {
     path: 'mobile-service',
-    loadChildren: () => import('./mobile-service/mobile-service.module').then( m => m.MobileServicePageModule)
+    loadChildren: () => import('./mobile-service/mobile-service.module').then(m => m.MobileServicePageModule)
   },
   {
     path: 'notification',
-    loadChildren: () => import('./notification/notification.module').then( m => m.NotificationPageModule)
+    loadChildren: () => import('./notification/notification.module').then(m => m.NotificationPageModule)
   },
   {
     path: 'admin',
-    loadChildren: () => import('./admin/admin.module').then( m => m.AdminPageModule)
+    loadChildren: () => import('./admin/admin.module').then(m => m.AdminPageModule)
+  },
+  {
+    path: 'privacy-policy',
+    loadChildren: () => import('./privacy-policy/privacy-policy.module').then(m => m.PrivacyPolicyPageModule)
+  },
+  {
+    path: 'policy',
+    loadChildren: () => import('./staff/policy/policy.module').then(m => m.PolicyPageModule)
   }
 ];
 @NgModule({
