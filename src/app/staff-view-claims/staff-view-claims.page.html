@@ -9,6 +9,11 @@
     <ion-title>
       View Claim
     </ion-title>
+    <ion-buttons slot="primary">
+      <ion-button *ngIf="staff && staff.user_role == 1" (click)="deleteClaim()">
+        Delete
+      </ion-button>
+    </ion-buttons>
   </ion-toolbar>
 </ion-header>
 
@@ -226,6 +231,34 @@
 
     </ion-card>
 
+    <ion-card mode="ios">
+
+      <div class="flex">
+        <div class="flex-left">
+          <ion-card-title>
+            <ion-icon name="document-text-outline" class="carIcon"></ion-icon>
+          </ion-card-title>
+        </div>
+        <div class="flex-right">
+          <ion-card-title style="margin-top: 14px; font-size: 20px;">Claim Letter</ion-card-title>
+        </div>
+      </div>
+
+      <ion-card-content>
+        <ion-grid>
+          <ion-row>
+            <ng-container *ngIf="claim">
+              <ion-col size="6" *ngFor="let image of claim.claim_letters" (click)="imagePreview(image.image_link)">
+                <ion-img style="border:1px solid; margin: 5px;" role="button" class="image" [src]="image.image_link"
+                  *ngIf="image.image_link"></ion-img>
+              </ion-col>
+            </ng-container>
+          </ion-row>
+        </ion-grid>
+      </ion-card-content>
+
+    </ion-card>
+
     <ion-card mode="ios" *ngIf="claim && claim.claim_status">
 
       <div class="flex">
@@ -242,7 +275,7 @@
       <ion-list>
         <ion-item *ngFor="let status of claim.claim_status" [color]="status.color" lines="full">
           <ion-label>
-            <h2>{{ status.claim_status_code | titlecase }}</h2>
+            <h2 style="font-weight: bolder;">{{ status.claim_status_code | titlecase }}</h2>
             <p *ngIf="status.created_by">by {{ status.created_by.user_fullname }}</p>
             <p>at {{ status.date | date : "d/MM/y" }}</p>
             <ion-grid style="padding: 0; margin: 10px -20px 0 -20px;">
@@ -302,10 +335,8 @@
 
   </ion-row>
 
-</ion-content>
-
-<ion-footer class="ion-no-border" collapse="fade" mode="ios">
-  <ion-card mode="ios" *ngIf="claim && claim.status == 'pending' && staff && staff.user_role == 5 || true"
+  <ion-card mode="ios"
+    *ngIf="claim && claim.status == 'pending' && staff && (staff.user_role == 1 || staff.user_role == 5)"
     style="margin: 0;">
     <ion-card-content style="padding: 10px;">
       <ion-grid>
@@ -391,4 +422,93 @@
     </ion-card-content>
 
   </ion-card>
-</ion-footer>
+
+</ion-content>
+
+<!-- <ion-footer class="ion-no-border" collapse="fade" mode="ios">
+  <ion-card mode="ios" *ngIf="claim && claim.status == 'pending' && staff && staff.user_role == 5" style="margin: 0;">
+    <ion-card-content style="padding: 10px;">
+      <ion-grid>
+        <ion-row *ngIf="!actionType && claim">
+          <ion-col size="12" *ngIf="claim.status == 'approved'">
+            <ion-button expand="block" color="warning" (click)="selectActionType('pay')">Pay</ion-button>
+          </ion-col>
+          <ion-col size="12" *ngIf="claim.status == 'pending'">
+            <ion-button expand="block" color="success" (click)="selectActionType('approve')">Approve</ion-button>
+          </ion-col>
+          <ion-col size="6" *ngIf="claim.status == 'pending'">
+            <ion-button expand="block" color="danger" (click)="selectActionType('reject')">Reject</ion-button>
+          </ion-col>
+          <ion-col size="6" *ngIf="claim.status == 'pending'">
+            <ion-button expand="block" color="warning" (click)="selectActionType('void')">Void</ion-button>
+          </ion-col>
+        </ion-row>
+        <ion-row *ngIf="actionType && actionType != 'pay'">
+          <ion-col size="12">
+            <ion-item fill="outline" mode="md" class="ez-material-input" style="margin: 20px 0 0 0;"
+              *ngIf="actionType == 'approve'">
+              <ion-label position="floating">Workshop Name</ion-label>
+              <ion-input [(ngModel)]="input_workshop"></ion-input>
+            </ion-item>
+            <ion-item fill="outline" mode="md" class="ez-material-input" style="margin: 20px 0 0 0;">
+              <ion-label position="floating">Remarks</ion-label>
+              <ion-textarea [(ngModel)]="input_remarks"></ion-textarea>
+            </ion-item>
+          </ion-col>
+
+          <ion-col size="12">
+            <ion-item fill="outline" mode="md" class="ez-material-input" style="margin: 0;">
+              <ion-label position="default">Claim Date: </ion-label>
+              <ion-input [(ngModel)]="input_claim_date" type="date" class="ion-text-end">
+              </ion-input>
+            </ion-item>
+          </ion-col>
+        </ion-row>
+      </ion-grid>
+
+      <ion-grid *ngIf="actionType">
+        <ion-row>
+          <ion-col size="6" style="height: 140px;" *ngFor="let image of statusImages; index as i;">
+            <ion-img style="height: 100%; object-fit: cover; border-radius: 8px; overflow: hidden; border: 2px solid;"
+              role="button" class="image" [src]="image.base64" *ngIf="image.base64">
+            </ion-img>
+            <ion-chip class="chip-close" (click)="removeImage(i)">
+              <ion-icon name="close"></ion-icon>
+            </ion-chip>
+          </ion-col>
+          <ion-col size="6" style="height: 140px;">
+            <ion-card style="margin: 0; border: 2px solid; height: 100%;" (click)="selectImageSource()">
+              <ion-icon name="document-outline" style="font-size: 40px; margin: 15px 15px 0 15px; color: black;">
+              </ion-icon>
+              <ion-card-header>
+                <ion-card-title style="font-size: 18px;">Add File</ion-card-title>
+              </ion-card-header>
+            </ion-card>
+          </ion-col>
+        </ion-row>
+        <ion-row style="margin-top: 30px;">
+          <ion-col size="12">
+            <ion-button expand="block" color="light" (click)="selectActionType(null)">Cancel</ion-button>
+          </ion-col>
+          <ion-col size="12">
+            <ion-button expand="block" color="primary" (click)="confirmChangeStatus()">{{ actionType | titlecase }}
+            </ion-button>
+          </ion-col>
+        </ion-row>
+      </ion-grid>
+
+      <ion-grid
+        *ngIf="!actionType && claim && (claim.status == 'paid' || claim.status == 'void' || claim.status == 'rejected') ">
+        <ion-row>
+          <ion-col size="12">
+            <ion-button expand="block" color="dark" disabled>
+              {{ claim.status | titlecase }}
+            </ion-button>
+          </ion-col>
+        </ion-row>
+      </ion-grid>
+
+    </ion-card-content>
+
+  </ion-card>
+</ion-footer> -->

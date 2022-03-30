@@ -7,24 +7,12 @@ import { PhotoViewer } from '@awesome-cordova-plugins/photo-viewer/ngx';
 import { Storage } from '@capacitor/storage';
 import * as moment from 'moment';
 
-export class TODO {
-  $key: string;
-  chassis: string;
-  date: string;
-  dealer: string;
-  images: Array<any>;
-  marketing_officer: string;
-  mileage: string;
-  remarks: string;
-  vehicle: string;
-}
-
 @Component({
-  selector: 'app-staff-logs',
-  templateUrl: './staff-logs.page.html',
-  styleUrls: ['./staff-logs.page.scss'],
+  selector: 'app-endorsement',
+  templateUrl: './endorsement.page.html',
+  styleUrls: ['./endorsement.page.scss'],
 })
-export class StaffLogsPage implements OnInit {
+export class EndorsementPage implements OnInit {
 
   segment = 'mine';
   inspectionsTemp;
@@ -81,17 +69,19 @@ export class StaffLogsPage implements OnInit {
 
     this.inspections = this.inspectionsTemp.filter((inspection: any) => {
 
-      if (this.segment == 'mine') {
+      return true;
 
-        if (this.staff.staff_id == inspection.marketing_officer.id) {
-          return true;
-        } else {
-          return false
-        }
+      // if (this.segment == 'mine') {
 
-      } else {
-        return true;
-      }
+      //   if (this.staff.staff_id == inspection.marketing_officer.id) {
+      //     return true;
+      //   } else {
+      //     return false
+      //   }
+
+      // } else {
+      //   return true;
+      // }
 
     });
 
@@ -100,16 +90,8 @@ export class StaffLogsPage implements OnInit {
       if (this.search) {
 
         if (inspection.dealer) {
-
-          if (inspection.marketing_officer && inspection.marketing_officer.name) {
-            return inspection.dealer.toLowerCase().includes(this.search) ||
-              inspection.marketing_officer.name.toLowerCase().includes(this.search) ||
-              inspection.dealer.toLowerCase().includes(this.search);
-          } else {
-            return inspection.dealer.toLowerCase().includes(this.search) ||
-              inspection.dealer.toLowerCase().includes(this.search);
-          }
-
+          return inspection.dealer.toLowerCase().includes(this.search) ||
+            inspection.reg_no.toLowerCase().includes(this.search);
         } else {
           return false;
         }
@@ -156,7 +138,7 @@ export class StaffLogsPage implements OnInit {
 
     this.helper.presentLoading();
 
-    return this.firestore.collection('inspections', ref => ref.orderBy('date', 'desc')).snapshotChanges().subscribe((res) => {
+    return this.firestore.collection('endorsement', ref => ref.orderBy('date', 'desc')).snapshotChanges().subscribe((res) => {
 
       this.helper.dissmissLoading();
       this.loaded = true;
@@ -165,7 +147,7 @@ export class StaffLogsPage implements OnInit {
 
         return {
           id: t.payload.doc.id,
-          ...t.payload.doc.data() as TODO
+          ...t.payload.doc.data() as Object
         };
       });
 
@@ -175,8 +157,8 @@ export class StaffLogsPage implements OnInit {
     });
   }
 
-  addLog() {
-    this.router.navigate(['/staff-tabs/staff-logs/add-logs']);
+  addEndorsement() {
+    this.router.navigate(['/endorsement/add']);
   }
 
   viewLog(inspection_id) {
@@ -185,7 +167,7 @@ export class StaffLogsPage implements OnInit {
         inspection_id: inspection_id
       }
     };
-    this.router.navigate(['/staff-tabs/staff-logs/add-logs'], navigationExtras);
+    this.router.navigate(['/endorsement/add'], navigationExtras);
   }
 
   imagePreview(src) {

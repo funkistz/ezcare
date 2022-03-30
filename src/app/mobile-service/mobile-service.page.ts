@@ -1,6 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
 import { Storage } from '@capacitor/storage';
+import { AngularFirestore } from '@angular/fire/compat/firestore';
 
 @Component({
   selector: 'app-mobile-service',
@@ -18,6 +19,7 @@ export class MobileServicePage implements OnInit {
 
   constructor(
     private router: Router,
+    private firestore: AngularFirestore,
   ) { }
 
   ngOnInit() {
@@ -26,21 +28,35 @@ export class MobileServicePage implements OnInit {
 
   async getSettingCache() {
 
-    let { value }: any = await Storage.get({ key: 'settings' });
+    let { value }: any = await Storage.get({ key: 'mobile_service_settings' });
     this.settings = JSON.parse(value);
-    console.log('settings', this.settings);
+    console.log('mobile_service_settings', this.settings);
+
+    this.firestore.collection('generals').doc('mobile-service')
+      .valueChanges()
+      .subscribe(singleDoc => {
+
+        this.settings = singleDoc;
+
+        Storage.set({
+          key: 'mobile_service_settings',
+          value: JSON.stringify(this.settings),
+        });
+      }, error => {
+        console.log(error);
+      });
   }
 
   mobileService() {
 
     console.log('whatsapp');
 
-    const ws = this.settings.whatsapp;
+    const ws = this.settings.phones;
     const random = Math.floor(Math.random() * ws.length);
 
     // https://api.whatsapp.com/send?phone=919756054965&amp;text=I%20want%20to%20find%20out%20about%20your%20products
 
-    let link = 'https://api.whatsapp.com/send?phone=' + ws[random] + '&text=hi%20ape%20kabar';
+    let link = 'https://api.whatsapp.com/send?phone=' + ws[random] + '&text=' + this.settings.whatsapp_template;
 
 
     window.open(link, '_system', 'location=yes');

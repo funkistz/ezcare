@@ -1,21 +1,24 @@
 <ion-header>
   <ion-toolbar mode="md" color="primary">
+    <ion-buttons slot="start">
+      <ion-back-button></ion-back-button>
+    </ion-buttons>
     <ion-title>
-      Inspections
+      Endorsement
     </ion-title>
   </ion-toolbar>
 
-  <ion-searchbar mode="ios" (ionInput)="searching($event)" debounce="100" placeholder="Search by dealer or MO">
+  <ion-searchbar mode="ios" (ionInput)="searching($event)" debounce="100" placeholder="Search by dealer or plate no">
   </ion-searchbar>
 
-  <ion-segment (ionChange)="segmentChanged($event)" mode="md" [value]="segment">
+  <!-- <ion-segment (ionChange)="segmentChanged($event)" mode="md" [value]="segment">
     <ion-segment-button value="mine">
-      <ion-label>My Inspections</ion-label>
+      <ion-label>My Endorsement</ion-label>
     </ion-segment-button>
     <ion-segment-button value="all">
       <ion-label>View All</ion-label>
     </ion-segment-button>
-  </ion-segment>
+  </ion-segment> -->
 </ion-header>
 
 <ion-content>
@@ -26,7 +29,7 @@
   </ion-text> -->
 
   <h6 *ngIf="loaded && inspections && inspections.length == 0" class="ion-text-center">
-    No inspection available
+    No endorsement available
   </h6>
 
   <ion-accordion-group [value]="groupInspections[0].name" class="ion-margin-bottom"
@@ -80,7 +83,7 @@
   </ion-card> -->
 
   <ion-fab vertical="bottom" horizontal="end" slot="fixed">
-    <ion-fab-button color="success" (click)="addLog()">
+    <ion-fab-button color="success" (click)="addEndorsement()">
       <ion-icon name="add-outline"></ion-icon>
     </ion-fab-button>
   </ion-fab>

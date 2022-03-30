@@ -78,7 +78,7 @@
               Claim Type:
             </ion-label>
             <ion-select placeholder="Select One" formControlName="claim_type_id" interface="action-sheet" mode="ios"
-              [disabled]="claim ? true : false" [value]="claim.claim_type_id">
+              [disabled]="claim ? true : false" [value]="claim? claim.claim_type_id:''">
               <!-- <ion-select-option value="">
                 Please select
               </ion-select-option> -->
@@ -193,6 +193,28 @@
               </ng-container>
 
               <ion-col size="6" *ngFor="let image of quotationImages">
+                <ion-img style="border:1px solid; margin: 5px;" role="button" class="image" [src]="image.base64"
+                  *ngIf="image.base64"></ion-img>
+              </ion-col>
+            </ion-row>
+          </ion-grid>
+
+          <ion-button class="ez-icon-btn" expand="block" shape="round" style="margin-top: 30px;"
+            (click)="selectImageSource('claim_letter')" color="warning">
+            <ion-icon slot="start" name="images-outline" class="ez-icon-btn-left"></ion-icon>
+            <span>Add Claim Letter</span>
+          </ion-button>
+
+          <ion-grid>
+            <ion-row>
+              <ng-container *ngIf="claim">
+                <ion-col size="6" *ngFor="let image of claim.claim_letters">
+                  <ion-img style="border:1px solid; margin: 5px;" role="button" class="image" [src]="image.image_link"
+                    *ngIf="image.image_link"></ion-img>
+                </ion-col>
+              </ng-container>
+
+              <ion-col size="6" *ngFor="let image of claimLetterImages">
                 <ion-img style="border:1px solid; margin: 5px;" role="button" class="image" [src]="image.base64"
                   *ngIf="image.base64"></ion-img>
               </ion-col>

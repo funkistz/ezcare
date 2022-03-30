@@ -51,29 +51,31 @@
     <ion-reorder-group disabled="false" (ionItemReorder)="onRenderItems($event)">
 
       <ion-item *ngFor="let banner of banners" class="ion-no-padding">
-        <ion-thumbnail slot="start" style="width: 40%; height: auto; margin: 0;">
-          <img [src]="banner.image_url" />
-        </ion-thumbnail>
         <ion-grid>
           <ion-row>
-            <ion-col size="12">
-              <ion-item lines="none">
+            <ion-col size="7">
+              <ion-thumbnail style="width: 100%; height: auto; margin: 0;">
+                <img [src]="banner.image_url" />
+              </ion-thumbnail>
+            </ion-col>
+            <ion-col size="5">
+              <ion-item lines="none" class="ion-no-padding">
                 <ion-toggle mode="ios" [(ngModel)]="banner.active"></ion-toggle>
                 <ion-label style="margin: 10px 0 10px 8px;">Active</ion-label>
               </ion-item>
-            </ion-col>
-            <ion-col size="12">
-              <ion-item lines="none" mode="md" fill="outline">
-                <ion-label position="floating">External Link:</ion-label>
-                <ion-textarea mode="ios" [(ngModel)]="banner.link"></ion-textarea>
-              </ion-item>
-            </ion-col>
-            <ion-col size="12">
-              <ion-item lines="none">
+              <ion-item lines="none" class="ion-no-padding">
                 <ion-button color="danger" (click)="removeImage(banner.id)">
                   <ion-icon slot="start" name="trash-outline"></ion-icon>
                   Remove
                 </ion-button>
+              </ion-item>
+            </ion-col>
+          </ion-row>
+          <ion-row>
+            <ion-col size="12">
+              <ion-item mode="md" fill="outline">
+                <ion-label position="floating">External Link:</ion-label>
+                <ion-textarea mode="md" [(ngModel)]="banner.link"></ion-textarea>
               </ion-item>
             </ion-col>
           </ion-row>

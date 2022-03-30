@@ -72,7 +72,12 @@ export class PolicyPage implements OnInit {
     this.status = this.statusTemp;
   }
 
-  getPolicy() {
+  searching(event) {
+    let search = event.target.value.toLowerCase();
+    this.getPolicy(search);
+  }
+
+  getPolicy(search = null) {
     this.loaded = false;
     this.policies = null;
 
@@ -89,6 +94,10 @@ export class PolicyPage implements OnInit {
 
     if (this.end_date) {
       data.end_date = this.end_date;
+    }
+
+    if (search) {
+      data.search = search;
     }
 
     data = JSON.stringify(data);

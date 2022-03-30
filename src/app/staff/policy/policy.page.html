@@ -7,7 +7,7 @@
       Policy List
     </ion-title>
   </ion-toolbar>
-  <ion-toolbar *ngIf="status">
+  <ion-toolbar *ngIf="status && status != 'complete'">
     <ion-grid>
       <ion-row>
         <ion-col size="7">
@@ -27,11 +27,14 @@
       </ion-row>
     </ion-grid>
   </ion-toolbar>
+  <ion-searchbar mode="ios" (ionInput)="searching($event)" debounce="300" placeholder="Search by Reg No"
+    *ngIf="status && status == 'complete'">
+  </ion-searchbar>
 </ion-header>
 
 <ion-content>
 
-  <ion-grid *ngIf=" !status">
+  <ion-grid *ngIf="!status">
     <ion-row>
       <ion-col>
         <ion-text>
@@ -100,7 +103,7 @@
           <p>Reg No: {{ policy.cust_vehicleregno }}</p>
           <p>Vehicle: {{ policy.cust_vehicledesc }}</p>
           <ion-text color="dark">
-            <p>MO: {{ policy.marketing_officer.name }}</p>
+            <p *ngIf="policy && policy.marketing_officer">MO: {{ policy.marketing_officer.name }}</p>
           </ion-text>
           <ion-text color="success">
             <p>Activated At: {{ policy.cust_dateactivated | date: 'dd/MM/YYYY' }}</p>

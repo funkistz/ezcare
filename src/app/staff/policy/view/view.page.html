@@ -15,44 +15,56 @@
 
   <ion-grid *ngIf="policy">
     <ion-row>
-      <ion-col>Name:</ion-col>
+      <ion-col class="font-bold">Name:</ion-col>
       <ion-col>
         {{ policy.cust_name }}
       </ion-col>
     </ion-row>
     <ion-row>
-      <ion-col>Phone:</ion-col>
+      <ion-col class="font-bold">Phone:</ion-col>
       <ion-col>
         {{ policy.cust_phone1 }}
       </ion-col>
     </ion-row>
     <ion-row>
-      <ion-col>Policy No:</ion-col>
+      <ion-col class="font-bold">Policy No:</ion-col>
       <ion-col>
         {{ policy.cust_policyno }}
       </ion-col>
     </ion-row>
     <ion-row>
-      <ion-col>Reg No:</ion-col>
+      <ion-col class="font-bold">Reg No:</ion-col>
       <ion-col>
         {{ policy.cust_vehicleregno }}
       </ion-col>
     </ion-row>
     <ion-row>
-      <ion-col>Vehicle:</ion-col>
+      <ion-col class="font-bold">Vehicle:</ion-col>
       <ion-col>
         {{ policy.cust_vehicledesc }}
       </ion-col>
     </ion-row>
     <ion-row>
-      <ion-col>Activated Date:</ion-col>
+      <ion-col class="font-bold">Warranty Plan:</ion-col>
+      <ion-col *ngIf="policy.plan">
+        <ion-badge color="primary" *ngIf="policy.cust_program == 'u'">Used</ion-badge>
+        <ion-badge color="primary" *ngIf="policy.cust_program == 'r'">Recondition</ion-badge>
+        <br>
+        <ion-badge color="primary">{{ policy.plan.plan_desc }}</ion-badge>
+      </ion-col>
+      <ion-col *ngIf="!policy.plan">
+        -
+      </ion-col>
+    </ion-row>
+    <ion-row>
+      <ion-col class="font-bold">Activated Date:</ion-col>
       <ion-col>
         {{ policy.cust_dateactivated | date: 'dd/MM/YYYY' }}
       </ion-col>
     </ion-row>
     <ion-row>
       <ion-col>
-        <ion-text color="danger">
+        <ion-text color="danger" class="font-bold">
           Expired Date:
         </ion-text>
       </ion-col>
@@ -63,36 +75,75 @@
       </ion-col>
     </ion-row>
     <ion-row>
-      <ion-col>Is Paid:</ion-col>
+      <ion-col class="font-bold">Is Paid:</ion-col>
       <ion-col>
         {{ policy.cust_paid? 'Yes':'No' }}
       </ion-col>
     </ion-row>
     <ion-row>
-      <ion-col>Marketing Officer:</ion-col>
+      <ion-col class="font-bold">Marketing Officer:</ion-col>
       <ion-col *ngIf="policy.marketing_officer">
         {{ policy.marketing_officer.name }}
       </ion-col>
     </ion-row>
     <ion-row>
-      <ion-col>Dealer:</ion-col>
+      <ion-col class="font-bold">Dealer:</ion-col>
       <ion-col *ngIf="policy.marketing_officer">
         {{ policy.cust_dealer }}
       </ion-col>
     </ion-row>
     <ion-row>
-      <ion-col>Branch:</ion-col>
+      <ion-col class="font-bold">Branch:</ion-col>
       <ion-col *ngIf="policy.marketing_officer">
         {{ policy.branch.branch }}
       </ion-col>
     </ion-row>
     <ion-row>
-      <ion-col>Created At:</ion-col>
+      <ion-col class="font-bold">Created At:</ion-col>
       <ion-col>
         {{ policy.cre_dte_tme | date: 'dd/MM/YYYY' }}
       </ion-col>
     </ion-row>
   </ion-grid>
+
+  <ion-list *ngIf="policy && policy.claims">
+    <ion-list-header>
+      <ion-label>
+        <h1 style="font-weight:bolder;">Claim History</h1>
+      </ion-label>
+    </ion-list-header>
+    <ion-card class="ion-padding" *ngFor="let claim of policy.claims" (click)="viewClaim(claim.id)">
+      <ion-label>
+        <h2>MO: {{ claim.marketing_officer? claim.marketing_officer.name:'' }}</h2>
+        <p>{{ claim.status }}</p>
+      </ion-label>
+      <ion-note slot="end">
+        {{ claim.created_at | date : "d/MM/y" }}
+      </ion-note>
+    </ion-card>
+
+    <ion-card mode="ios" *ngFor="let claim of policy.claims" (click)="viewClaim(claim.id)"
+      style="margin-top: 10px; margin-bottom: 10px;">
+      <ion-item lines="none">
+        <ion-label>
+          <h2>
+            MO: {{ claim.marketing_officer? claim.marketing_officer.name:'' }}
+          </h2>
+          <ion-text color="dark">
+            <p>{{ claim.status | titlecase }}</p>
+          </ion-text>
+          <ion-text color="success">
+            <p>Activated At: {{ policy.cust_dateactivated | date: 'dd/MM/YYYY' }}</p>
+          </ion-text>
+          <ion-text color="danger">
+            <p>Expired At: {{ policy.cust_dateexpired | date: 'dd/MM/YYYY' }}</p>
+          </ion-text>
+          <p></p>
+        </ion-label>
+      </ion-item>
+    </ion-card>
+
+  </ion-list>
 
 </ion-content>
 

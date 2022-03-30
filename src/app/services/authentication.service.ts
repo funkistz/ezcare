@@ -146,6 +146,16 @@ export class AuthenticationService {
 
   }
 
+  deleteClaim(claim_id): Observable<any> {
+
+    // let params = new HttpParams().set('claim_id', claim_id);
+    // this.header.params = params;
+
+    this.resetHeader();
+    return this.http.delete(this.url + 'claim/' + claim_id, this.header);
+
+  }
+
   searchClaims(search, staff_id = false, exact = false): Observable<any> {
 
     this.resetHeader();

@@ -18,6 +18,7 @@ export class ViewPage implements OnInit {
   user_id;
   isActive: any = false;
   isManager = 0;
+  isEndorsementApprover = 0;
 
   constructor(
     private authService: AuthenticationService,
@@ -58,6 +59,10 @@ export class ViewPage implements OnInit {
               this.isManager = parseInt(this.user.is_manager);
             }
 
+            if (this.user.is_endorsement_approver) {
+              this.isEndorsementApprover = parseInt(this.user.is_endorsement_approver);
+            }
+
             this.users.push(this.user);
           }
 
@@ -83,6 +88,7 @@ export class ViewPage implements OnInit {
       staff_id: this.user_id,
       user_active: this.isActive,
       is_manager: this.isManager,
+      isEndorsementApprover: this.isEndorsementApprover,
     };
 
     this.helper.presentLoading();

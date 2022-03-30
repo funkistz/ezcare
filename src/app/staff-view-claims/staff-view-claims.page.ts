@@ -3,7 +3,7 @@ import { Component, OnInit } from '@angular/core';
 import { AuthenticationService } from '../services/authentication.service';
 import { Router, NavigationExtras, ActivatedRoute } from '@angular/router';
 import { Storage } from '@capacitor/storage';
-import { AlertController, LoadingController, ToastController, ActionSheetController } from '@ionic/angular';
+import { AlertController, LoadingController, ToastController, ActionSheetController, NavController } from '@ionic/angular';
 import { PhotoViewer } from '@awesome-cordova-plugins/photo-viewer/ngx';
 import { Camera, CameraResultType, CameraSource, Photo } from '@capacitor/camera';
 import { decode } from "base64-arraybuffer";
@@ -28,7 +28,7 @@ export class StaffViewClaimsPage implements OnInit {
   remarks;
   loading;
   actionType;
-  statusImages;
+  statusImages = [];
   statusImagesUrl = [];
 
   input_claim_date;
@@ -67,6 +67,7 @@ export class StaffViewClaimsPage implements OnInit {
     private afStorage: AngularFireStorage,
     private datePipe: DatePipe,
     private firestore: AngularFirestore,
+    private navCtrl: NavController,
   ) { }
 
   ngOnInit() {
@@ -271,8 +272,6 @@ export class StaffViewClaimsPage implements OnInit {
       lastModified: moment().unix(),
       type: blob.type,
     });
-
-    this.statusImages = [];
 
     this.statusImages.push({
       id: Date.now(),
@@ -505,6 +504,54 @@ export class StaffViewClaimsPage implements OnInit {
 
     });
 
+  }
+
+  async deleteClaim() {
+
+    const alert = await this.alertController.create({
+      cssClass: 'my-custom-class',
+      header: 'Are you sure want to delete?',
+      message: 'This action will permanently delete the data.',
+      mode: 'ios',
+      buttons: [{
+        text: 'Cancel',
+        role: 'cancel',
+        cssClass: 'secondary',
+        handler: () => {
+          console.log('Confirm Cancel');
+        }
+      }, {
+        text: 'Okay',
+        handler: () => {
+
+          this.presentLoading();
+
+          this.authService.deleteClaim(this.claim_id).subscribe(
+            result => {
+
+              this.dissmissLoading();
+              this.presentToast('Claim deleted.');
+              let navigationExtras: NavigationExtras = {
+                queryParams: {
+                  refresh: 'yes'
+                }
+              };
+
+              this.router.navigate(['/staff-tabs/staffClaims'], navigationExtras);
+
+            }, error => {
+              console.log(error);
+              this.dissmissLoading();
+              this.presentToast(error.error.message);
+            });
+
+
+        }
+      }
+      ]
+    });
+
+    await alert.present();
   }
 
 }

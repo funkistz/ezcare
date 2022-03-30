@@ -29,6 +29,7 @@ export class Tab1Page {
     autoplay: true
   };
   settings;
+  mobile_service_settings;
   banners;
   serviceLoaded = false;
 
@@ -256,16 +257,29 @@ export class Tab1Page {
 
   getSettings() {
 
-    return this.firestore.collection('generals').doc('settings')
+    this.firestore.collection('generals').doc('settings')
       .valueChanges()
       .subscribe(singleDoc => {
 
         this.settings = singleDoc;
-        console.log('settings firebase', this.settings);
 
         Storage.set({
           key: 'settings',
           value: JSON.stringify(this.settings),
+        });
+      }, error => {
+        console.log(error);
+      });
+
+    this.firestore.collection('generals').doc('mobile-service')
+      .valueChanges()
+      .subscribe(singleDoc => {
+
+        this.mobile_service_settings = singleDoc;
+
+        Storage.set({
+          key: 'mobile_service_settings',
+          value: JSON.stringify(this.mobile_service_settings),
         });
       }, error => {
         console.log(error);

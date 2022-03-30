@@ -16,6 +16,7 @@ import { AngularFirestore, AngularFirestoreCollection } from '@angular/fire/comp
 import { Observable } from 'rxjs';
 import { finalize, tap } from 'rxjs/operators';
 import { AlertController } from '@ionic/angular';
+import { Chooser } from '@awesome-cordova-plugins/chooser/ngx';
 
 @Component({
   selector: 'app-staff-add-claims',
@@ -33,8 +34,10 @@ export class StaffAddClaimsPage implements OnInit {
   ionicForm: FormGroup;
   reportImages = [];
   quotationImages = [];
+  claimLetterImages = [];
   reportImagesUrl = [];
   quotationImagesUrl = [];
+  claimLetterImagesUrl = [];
   // images: ApiImage[] = [];
   @ViewChild('fileInput', { static: false }) fileInput: ElementRef;
 
@@ -65,7 +68,8 @@ export class StaffAddClaimsPage implements OnInit {
     private helper: HelperService,
     private afs: AngularFirestore,
     private afStorage: AngularFireStorage,
-    public alertController: AlertController
+    public alertController: AlertController,
+    private chooser: Chooser
   ) { }
 
   ngOnInit() {
@@ -158,6 +162,7 @@ export class StaffAddClaimsPage implements OnInit {
     this.quotationImages = [];
     this.reportImagesUrl = [];
     this.quotationImagesUrl = [];
+    this.claimLetterImagesUrl = [];
 
     this.isLoading = true;
 
@@ -223,6 +228,13 @@ export class StaffAddClaimsPage implements OnInit {
         handler: () => {
           this.addImage(CameraSource.Photos, type);
         }
+      },
+      {
+        text: 'Files',
+        icon: 'document',
+        handler: () => {
+          this.filePicker();
+        }
       }
     ];
 
@@ -243,6 +255,12 @@ export class StaffAddClaimsPage implements OnInit {
       buttons
     });
     await actionSheet.present();
+  }
+
+  filePicker() {
+    this.chooser.getFile()
+      .then(file => console.log(file ? file.name : 'canceled'))
+      .catch((error: any) => console.error(error));
   }
 
   async addImage(source: CameraSource, type) {
@@ -309,6 +327,13 @@ export class StaffAddClaimsPage implements OnInit {
           file: file,
           format: image.format
         });
+      } else if (type == 'claim_letter') {
+        this.claimLetterImages.push({
+          id: Date.now(),
+          base64: "data:image/jpeg;base64, " + image.base64String,
+          file: file,
+          format: image.format
+        });
       }
     }
   }
@@ -321,6 +346,8 @@ export class StaffAddClaimsPage implements OnInit {
       this.updateClaimAttachment(this.claim.id, downloadURL.url, 'storeReport');
     } else if (type == 'quotation') {
       this.updateClaimAttachment(this.claim.id, downloadURL.url, 'storeQuotation');
+    } else if (type == 'claim_letter') {
+      this.updateClaimAttachment(this.claim.id, downloadURL.url, 'storeClaimLetter');
     }
   }
 
@@ -390,7 +417,7 @@ export class StaffAddClaimsPage implements OnInit {
 
   async addClaim() {
 
-    console.log('add');
+    console.log('add', this.ionicForm.value);
     this.helper.presentLoading();
 
     let data: any = {};
@@ -418,12 +445,22 @@ export class StaffAddClaimsPage implements OnInit {
       });
     }
 
+    for (const claimLetterImage of this.claimLetterImages) {
+      let upload3 = await this.uploadToFirebase(claimLetterImage.file, data.reg_no, 'claim_letter');
+      console.log('finish... claim_letter', upload3.url2);
+      this.claimLetterImagesUrl.push({
+        name: upload3.filename,
+        image_link: upload3.url,
+      });
+    }
+
     console.log('finish... all');
     console.log('reports', this.reportImagesUrl);
     console.log('quotations', this.quotationImagesUrl);
 
     data.reports = this.reportImagesUrl;
     data.quotations = this.quotationImagesUrl;
+    data.claimLetters = this.claimLetterImagesUrl;
 
     this.authService.addClaim(data).subscribe(
       result => {

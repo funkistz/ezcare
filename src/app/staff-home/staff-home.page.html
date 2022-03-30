@@ -233,7 +233,32 @@
         </ion-card>
       </ion-col>
     </ion-row>
+    <ion-row>
+      <ion-col>
+        <ion-card style="margin: 0px 6px 0 5px;" (click)="goPolicyPage(userReport, 'complete')">
+          <ion-card-header>
+            <ion-card-subtitle>Customers Policy</ion-card-subtitle>
+            <ion-card-title style="font-size: 22px;">
+              View All
+            </ion-card-title>
+          </ion-card-header>
+        </ion-card>
+      </ion-col>
+    </ion-row>
+    <ion-row>
+      <ion-col>
+        <ion-card style="margin: 0px 6px 0 5px;" (click)="goEndorsementPage()">
+          <ion-card-header>
+            <ion-card-subtitle>Endorsement</ion-card-subtitle>
+            <ion-card-title style="font-size: 22px;">
+              View All
+            </ion-card-title>
+          </ion-card-header>
+        </ion-card>
+      </ion-col>
+    </ion-row>
   </ion-grid>
+
 
   <!-- <div style="background-color: #cccccc; height: 1px; margin: 18px;"></div> -->
 
@@ -278,40 +303,57 @@
             <ion-col style="padding:20px;">
               <div style="height: 100%; padding-left: 20px; border-left: 1px solid #000000; color: #000000;">
                 <ion-row>
-                  <ion-col>
+                  <ion-col size="8">
                     Pending:
                   </ion-col>
-                  <ion-col>
+                  <ion-col size="4">
                     <ion-badge color="primary">
                       {{ inspectionReports.pending? inspectionReports.pending:'-' }}
                     </ion-badge>
                   </ion-col>
                 </ion-row>
                 <ion-row>
-                  <ion-col>
+                  <ion-col size="8">
                     Approved:
                   </ion-col>
-                  <ion-col>
+                  <ion-col size="4">
                     <ion-badge color="success">
                       {{ inspectionReports.approved? inspectionReports.approved:'-' }}
                     </ion-badge>
                   </ion-col>
                 </ion-row>
                 <ion-row>
-                  <ion-col>
+                  <ion-col size="8">
                     Rejected:
                   </ion-col>
-                  <ion-col>
+                  <ion-col size="4">
                     <ion-badge color="danger">
                       {{ inspectionReports.rejected? inspectionReports.rejected:'-' }}
+                    </ion-badge>
+                  </ion-col>
+                </ion-row>
+                <ion-row>
+                  <ion-col size="8">
+
+                  </ion-col>
+                  <ion-col size="4">
+                    <ion-badge color="danger">
+                      -
+                    </ion-badge>
+                  </ion-col>
+                </ion-row>
+                <ion-row>
+                  <ion-col size="8">
+                    -
+                  </ion-col>
+                  <ion-col size="4">
+                    <ion-badge color="danger">
                     </ion-badge>
                   </ion-col>
                 </ion-row>
               </div>
             </ion-col>
           </ion-row>
-
-
 
         </ion-card>
       </ion-col>
@@ -330,50 +372,50 @@
             <ion-col style="padding:20px;">
               <div style="height: 100%; padding-left: 20px; border-left: 1px solid #000000; color: #000000;">
                 <ion-row>
-                  <ion-col>
+                  <ion-col size="8">
                     Pending:
                   </ion-col>
-                  <ion-col>
+                  <ion-col size="4">
                     <ion-badge color="warning">
                       {{ this.reports? this.reports.claim_pending:'-' }}
                     </ion-badge>
                   </ion-col>
                 </ion-row>
                 <ion-row>
-                  <ion-col>
+                  <ion-col size="8">
                     Approved:
                   </ion-col>
-                  <ion-col>
+                  <ion-col size="4">
                     <ion-badge color="success">
                       {{ this.reports? this.reports.claim_approved:'-' }}
                     </ion-badge>
                   </ion-col>
                 </ion-row>
                 <ion-row>
-                  <ion-col>
+                  <ion-col size="8">
                     Paid:
                   </ion-col>
-                  <ion-col>
+                  <ion-col size="4">
                     <ion-badge color="primary">
                       {{ this.reports? this.reports.claim_paid:'-' }}
                     </ion-badge>
                   </ion-col>
                 </ion-row>
                 <ion-row>
-                  <ion-col>
+                  <ion-col size="8">
                     Rejected:
                   </ion-col>
-                  <ion-col>
+                  <ion-col size="4">
                     <ion-badge color="danger">
                       {{ this.reports? this.reports.claim_rejected:'-' }}
                     </ion-badge>
                   </ion-col>
                 </ion-row>
                 <ion-row>
-                  <ion-col>
+                  <ion-col size="8">
                     Void:
                   </ion-col>
-                  <ion-col>
+                  <ion-col size="4">
                     <ion-badge color="dark">
                       {{ this.reports? this.reports.claim_void:'-' }}
                     </ion-badge>

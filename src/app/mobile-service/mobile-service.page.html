@@ -11,14 +11,9 @@
 
 <ion-content fullscreen="true" mode="ios">
 
-  <ion-slides pager="true" [options]="slideOpts" class="banners">
-    <ion-slide>
-      <img
-        src="https://firebasestorage.googleapis.com/v0/b/ezcare-1580b.appspot.com/o/mobile_services%2Fmobileservicevan01.png?alt=media&token=2f1fb67f-9fe7-4331-9103-d430167db4f3" />
-    </ion-slide>
-    <ion-slide>
-      <img
-        src="https://firebasestorage.googleapis.com/v0/b/ezcare-1580b.appspot.com/o/mobile_services%2Fmobileservicevan02.png?alt=media&token=1e347977-8d4d-4f07-a665-34645295e8d0" />
+  <ion-slides pager="true" [options]="slideOpts" class="banners" *ngIf="settings && settings.banners">
+    <ion-slide *ngFor="let image of settings.banners">
+      <img [src]="image" />
     </ion-slide>
   </ion-slides>
 
@@ -125,8 +120,11 @@
       <ion-card-title>OUR MOBILE SERVICE UNIT</ion-card-title>
     </ion-card-header>
 
-    <ion-slides pager="true" [options]="slideOpts" class="banners">
-      <ion-slide>
+    <ion-slides pager="true" [options]="slideOpts" class="banners" *ngIf="settings && settings.unit_banners">
+      <ion-slide *ngFor="let image of settings.unit_banners">
+        <img [src]="image" />
+      </ion-slide>
+      <!-- <ion-slide>
         <img
           src="https://firebasestorage.googleapis.com/v0/b/ezcare-1580b.appspot.com/o/mobile_services%2Fmb1-min.png?alt=media&token=d100c721-3d98-4998-b343-ba70aa732311" />
       </ion-slide>
@@ -149,7 +147,7 @@
       <ion-slide>
         <img
           src="https://firebasestorage.googleapis.com/v0/b/ezcare-1580b.appspot.com/o/mobile_services%2Fmb6-min.png?alt=media&token=04b0bf11-a59c-440a-b8de-2d44b3c264b3" />
-      </ion-slide>
+      </ion-slide> -->
     </ion-slides>
 
   </ion-card>

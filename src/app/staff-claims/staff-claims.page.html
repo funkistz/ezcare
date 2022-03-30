@@ -5,7 +5,7 @@
     </ion-title>
   </ion-toolbar>
 
-  <ion-searchbar mode="ios" placeholder="Enter Policy ID or Reg No" [(ngModel)]="searchText" debounce="100"
+  <ion-searchbar mode="ios" placeholder="Enter Policy No or Reg No" [(ngModel)]="searchText" debounce="100"
     (ionChange)="searchClaims($event)">
   </ion-searchbar>
 
@@ -22,7 +22,64 @@
 
 <ion-content>
 
-  <ion-card mode="ios" style="margin-top: 15px;">
+  <ion-accordion-group mode="ios" style="margin-top: 15px;" [value]="groupServices[0].name"
+    *ngIf="groupServices && groupServices[0] && groupServices[0].data && groupServices[0].data.length > 0">
+
+    <ion-accordion [value]="groupService.name" *ngFor="let groupService of groupServices">
+      <ion-item slot="header">
+        <ion-label>{{ groupService.name }}</ion-label>
+      </ion-item>
+
+      <ion-list slot="content">
+        <ion-item *ngFor="let service of groupService.data" (click)="viewClaim(service.id)">
+          <ion-label>
+            <h2>Policy No: {{ service.policy.cust_policyno }}</h2>
+            <ion-badge color="light">
+              {{ service.policy.cust_vehicleregno }}
+            </ion-badge><br>
+            <ion-badge color="light">
+              {{ service.status }}
+            </ion-badge>
+          </ion-label>
+          <ion-note slot="end">
+            {{ service.created_at | date : "d/MM/y" }}
+          </ion-note>
+        </ion-item>
+      </ion-list>
+    </ion-accordion>
+
+  </ion-accordion-group>
+
+  <ion-item class="ez-item" *ngIf="isSearching">
+    <ion-label>
+      <h2>
+        <ion-skeleton-text animated style="width: 60%"></ion-skeleton-text>
+      </h2>
+      <h2>
+        <ion-skeleton-text animated style="width: 60%"></ion-skeleton-text>
+      </h2>
+    </ion-label>
+    <ion-note slot="end">
+    </ion-note>
+  </ion-item>
+
+  <ion-item class="ez-item" *ngIf="!services && !isSearched && !isSearching">
+    <ion-label>
+      <h2 style="text-overflow: initial; white-space: normal;">
+        Please search by policy no or registration number to view claims.
+      </h2>
+    </ion-label>
+  </ion-item>
+
+  <ion-item class="ez-item" *ngIf="!services && isSearched && !isSearching">
+    <ion-label>
+      <h2>
+        No claim record
+      </h2>
+    </ion-label>
+  </ion-item>
+
+  <!-- <ion-card mode="ios" style="margin-top: 15px;">
 
     <ion-card-content style="padding-left:10px; padding-bottom: 40px;">
       <ion-list mode="ios">
@@ -73,7 +130,7 @@
       </ion-list>
     </ion-card-content>
 
-  </ion-card>
+  </ion-card> -->
 
   <ion-fab vertical="bottom" horizontal="end" slot="fixed" *ngIf="staff && staff.user_role == 5">
     <ion-fab-button color="success" (click)="addClaim()">

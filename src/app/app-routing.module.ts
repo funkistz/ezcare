@@ -93,7 +93,11 @@ const routes: Routes = [
   {
     path: 'policy',
     loadChildren: () => import('./staff/policy/policy.module').then(m => m.PolicyPageModule)
-  }
+  },
+  {
+    path: 'endorsement',
+    loadChildren: () => import('./endorsement/endorsement.module').then( m => m.EndorsementPageModule)
+  },
 ];
 @NgModule({
   imports: [

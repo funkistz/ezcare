@@ -58,15 +58,21 @@
       </ion-col>
     </ion-row>
     <ion-row *ngIf="user && user.user_id">
-      <ion-col size="4" style="padding-top: 10px;">Is Active:</ion-col>
-      <ion-col size="8">
+      <ion-col size="8" style="padding-top: 10px;">Is Active:</ion-col>
+      <ion-col size="4">
         <ion-toggle mode="ios" [(ngModel)]="isActive"></ion-toggle>
       </ion-col>
     </ion-row>
     <ion-row>
-      <ion-col size="4" style="padding-top: 10px;">Is Manager:</ion-col>
-      <ion-col size="8">
+      <ion-col size="8" style="padding-top: 10px;">Is Manager:</ion-col>
+      <ion-col size="4">
         <ion-toggle mode="ios" [(ngModel)]="isManager"></ion-toggle>
+      </ion-col>
+    </ion-row>
+    <ion-row>
+      <ion-col size="8" style="padding-top: 10px;">Is Endorsement Approver:</ion-col>
+      <ion-col size="4">
+        <ion-toggle mode="ios" [(ngModel)]="isEndorsementApprover"></ion-toggle>
       </ion-col>
     </ion-row>
     <ion-row>

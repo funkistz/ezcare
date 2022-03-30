@@ -659,4 +659,14 @@ export class StaffHomePage {
       window.open(link, '_system', 'location=yes');
     }
   }
+
+  goEndorsementPage() {
+
+    let navigationExtras: NavigationExtras = {
+      queryParams: {
+      }
+    };
+
+    this.router.navigate(['/endorsement'], navigationExtras);
+  }
 }

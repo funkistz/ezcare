@@ -1,0 +1,93 @@
+<ion-header>
+  <ion-toolbar mode="ios" color="primary">
+    <ion-buttons slot="start">
+      <ion-back-button></ion-back-button>
+    </ion-buttons>
+    <ion-title>
+      Mobile Service
+    </ion-title>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content class="ion-padding">
+
+  <div class="ion-padding ion-text-center" *ngIf="!settings">
+    <ion-spinner></ion-spinner>
+  </div>
+
+  <div *ngIf="settings">
+
+    <ion-item fill="outline" mode="md" class="ez-material-input">
+      <ion-label position="floating">Mobile Service Phone Numbers: </ion-label>
+      <ion-input [(ngModel)]="settings.phones">
+      </ion-input>
+    </ion-item>
+
+    <ion-item fill="outline" mode="md" class="ez-material-input">
+      <ion-label position="floating">Mobile Service Whatsapp Template: </ion-label>
+      <ion-textarea rows="10" [(ngModel)]="settings.whatsapp_template">
+      </ion-textarea>
+    </ion-item>
+
+    <h2>
+      Mobile Service Banners
+    </h2>
+
+    <ion-grid>
+      <ion-row>
+        <ion-col size="6" style="height: 140px;" *ngFor="let image of settings.banners; index as i;">
+          <ion-img style="height: 100%; object-fit: cover; border-radius: 8px; overflow: hidden; border: 2px solid;"
+            role="button" class="image" [src]="image" *ngIf="image" (click)="imagePreview(image)">
+          </ion-img>
+          <ion-chip class="chip-close" (click)="removeImage(i,'banners')">
+            <ion-icon name="close"></ion-icon>
+          </ion-chip>
+        </ion-col>
+        <ion-col size="6" style="height: 140px;">
+          <ion-card style="margin: 0; border: 2px solid; height: 100%;" (click)="selectImageSource('banners')">
+            <ion-icon name="image-outline" style="font-size: 40px; margin: 15px 15px 0 15px; color: black;">
+            </ion-icon>
+            <ion-card-header>
+              <ion-card-title style="font-size: 18px;">Add Image</ion-card-title>
+            </ion-card-header>
+          </ion-card>
+        </ion-col>
+      </ion-row>
+    </ion-grid>
+
+    <h2>
+      Mobile Service Unit Banners
+    </h2>
+
+    <ion-grid>
+      <ion-row>
+        <ion-col size="6" style="height: 140px;" *ngFor="let image of settings.unit_banners; index as i;">
+          <ion-img style="height: 100%; object-fit: cover; border-radius: 8px; overflow: hidden; border: 2px solid;"
+            role="button" class="image" [src]="image" *ngIf="image" (click)="imagePreview(image)">
+          </ion-img>
+          <ion-chip class="chip-close" (click)="removeImage(i,'unit_banners')">
+            <ion-icon name="close"></ion-icon>
+          </ion-chip>
+        </ion-col>
+        <ion-col size="6" style="height: 140px;">
+          <ion-card style="margin: 0; border: 2px solid; height: 100%;" (click)="selectImageSource('unit_banners')">
+            <ion-icon name="image-outline" style="font-size: 40px; margin: 15px 15px 0 15px; color: black;">
+            </ion-icon>
+            <ion-card-header>
+              <ion-card-title style="font-size: 18px;">Add Image</ion-card-title>
+            </ion-card-header>
+          </ion-card>
+        </ion-col>
+      </ion-row>
+    </ion-grid>
+
+    <ion-row>
+      <ion-col class="ion-no-padding">
+        <ion-button expand="block" *ngIf="!generals" disabled>Update</ion-button>
+        <ion-button expand="block" (click)="updateSettings()" *ngIf="generals">Update</ion-button>
+      </ion-col>
+    </ion-row>
+  </div>
+
+
+</ion-content>

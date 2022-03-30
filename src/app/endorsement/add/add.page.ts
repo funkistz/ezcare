@@ -1,8 +1,8 @@
 import { Component, OnInit } from '@angular/core';
 import { FormGroup, FormBuilder, Validators } from "@angular/forms";
 import { AngularFirestore } from '@angular/fire/compat/firestore';
-import { AuthenticationService } from '../services/authentication.service';
-import { HelperService } from '../services/helper.service';
+import { AuthenticationService } from '../../services/authentication.service';
+import { HelperService } from '../../services/helper.service';
 import { Camera, CameraResultType, CameraSource, Photo } from '@capacitor/camera';
 import { Platform, LoadingController, ToastController, ActionSheetController, AlertController } from '@ionic/angular';
 import { decode } from "base64-arraybuffer";
@@ -16,11 +16,11 @@ import { Router, NavigationExtras, ActivatedRoute } from '@angular/router';
 import { PhotoViewer } from '@awesome-cordova-plugins/photo-viewer/ngx';
 
 @Component({
-  selector: 'app-staff-add-logs',
-  templateUrl: './staff-add-logs.page.html',
-  styleUrls: ['./staff-add-logs.page.scss'],
+  selector: 'app-add',
+  templateUrl: './add.page.html',
+  styleUrls: ['./add.page.scss'],
 })
-export class StaffAddLogsPage implements OnInit {
+export class AddPage implements OnInit {
 
   numbering = [
     '1st',
@@ -66,14 +66,15 @@ export class StaffAddLogsPage implements OnInit {
   ngOnInit() {
 
     this.ionicForm = this.formBuilder.group({
-      dealer: ['', []],
-      vehicle: ['', []],
-      mileage: ['', []],
+      vehicle_model: ['', [Validators.required]],
+      reg_no: ['', [Validators.required]],
+      dealer: ['', [Validators.required]],
       warranty_plan: ['', []],
-      chassis: ['', []],
-      remarks: ['', []],
-      marketing_officer: ['', []],
-      date: ['', []],
+      activated_date: ['', []],
+      expired_date: ['', []],
+      reasons: ['', []],
+      // marketing_officer: ['', []],
+      // date: ['', []],
     })
 
     this.getStaff();
@@ -104,18 +105,22 @@ export class StaffAddLogsPage implements OnInit {
     this.loading = true;
     this.loadingText = 'Please wait ';
 
-    return this.firestore.collection('inspections').doc(id).valueChanges().subscribe((data: any) => {
+    return this.firestore.collection('endorsement').doc(id).valueChanges().subscribe((data: any) => {
 
       this.inspection = data;
       if (data) {
+        this.ionicForm.controls['vehicle_model'].setValue(data.vehicle_model);
+        this.ionicForm.controls['reg_no'].setValue(data.reg_no);
         this.ionicForm.controls['dealer'].setValue(data.dealer);
-        this.ionicForm.controls['vehicle'].setValue(data.vehicle);
-        this.ionicForm.controls['mileage'].setValue(data.mileage);
         this.ionicForm.controls['warranty_plan'].setValue(data.warranty_plan);
-        this.ionicForm.controls['chassis'].setValue(data.chassis);
-        this.ionicForm.controls['remarks'].setValue(data.remarks);
-        this.ionicForm.controls['marketing_officer'].setValue(data.marketing_officer.id);
-        // this.ionicForm.value.dealer = data.dealer;
+
+        if (data.activated_date) {
+          this.ionicForm.controls['activated_date'].setValue(moment(data.activated_date.toDate()).format('YYYY-MM-DD'));
+        }
+        if (data.expired_date) {
+          this.ionicForm.controls['expired_date'].setValue(moment(data.expired_date.toDate()).format('YYYY-MM-DD'));
+        }
+        this.ionicForm.controls['reasons'].setValue(data.reasons);
       }
 
       this.loading = false;
@@ -150,15 +155,14 @@ export class StaffAddLogsPage implements OnInit {
         text: 'Take Photo',
         icon: 'camera',
         handler: () => {
-          this.takePicture();
+          this.addImage(CameraSource.Camera);
         }
       },
       {
         text: 'Choose From Photos',
         icon: 'image',
         handler: () => {
-          this.pickImage();
-          // this.addImage(CameraSource.Photos);
+          this.addImage(CameraSource.Photos);
         }
       }
     ];
@@ -171,41 +175,6 @@ export class StaffAddLogsPage implements OnInit {
     await actionSheet.present();
   }
 
-  async pickImage() {
-
-    let images = await this.helper.imagePicker();
-    console.log('pickImage', images);
-
-    images.forEach(image => {
-
-      console.log('image', image);
-
-      this.inspectImages.push({
-        id: Date.now(),
-        file: image.file.original,
-        file_thumbnail: image.file.thumbnail,
-        url: image.webPath,
-        format: image.format
-      });
-
-    });
-
-
-  }
-
-  async takePicture() {
-    let image = await this.helper.camera();
-    console.log('takePicture', image);
-
-    this.inspectImages.push({
-      id: Date.now(),
-      file: image.file.original,
-      file_thumbnail: image.file.thumbnail,
-      url: image.webPath,
-      format: image.format
-    });
-  }
-
   async addImage(source: CameraSource) {
 
     const image = await Camera.getPhoto({
@@ -214,8 +183,6 @@ export class StaffAddLogsPage implements OnInit {
       resultType: CameraResultType.Base64,
       source
     });
-
-    console.log('image.base64String', image.base64String);
 
     const blob = new Blob([new Uint8Array(decode(image.base64String))], {
       type: `image/${image.format}`,
@@ -327,17 +294,19 @@ export class StaffAddLogsPage implements OnInit {
 
     let data: any = this.ionicForm.value;
 
-    if (this.ionicForm.value.marketing_officer && this.ionicForm.value.marketing_officer.id) {
-      data.marketing_officer = {
-        id: this.ionicForm.value.marketing_officer.id,
-        name: this.ionicForm.value.marketing_officer.name,
-      };
-    }
+    // if (this.ionicForm.value.marketing_officer && this.ionicForm.value.marketing_officer.id) {
+    //   data.marketing_officer = {
+    //     id: this.ionicForm.value.marketing_officer.id,
+    //     name: this.ionicForm.value.marketing_officer.name,
+    //   };
+    // }
     data.date = new Date();
     data.images = [];
     data.created_by = this.staff.user_id;
     data.created_by_name = this.staff.user_fullname;
     data.status = 'pending';
+    data.activated_date = moment(this.ionicForm.value.activated_date, 'YYYY-MM-DD').toDate();
+    data.expired_date = moment(this.ionicForm.value.expired_date, 'YYYY-MM-DD').toDate();
 
     let index = 1;
     for (const inspectImage of this.inspectImages) {
@@ -349,7 +318,7 @@ export class StaffAddLogsPage implements OnInit {
       }
 
       let upload = await this.uploadToFirebase(inspectImage.file, data.reg_no);
-      let uploadThumb = await this.uploadToFirebase(inspectImage.file_thumbnail, data.reg_no);
+      let uploadThumb = await this.uploadToFirebase(inspectImage.fileThumb, data.reg_no);
       console.log('finish... report', upload.url);
 
       data.images.push({
@@ -363,11 +332,11 @@ export class StaffAddLogsPage implements OnInit {
     console.log('finish upload', data);
     this.loadingText = 'Almost finish ';
 
-    this.firestore.collection('/inspections/').add(data).then(() => {
+    this.firestore.collection('/endorsement/').add(data).then(() => {
       console.log('success');
       this.loading = false;
       this.loadingText = '';
-      this.helper.presentToast('Inspection successfully added.');
+      this.helper.presentToast('Endorsement successfully added.');
       this.navCtrl.back();
 
       // this.addrecord = {type :'', description :'', amount: null} 
@@ -385,7 +354,7 @@ export class StaffAddLogsPage implements OnInit {
     this.loading = true;
     this.loadingText = 'Please wait ';
 
-    this.firestore.doc<any>('inspections/' + this.inspection_id).update({
+    this.firestore.doc<any>('endorsement/' + this.inspection_id).update({
       status_changed_by: {
         id: this.staff.staff_id,
         name: this.staff.user_fullname,
@@ -397,7 +366,7 @@ export class StaffAddLogsPage implements OnInit {
       console.log('success');
       this.loading = false;
       this.loadingText = '';
-      this.helper.presentToast('Inspection successfully updated.');
+      this.helper.presentToast('Endorsement successfully updated.');
       this.navCtrl.back();
 
     }).catch(error => {
@@ -485,11 +454,11 @@ export class StaffAddLogsPage implements OnInit {
         text: 'Okay',
         handler: () => {
 
-          this.firestore.doc<any>('inspections/' + this.inspection_id).delete().then(() => {
+          this.firestore.doc<any>('endorsement/' + this.inspection_id).delete().then(() => {
             console.log('success');
             this.loading = false;
             this.loadingText = '';
-            this.helper.presentToast('Inspection successfully deleted.');
+            this.helper.presentToast('Endorsement successfully deleted.');
             this.navCtrl.back();
 
           }).catch(error => {
@@ -508,4 +477,5 @@ export class StaffAddLogsPage implements OnInit {
 
     await alert.present();
   }
+
 }

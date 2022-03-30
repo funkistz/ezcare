@@ -77,4 +77,15 @@ export class ViewPage implements OnInit {
 
   }
 
+  viewClaim(claim_id) {
+
+    let navigationExtras: NavigationExtras = {
+      queryParams: {
+        claim_id: claim_id
+      }
+    };
+    this.router.navigate(['/policy/view/claim'], navigationExtras);
+
+  }
+
 }

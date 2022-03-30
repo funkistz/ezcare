@@ -7,6 +7,10 @@ const routes: Routes = [
   {
     path: '',
     component: ViewPage
+  },
+  {
+    path: 'claim',
+    loadChildren: () => import('../../../staff-view-claims/staff-view-claims.module').then(m => m.StaffViewClaimsPageModule)
   }
 ];
 
@@ -14,4 +18,4 @@ const routes: Routes = [
   imports: [RouterModule.forChild(routes)],
   exports: [RouterModule],
 })
-export class ViewPageRoutingModule {}
+export class ViewPageRoutingModule { }
