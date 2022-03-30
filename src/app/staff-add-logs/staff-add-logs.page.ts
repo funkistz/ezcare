@@ -3,11 +3,7 @@ import { FormGroup, FormBuilder, Validators } from "@angular/forms";
 import { AngularFirestore } from '@angular/fire/compat/firestore';
 import { AuthenticationService } from '../services/authentication.service';
 import { HelperService } from '../services/helper.service';
-import { Camera, CameraResultType, CameraSource, Photo } from '@capacitor/camera';
 import { Platform, LoadingController, ToastController, ActionSheetController, AlertController } from '@ionic/angular';
-import { decode } from "base64-arraybuffer";
-import * as moment from 'moment';
-import { finalize, tap } from 'rxjs/operators';
 import { AngularFireStorage, AngularFireUploadTask } from '@angular/fire/compat/storage';
 import { Observable } from 'rxjs';
 import { Storage } from '@capacitor/storage';
@@ -55,7 +51,6 @@ export class StaffAddLogsPage implements OnInit {
     private helper: HelperService,
     private actionSheetCtrl: ActionSheetController,
     public alertController: AlertController,
-    private afStorage: AngularFireStorage,
     private navCtrl: NavController,
     private route: ActivatedRoute,
     private photoViewer: PhotoViewer,
@@ -158,7 +153,6 @@ export class StaffAddLogsPage implements OnInit {
         icon: 'image',
         handler: () => {
           this.pickImage();
-          // this.addImage(CameraSource.Photos);
         }
       }
     ];
@@ -177,9 +171,6 @@ export class StaffAddLogsPage implements OnInit {
     console.log('pickImage', images);
 
     images.forEach(image => {
-
-      console.log('image', image);
-
       this.inspectImages.push({
         id: Date.now(),
         file: image.file.original,
@@ -189,8 +180,6 @@ export class StaffAddLogsPage implements OnInit {
       });
 
     });
-
-
   }
 
   async takePicture() {
@@ -206,117 +195,9 @@ export class StaffAddLogsPage implements OnInit {
     });
   }
 
-  async addImage(source: CameraSource) {
-
-    const image = await Camera.getPhoto({
-      quality: 50,
-      allowEditing: true,
-      resultType: CameraResultType.Base64,
-      source
-    });
-
-    console.log('image.base64String', image.base64String);
-
-    const blob = new Blob([new Uint8Array(decode(image.base64String))], {
-      type: `image/${image.format}`,
-    });
-    let filename: string = "" + moment().unix();
-
-    const file = new File([blob], filename, {
-      lastModified: moment().unix(),
-      type: blob.type,
-    });
-
-    let im = new Image;
-    im.src = "data:image/jpeg;base64, " + image.base64String;
-    im.onload = () => {
-
-      let formula;
-      let width = im.width;
-      let height = im.height;
-      if (im.width < im.height) {
-        formula = im.width / im.height;
-
-        height = 250;
-        width = 250 * formula;
-      } else {
-        formula = im.height / im.width;
-
-        width = 250;
-        height = 250 * formula;
-      }
-
-      this.compressImage("data:image/jpeg;base64, " + image.base64String, width, height).then((compressed: any) => {
-        // console.log('compressed', compressed);
-        // this.resizedBase64 = compressed;
-        compressed = compressed.split(',')[1];
-
-        const blob2 = new Blob([new Uint8Array(decode(compressed))], {
-          type: `image/${image.format}`,
-        });
-        let filename: string = "" + moment().unix();
-
-        const file2 = new File([blob2], filename, {
-          lastModified: moment().unix(),
-          type: blob.type,
-        });
-
-        this.inspectImages.push({
-          id: Date.now(),
-          base64: "data:image/jpeg;base64, " + image.base64String,
-          file: file,
-          fileThumb: file2,
-          format: image.format
-        });
-
-      }, error => {
-        console.log('error', error);
-      });
-
-    };
-
-  }
-
   removeImage(index) {
 
     this.inspectImages.splice(index, 1);
-
-  }
-
-  async uploadToFirebase(file, reg_no): Promise<any> {
-
-    return new Promise(async (resolve, reject) => {
-
-      console.log('uploading...');
-
-      const filename = new Date().getTime() + '_' + reg_no;
-
-      // Storage path
-      const fileStoragePath = `inspections/${new Date().getTime()}_${reg_no}`;
-
-      // Image reference
-      const imageRef = this.afStorage.ref(fileStoragePath);
-
-      // File upload task
-      this.fileUploadTask = this.afStorage.upload(fileStoragePath, file);
-      // Show uploading progress
-      this.percentageVal = this.fileUploadTask.percentageChanges();
-
-      await this.fileUploadTask.snapshotChanges().pipe(
-        finalize(async () => {
-          console.log('finish fileUploadTask');
-
-          await imageRef.getDownloadURL().subscribe(downloadURL => {
-
-            resolve({
-              name: filename,
-              url: downloadURL,
-            });
-
-          });
-        })
-      ).toPromise();
-    });
 
   }
 
@@ -348,8 +229,8 @@ export class StaffAddLogsPage implements OnInit {
         this.loadingText = 'Uploading ' + index + 'th image ';
       }
 
-      let upload = await this.uploadToFirebase(inspectImage.file, data.reg_no);
-      let uploadThumb = await this.uploadToFirebase(inspectImage.file_thumbnail, data.reg_no);
+      let upload = await this.helper.uploadToFirebase(inspectImage.file, data.reg_no);
+      let uploadThumb = await this.helper.uploadToFirebase(inspectImage.file_thumbnail, data.reg_no);
       console.log('finish... report', upload.url);
 
       data.images.push({
@@ -442,23 +323,6 @@ export class StaffAddLogsPage implements OnInit {
     });
 
     await alert.present();
-  }
-
-  compressImage(src, newX, newY) {
-    return new Promise((res, rej) => {
-      const img = new Image();
-      img.src = src;
-      img.onload = () => {
-        const elem = document.createElement('canvas');
-        elem.width = newX;
-        elem.height = newY;
-        const ctx = elem.getContext('2d');
-        ctx.drawImage(img, 0, 0, newX, newY);
-        const data = ctx.canvas.toDataURL();
-        res(data);
-      }
-      img.onerror = error => rej(error);
-    })
   }
 
   imagePreview(src) {

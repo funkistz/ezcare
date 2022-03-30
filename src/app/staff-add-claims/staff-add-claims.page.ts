@@ -109,7 +109,6 @@ export class StaffAddClaimsPage implements OnInit {
 
     this.authService.getGenerals().subscribe(
       data => {
-        console.log('wtf', data);
 
         if (data && data.data) {
 
@@ -219,35 +218,24 @@ export class StaffAddClaimsPage implements OnInit {
         text: 'Take Photo',
         icon: 'camera',
         handler: () => {
-          this.addImage(CameraSource.Camera, type);
+          this.takePicture(type);
         }
       },
       {
         text: 'Choose From Photos',
         icon: 'image',
         handler: () => {
-          this.addImage(CameraSource.Photos, type);
+          this.pickImage(type);
         }
       },
       {
         text: 'Files',
         icon: 'document',
         handler: () => {
-          this.filePicker();
+          this.filePicker(type);
         }
       }
     ];
-
-    // Only allow file selection inside a browser
-    // if (!this.plt.is('hybrid')) {
-    //   buttons.push({
-    //     text: 'Choose a File',
-    //     icon: 'attach',
-    //     handler: () => {
-    //       this.fileInput.nativeElement.click();
-    //     }
-    //   });
-    // }
 
     const actionSheet = await this.actionSheetCtrl.create({
       header: 'Select Image Source',
@@ -257,7 +245,133 @@ export class StaffAddClaimsPage implements OnInit {
     await actionSheet.present();
   }
 
-  filePicker() {
+  async pickImage(type) {
+
+    let images = await this.helper.imagePicker();
+
+    if (this.claim && this.claim.id) {
+      const alert = await this.alertController.create({
+        header: 'Claim Exist!',
+        message: 'Are you sure want to upload the image?',
+        buttons: [
+          {
+            text: 'Cancel',
+            role: 'cancel',
+            cssClass: 'secondary',
+            handler: (blah) => {
+            }
+          }, {
+            text: 'Upload',
+            handler: () => {
+
+              images.forEach(image => {
+
+                let data = {
+                  id: Date.now(),
+                  file: image.file.original,
+                  file_thumbnail: image.file.thumbnail,
+                  url: image.webPath,
+                  format: image.format
+                }
+
+                if (type == 'report') {
+                  this.reportImages.push(data);
+                } else if (type == 'quotation') {
+                  this.quotationImages.push(data);
+                } else if (type == 'claim_letter') {
+                  this.claimLetterImages.push(data);
+                }
+
+              });
+
+              console.log('reportImages', this.reportImages);
+
+              // this.processUpload(data.file, data.reg_no, type);
+            }
+          }
+        ]
+      });
+      await alert.present();
+    } else {
+
+      await images.forEach(image => {
+
+        let data = {
+          id: Date.now(),
+          file: image.file.original,
+          file_thumbnail: image.file.thumbnail,
+          url: image.webPath,
+          format: image.format
+        }
+
+        if (type == 'report') {
+          this.reportImages.push(data);
+        } else if (type == 'quotation') {
+          this.quotationImages.push(data);
+        } else if (type == 'claim_letter') {
+          this.claimLetterImages.push(data);
+        }
+
+      });
+
+    }
+  }
+
+  async takePicture(type) {
+    let image = await this.helper.camera();
+
+    let data = {
+      id: Date.now(),
+      file: image.file.original,
+      file_thumbnail: image.file.thumbnail,
+      url: image.webPath,
+      format: image.format
+    }
+
+    if (this.claim && this.claim.id) {
+      const alert = await this.alertController.create({
+        header: 'Claim Exist!',
+        message: 'Are you sure want to upload the image?',
+        buttons: [
+          {
+            text: 'Cancel',
+            role: 'cancel',
+            cssClass: 'secondary',
+            handler: (blah) => {
+            }
+          }, {
+            text: 'Upload',
+            handler: () => {
+
+              if (type == 'report') {
+                this.reportImages.push(data);
+              } else if (type == 'quotation') {
+                this.quotationImages.push(data);
+              } else if (type == 'claim_letter') {
+                this.claimLetterImages.push(data);
+              }
+
+              // this.processUpload(data.file, data.reg_no, type);
+            }
+          }
+        ]
+      });
+      await alert.present();
+    } else {
+
+      if (type == 'report') {
+        this.reportImages.push(data);
+      } else if (type == 'quotation') {
+        this.quotationImages.push(data);
+      } else if (type == 'claim_letter') {
+        this.claimLetterImages.push(data);
+      }
+
+    }
+
+  }
+
+  filePicker(type) {
     this.chooser.getFile()
       .then(file => console.log(file ? file.name : 'canceled'))
       .catch((error: any) => console.error(error));
@@ -340,7 +454,7 @@ export class StaffAddClaimsPage implements OnInit {
 
   async processUpload(file, reg_no, type) {
     this.helper.presentLoading();
-    let downloadURL = await this.uploadToFirebase(file, reg_no, type, true);
+    let downloadURL = await this.helper.uploadToFirebase(file, reg_no);
 
     if (type == 'report') {
       this.updateClaimAttachment(this.claim.id, downloadURL.url, 'storeReport');
@@ -348,23 +462,6 @@ export class StaffAddClaimsPage implements OnInit {
       this.updateClaimAttachment(this.claim.id, downloadURL.url, 'storeQuotation');
     } else if (type == 'claim_letter') {
       this.updateClaimAttachment(this.claim.id, downloadURL.url, 'storeClaimLetter');
-    }
-  }
-
-  private async readAsBase64(photo: Photo) {
-    if (this.plt.is('hybrid')) {
-      const file = await Filesystem.readFile({
-        path: photo.path
-      });
-
-      return file.data;
-    }
-    else {
-      // Fetch the photo, read as a blob, then convert to base64 format
-      const response = await fetch(photo.webPath);
-      const blob = await response.blob();
-
-      return await this.convertBlobToBase64(blob) as string;
     }
   }
 
@@ -377,24 +474,6 @@ export class StaffAddClaimsPage implements OnInit {
     reader.readAsDataURL(blob);
   });
 
-  // Used for browser direct file upload
-  // uploadFile(event: EventTarget) {
-  //   const eventObj: MSInputMethodContext = event as MSInputMethodContext;
-  //   const target: HTMLInputElement = eventObj.target as HTMLInputElement;
-  //   const file: File = target.files[0];
-  //   this.api.uploadImageFile(file).subscribe((newImage: ApiImage) => {
-  //     this.images.push(newImage);
-  //   });
-  // }
-
-  // deleteImage(image: ApiImage, index) {
-  //   this.api.deleteImage(image._id).subscribe(res => {
-  //     this.images.splice(index, 1);
-  //   });
-  // }
-
-  // Helper function
-  // https://stackoverflow.com/questions/16245767/creating-a-blob-from-a-base64-string-in-javascript
   b64toBlob(b64Data, contentType = '', sliceSize = 512) {
     const byteCharacters = atob(b64Data);
     const byteArrays = [];
@@ -428,7 +507,7 @@ export class StaffAddClaimsPage implements OnInit {
     console.log('data', data);
 
     for (const reportImage of this.reportImages) {
-      let upload = await this.uploadToFirebase(reportImage.file, data.reg_no, 'report');
+      let upload = await this.helper.uploadToFirebase(reportImage.file, data.reg_no);
       console.log('finish... report', upload.url);
       this.reportImagesUrl.push({
         name: upload.filename,
@@ -437,7 +516,7 @@ export class StaffAddClaimsPage implements OnInit {
     }
 
     for (const quotationImage of this.quotationImages) {
-      let upload2 = await this.uploadToFirebase(quotationImage.file, data.reg_no, 'quotation');
+      let upload2 = await this.helper.uploadToFirebase(quotationImage.file, data.reg_no);
       console.log('finish... quotation', upload2.url2);
       this.quotationImagesUrl.push({
         name: upload2.filename,
@@ -446,7 +525,7 @@ export class StaffAddClaimsPage implements OnInit {
     }
 
     for (const claimLetterImage of this.claimLetterImages) {
-      let upload3 = await this.uploadToFirebase(claimLetterImage.file, data.reg_no, 'claim_letter');
+      let upload3 = await this.helper.uploadToFirebase(claimLetterImage.file, data.reg_no);
       console.log('finish... claim_letter', upload3.url2);
       this.claimLetterImagesUrl.push({
         name: upload3.filename,
@@ -507,7 +586,7 @@ export class StaffAddClaimsPage implements OnInit {
 
   }
 
-  async uploadToFirebase(file, reg_no, type, isUpdate = false): Promise<any> {
+  async uploadToFirebase(file, reg_no): Promise<any> {
 
     return new Promise(async (resolve, reject) => {
 
@@ -543,82 +622,6 @@ export class StaffAddClaimsPage implements OnInit {
 
 
     });
-    console.log('uploading...');
-
-    const filename = new Date().getTime() + '_' + reg_no;
-
-    // Storage path
-    const fileStoragePath = `claims/${new Date().getTime()}_${reg_no}`;
-
-    // Image reference
-    const imageRef = this.afStorage.ref(fileStoragePath);
-
-    // File upload task
-    this.fileUploadTask = this.afStorage.upload(fileStoragePath, file);
-    // Show uploading progress
-    this.percentageVal = this.fileUploadTask.percentageChanges();
-
-
-    // await this.fileUploadTask.snapshotChanges().pipe(
-    //   finalize(async () => {
-    //     console.log('finish fileUploadTask');
-
-    //     await imageRef.getDownloadURL().subscribe(downloadURL => {
-    //       console.log('downloadURL', downloadURL);
-    //       downloadURLlink = downloadURLlink;
-
-    //       if (type == 'report') {
-
-    //         if (isUpdate) {
-    //           this.updateClaimAttachment(this.claim.id, downloadURL, 'storeReport');
-    //         } else {
-    //           this.reportImagesUrl.push({
-    //             name: filename,
-    //             image_link: downloadURL,
-    //           });
-    //         }
-
-    //       } else if (type == 'quotation') {
-
-    //         if (isUpdate) {
-    //           this.updateClaimAttachment(this.claim.id, downloadURL, 'storeQuotation');
-    //         } else {
-    //           this.quotationImagesUrl.push({
-    //             name: filename,
-    //             image_link: downloadURL,
-    //           });
-    //         }
-
-    //       }
-
-    //     });
-    //   })
-    // ).toPromise();
-
-    // return downloadURLlink;
-
-    // this.trackSnapshot = this.fileUploadTask.snapshotChanges().pipe(
-
-    //   finalize(() => {
-    //     console.log('finalize');
-
-    //     // Retreive uploaded image storage path
-    //     this.UploadedImageURL = imageRef.getDownloadURL();
-    //     this.UploadedImageURL.subscribe(resp => {
-
-    //       // resp; this is image path 
-
-    //       console.log('image path', resp);
-
-    //     }, error => {
-    //       console.log(error);
-    //     })
-    //   }),
-    //   tap(snap => {
-    //     console.log('trackSnapshot');
-    //     // this.imgSize = snap.totalBytes;
-    //   })
-    // )
 
   }
 

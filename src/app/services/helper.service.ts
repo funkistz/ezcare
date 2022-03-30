@@ -5,6 +5,8 @@ import { Platform } from '@ionic/angular';
 import { Filesystem, Directory, Encoding } from '@capacitor/filesystem';
 import { decode } from "base64-arraybuffer";
 import * as moment from 'moment';
+import { AngularFireStorage, AngularFireUploadTask } from '@angular/fire/compat/storage';
+import { finalize, tap } from 'rxjs/operators';
 
 const IMAGE_DIR = 'stored-images';
 
@@ -20,7 +22,8 @@ export class HelperService {
     private alertController: AlertController,
     private loadingController: LoadingController,
     private toastController: ToastController,
-    public platform: Platform
+    public platform: Platform,
+    private afStorage: AngularFireStorage,
   ) { }
 
   async presentToast(message) {
@@ -284,5 +287,41 @@ export class HelperService {
     })
   }
 
+  async uploadToFirebase(file, reg_no): Promise<any> {
+
+    return new Promise(async (resolve, reject) => {
+
+      console.log('uploading...');
+
+      const filename = new Date().getTime() + '_' + reg_no;
+
+      // Storage path
+      const fileStoragePath = `inspections/${new Date().getTime()}_${reg_no}`;
+
+      // Image reference
+      const imageRef = this.afStorage.ref(fileStoragePath);
+
+      // File upload task
+      let fileUploadTask = this.afStorage.upload(fileStoragePath, file);
+      // Show uploading progress
+      let percentageVal = fileUploadTask.percentageChanges();
+
+      await fileUploadTask.snapshotChanges().pipe(
+        finalize(async () => {
+          console.log('finish fileUploadTask');
+
+          await imageRef.getDownloadURL().subscribe(downloadURL => {
+
+            resolve({
+              name: filename,
+              url: downloadURL,
+            });
+
+          });
+        })
+      ).toPromise();
+    });
+
+  }
 
 }

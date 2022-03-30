@@ -34,13 +34,13 @@ export class StaffClaimsPage implements OnInit {
 
   ionViewDidEnter() {
     this.route.queryParams.subscribe(params => {
-      if (params && params.refresh) {
-        this.checkUser();
+      if (params) {
+        this.checkUser(params.refresh);
       }
     });
   }
 
-  async checkUser(event = null, policy_id = null) {
+  async checkUser(refresh = false) {
 
     this.user = null;
     this.staff = null;
@@ -50,8 +50,11 @@ export class StaffClaimsPage implements OnInit {
 
     if (staff) {
       this.staff = JSON.parse(staff);
-      console.log(this.staff);
-      this.getClaims('');
+      // console.log('staff', this.staff);
+
+      if (refresh) {
+        this.getClaims('');
+      }
     }
 
   }

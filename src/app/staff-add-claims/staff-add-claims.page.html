@@ -171,8 +171,8 @@
               </ng-container>
 
               <ion-col size="6" *ngFor="let image of reportImages">
-                <ion-img style="border:1px solid; margin: 5px;" role="button" class="image" [src]="image.base64"
-                  *ngIf="image.base64"></ion-img>
+                <ion-img style="border:1px solid; margin: 5px;" role="button" class="image" [src]="image.url"
+                  *ngIf="image.url"></ion-img>
               </ion-col>
             </ion-row>
           </ion-grid>
@@ -193,8 +193,8 @@
               </ng-container>
 
               <ion-col size="6" *ngFor="let image of quotationImages">
-                <ion-img style="border:1px solid; margin: 5px;" role="button" class="image" [src]="image.base64"
-                  *ngIf="image.base64"></ion-img>
+                <ion-img style="border:1px solid; margin: 5px;" role="button" class="image" [src]="image.url"
+                  *ngIf="image.url"></ion-img>
               </ion-col>
             </ion-row>
           </ion-grid>
@@ -210,12 +210,12 @@
               <ng-container *ngIf="claim">
                 <ion-col size="6" *ngFor="let image of claim.claim_letters">
                   <ion-img style="border:1px solid; margin: 5px;" role="button" class="image" [src]="image.image_link"
-                    *ngIf="image.image_link"></ion-img>
+                    *ngIf="image.url"></ion-img>
                 </ion-col>
               </ng-container>
 
               <ion-col size="6" *ngFor="let image of claimLetterImages">
-                <ion-img style="border:1px solid; margin: 5px;" role="button" class="image" [src]="image.base64"
+                <ion-img style="border:1px solid; margin: 5px;" role="button" class="image" [src]="image.url"
                   *ngIf="image.base64"></ion-img>
               </ion-col>
             </ion-row>
