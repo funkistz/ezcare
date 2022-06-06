@@ -9,6 +9,7 @@ import {
 } from '@capacitor/push-notifications';
 import { AngularFirestore } from '@angular/fire/compat/firestore';
 import { HelperService } from '../services/helper.service';
+import { Platform } from '@ionic/angular';
 
 @Component({
   selector: 'app-starter',
@@ -24,6 +25,7 @@ export class StarterPage implements OnInit {
     private router: Router,
     private firestore: AngularFirestore,
     private helper: HelperService,
+    public platform: Platform
   ) { }
 
   ngOnInit() {
@@ -32,8 +34,6 @@ export class StarterPage implements OnInit {
 
   ionViewDidEnter() {
     this.checkUser();
-
-    this.startPushNotification();
   }
 
   startPushNotification() {
@@ -46,45 +46,20 @@ export class StarterPage implements OnInit {
     PushNotifications.requestPermissions().then(result => {
       if (result.receive === 'granted') {
         // Register with Apple / Google to receive push via APNS/FCM
+        console.log('register notification');
         PushNotifications.register();
       } else {
         // Show some error
+        console.log('not register notification');
       }
     });
 
     // On success, we should be able to receive notifications
     PushNotifications.addListener('registration',
       (token: Token) => {
-        // alert('Push registration success, token: ' + token.value);
+        console.log('Push registration success, token: ' + token.value);
 
-        if (this.staff) {
-          let data = this.staff;
-          data.token = token.value;
-
-          console.log('this.staff.staff_id', this.staff.staff_id);
-          this.firestore.collection('/staffs/').doc('staff_' + this.staff.staff_id).set(data, { merge: true }).then(() => {
-            console.log('success');
-          }).catch(error => {
-
-            this.helper.presentToast('Sorry, there is some error occured when assigning push notification.');
-
-          });
-        } else if (this.user) {
-
-          let data = this.user;
-          data.token = token.value;
-
-          let id = this.user.cust_ic.replace(/[^0-9]/g, '');
-          console.log('customers', id);
-
-          this.firestore.collection('/customers/').doc(id).set(data, { merge: true }).then(() => {
-            console.log('success');
-          }).catch(error => {
-
-            this.helper.presentToast('Sorry, there is some error occured when assigning push notification.');
-
-          });
-        }
+        this.registerToken(token);
 
       }
     );
@@ -92,7 +67,7 @@ export class StarterPage implements OnInit {
     // Some issue with our setup and push will not work
     PushNotifications.addListener('registrationError',
       (error: any) => {
-        // alert('Error on registration: ' + JSON.stringify(error));
+        console.log('Error on registration: ' + JSON.stringify(error));
       }
     );
 
@@ -110,6 +85,40 @@ export class StarterPage implements OnInit {
       }
     );
 
+  }
+
+  registerToken(token) {
+    if (this.staff) {
+      let data = this.staff;
+      data.token = token.value;
+
+      console.log(' data.token', data.token);
+      // alert(data.token);
+
+      this.firestore.collection('/staffs/').doc('staff_' + this.staff.staff_id).set(data, { merge: true }).then(() => {
+        console.log('success');
+      }).catch(error => {
+
+        this.helper.presentToast('Sorry, there is some error occured when assigning push notification.');
+
+      });
+    } else if (this.user) {
+
+      let data = this.user;
+      data.token = token.value;
+
+      console.log(' data.token', data.token);
+      let id = this.user.cust_ic.replace(/[^0-9]/g, '');
+      console.log('customers', id);
+
+      this.firestore.collection('/customers/').doc(id).set(data, { merge: true }).then(() => {
+        console.log('success');
+      }).catch(error => {
+
+        this.helper.presentToast('Sorry, there is some error occured when assigning push notification.');
+
+      });
+    }
   }
 
   async checkUser(event = null, policy_id = null) {
@@ -133,6 +142,13 @@ export class StarterPage implements OnInit {
     } else {
       this.router.navigateByUrl('/tabs');
     }
+
+    if (this.platform.is('ios')) {
+      this.startPushNotification();
+    } else if (this.platform.is('android')) {
+      this.startPushNotification();
+    }
+
   }
 
 }

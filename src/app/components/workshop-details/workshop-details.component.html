@@ -1,0 +1,40 @@
+<ion-header>
+  <ion-toolbar>
+    <ion-title> Workshop Details </ion-title>
+    <ion-buttons slot="end">
+      <ion-button (click)="dismiss()">
+        <ion-icon slot="icon-only" name="close"></ion-icon>
+      </ion-button>
+    </ion-buttons>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content>
+
+  <ion-card>
+    <ion-img style="object-fit:cover; height:250px;" [src]="workshop.image_url"></ion-img>
+    <!-- <img [src]="workshop.image_url" /> -->
+    <ion-card-header>
+      <ion-card-subtitle>Workshop Name</ion-card-subtitle>
+      <ion-card-title style="font-size: 20px;">
+        {{ workshop.name }}
+      </ion-card-title>
+    </ion-card-header>
+    <ion-card-content>
+      <ion-button class="ion-margin-bottom" (click)="navigate(workshop)">
+        <ion-icon slot="start" name="navigate-circle-outline"></ion-icon>
+        Navigate
+      </ion-button>
+      <ion-button class="ion-margin-bottom" (click)="call(workshop.phone)" color="success">
+        <ion-icon slot="start" name="call-outline"></ion-icon>
+        Call
+      </ion-button>
+      <p>{{ workshop.address1 }}</p>
+      <p>{{ workshop.address2 }}</p>
+      <p>{{ workshop.postcode }}</p>
+      <p>{{ workshop.city | uppercase }}</p>
+      <p>{{ workshop.country | uppercase }}</p>
+    </ion-card-content>
+  </ion-card>
+
+</ion-content>

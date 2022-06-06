@@ -2,6 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { HelperService } from '../../services/helper.service';
 import { AuthenticationService } from '../../services/authentication.service';
 import { ActivatedRoute, Router, NavigationExtras } from '@angular/router';
+import * as moment from 'moment';
 
 @Component({
   selector: 'app-policy',
@@ -18,6 +19,9 @@ export class PolicyPage implements OnInit {
   loaded;
   start_date;
   end_date;
+  staff;
+  month;
+  year;
 
   constructor(
     private authService: AuthenticationService,
@@ -27,7 +31,7 @@ export class PolicyPage implements OnInit {
 
   ngOnInit() {
 
-    this.route.queryParams.subscribe(params => {
+    const rt = this.route.queryParams.subscribe(params => {
       if (params) {
 
         console.log("params", params);
@@ -37,10 +41,62 @@ export class PolicyPage implements OnInit {
           this.statusTemp = params.status;
           this.statusTemp2 = params.status;
           this.staff_id = params.staff_id;
+
+          if (params.filter) {
+
+            let filter = JSON.parse(params.filter);
+
+            if (filter && filter.month != 'All') {
+              this.month = moment(filter.month, 'MMM').format('M');
+            } else {
+              // this.month = moment('Jan', 'MMM').format('M');
+            }
+
+            if (filter && filter.year) {
+              this.year = filter.year;
+            } else {
+              this.year = moment().year();
+            }
+
+            if (this.month) {
+              const strDate = '1-' + this.month + '-' + this.year;
+              this.start_date = moment(strDate, 'D-M-YYYY').toDate();
+              this.end_date = moment(strDate, 'D-M-YYYY').endOf('month').toDate();
+            } else {
+              const strDate = this.year;
+              this.start_date = moment(strDate, 'YYYY').startOf('year').toDate();
+              let temp_start_date = moment(strDate, 'YYYY').startOf('year').toDate();
+              this.end_date = moment(strDate, 'YYYY').endOf('year').toDate();
+
+              console.log('temp_start_date', temp_start_date);
+            }
+
+            console.log('month', this.month);
+            console.log('year', this.year);
+            console.log('start_date', this.start_date);
+            console.log('end_date', this.end_date);
+          }
+
           this.getPolicy();
+        } else {
+          this.status = 'complete';
+          this.statusTemp = 'complete';
+          this.statusTemp2 = 'complete';
+
+          this.helper.checkStaff().then((staff: any) => {
+            if (staff) {
+              this.staff = staff;
+              this.staff_id = staff.staff_id;
+              this.getPolicy();
+            }
+          }, error => {
+            console.log('error', error);
+          });
         }
       }
     });
+
+    rt.unsubscribe();
   }
 
   changeStatus(event) {
@@ -92,6 +148,8 @@ export class PolicyPage implements OnInit {
       data.start_date = this.start_date;
     }
 
+    console.log('data.start_date', data.start_date);
+
     if (this.end_date) {
       data.end_date = this.end_date;
     }
@@ -124,7 +182,7 @@ export class PolicyPage implements OnInit {
       }
     };
 
-    this.router.navigate(['/policy/view'], navigationExtras);
+    this.router.navigate(['/staff-tabs/policy/view'], navigationExtras);
 
   }
 }

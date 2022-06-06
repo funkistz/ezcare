@@ -56,6 +56,16 @@
         -
       </ion-col>
     </ion-row>
+    <ion-row *ngIf="policy.cust_void">
+      <ion-col class="font-bold">
+        Status
+      </ion-col>
+      <ion-col>
+        <ion-badge color="danger">Voided</ion-badge><br>
+        Reason:<br>
+        <span *ngIf="policy.void_reason">{{ policy.void_reason.name }}</span>
+      </ion-col>
+    </ion-row>
     <ion-row>
       <ion-col class="font-bold">Activated Date:</ion-col>
       <ion-col>
@@ -88,13 +98,13 @@
     </ion-row>
     <ion-row>
       <ion-col class="font-bold">Dealer:</ion-col>
-      <ion-col *ngIf="policy.marketing_officer">
-        {{ policy.cust_dealer }}
+      <ion-col *ngIf="policy.dealer">
+        {{ policy.dealer.name }}
       </ion-col>
     </ion-row>
     <ion-row>
       <ion-col class="font-bold">Branch:</ion-col>
-      <ion-col *ngIf="policy.marketing_officer">
+      <ion-col *ngIf="policy.branch">
         {{ policy.branch.branch }}
       </ion-col>
     </ion-row>
@@ -112,15 +122,6 @@
         <h1 style="font-weight:bolder;">Claim History</h1>
       </ion-label>
     </ion-list-header>
-    <ion-card class="ion-padding" *ngFor="let claim of policy.claims" (click)="viewClaim(claim.id)">
-      <ion-label>
-        <h2>MO: {{ claim.marketing_officer? claim.marketing_officer.name:'' }}</h2>
-        <p>{{ claim.status }}</p>
-      </ion-label>
-      <ion-note slot="end">
-        {{ claim.created_at | date : "d/MM/y" }}
-      </ion-note>
-    </ion-card>
 
     <ion-card mode="ios" *ngFor="let claim of policy.claims" (click)="viewClaim(claim.id)"
       style="margin-top: 10px; margin-bottom: 10px;">
@@ -139,6 +140,42 @@
             <p>Expired At: {{ policy.cust_dateexpired | date: 'dd/MM/YYYY' }}</p>
           </ion-text>
           <p></p>
+        </ion-label>
+      </ion-item>
+    </ion-card>
+
+  </ion-list>
+
+  <ion-list *ngIf="policy && policy.claims">
+    <ion-list-header>
+      <ion-label>
+        <h1 style="font-weight:bolder;">Claim Payments</h1>
+      </ion-label>
+    </ion-list-header>
+
+    <ion-card mode="ios" *ngFor="let claim of policy.claim_details" style="margin-top: 10px; margin-bottom: 10px;">
+      <ion-item lines="none">
+        <ion-label>
+          <h2>
+            {{ claim.claim_type | titlecase }}
+            <span style="float: right;">
+              {{ claim.claimdate | date : "d MMM, y" }}
+            </span>
+          </h2>
+          <h3>
+            <span>
+              RM {{ claim.amount }}
+            </span>
+          </h3>
+          <p style="white-space:normal;" *ngIf="claim && claim.workshop">
+            Workshop: {{ claim.workshop }}
+          </p>
+          <p style="white-space:normal;">
+            {{ claim.description1 }}
+          </p>
+          <p style="white-space:normal;">
+            {{ claim.description2 }}
+          </p>
         </ion-label>
       </ion-item>
     </ion-card>

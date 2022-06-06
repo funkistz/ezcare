@@ -34,7 +34,7 @@
 
 .ez-toolbar {
   contain: none;
-  height: 70px;
+  min-height: 70px;
   // border-bottom: 1px solid rgb(201, 201, 201);
 
   .toolbar-container {
@@ -274,6 +274,7 @@
 
 .ez-fab {
   transform: scale(1.2);
+  margin-right: 5px;
   margin-bottom: 5px;
 }
 
@@ -361,4 +362,25 @@ ion-toolbar {
   --padding-bottom: 25px;
   font-size: 16px;
   height: 50px;
+}
+
+.ez-skeleton-big{
+  width: 60%;
+  height: 20px;
+  margin-top: 15px;
+  color: #ffffff;
+}
+
+.file-box{
+  background-color: #eeeeee;
+  padding: 10px;
+  color: #000000;
+  padding: 30px 10px;
+  display: flex;
+  align-content: space-around;
+  align-items: center;
+  justify-content: center;
+  border-radius: 10px;
+  word-break: break-all;
+    white-space: pre-wrap;
 }

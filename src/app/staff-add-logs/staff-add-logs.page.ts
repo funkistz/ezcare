@@ -10,6 +10,7 @@ import { Storage } from '@capacitor/storage';
 import { NavController } from '@ionic/angular';
 import { Router, NavigationExtras, ActivatedRoute } from '@angular/router';
 import { PhotoViewer } from '@awesome-cordova-plugins/photo-viewer/ngx';
+import * as moment from 'moment';
 
 @Component({
   selector: 'app-staff-add-logs',
@@ -43,12 +44,17 @@ export class StaffAddLogsPage implements OnInit {
   inspection_id;
 
   remarks;
+  warrantyPlans;
+  periods;
+  promos;
+  inspection_types;
+  editable = false;
 
   constructor(
     public formBuilder: FormBuilder,
     private firestore: AngularFirestore,
     private authService: AuthenticationService,
-    private helper: HelperService,
+    public helper: HelperService,
     private actionSheetCtrl: ActionSheetController,
     public alertController: AlertController,
     private navCtrl: NavController,
@@ -61,27 +67,39 @@ export class StaffAddLogsPage implements OnInit {
   ngOnInit() {
 
     this.ionicForm = this.formBuilder.group({
-      dealer: ['', []],
+      reminder_date: ['', []],
+      dealer: ['', [Validators.required]],
       vehicle: ['', []],
       mileage: ['', []],
-      warranty_plan: ['', []],
+      inspection_type: ['', [Validators.required]],
+      warranty_plan: ['', [Validators.required]],
       chassis: ['', []],
       remarks: ['', []],
-      marketing_officer: ['', []],
+      marketing_officer: ['', [Validators.required]],
       date: ['', []],
+      person_in_charge: ['', []],
+      period: ['', [Validators.required]],
+      promo: ['', []],
     })
 
     this.getStaff();
+    this.helper.getStaffs();
+    this.staffs = this.helper.staffs;
+    this.warrantyPlans = this.helper.warrantyPlans;
+    this.periods = this.helper.periods;
+    this.promos = this.helper.promos;
+    this.inspection_types = this.helper.inspection_types;
 
     this.route.queryParams.subscribe(params => {
       if (params && params.inspection_id) {
         this.inspection_id = params.inspection_id;
         console.log(this.inspection_id);
 
+        // this.getStaffs();
         this.getInspection(this.inspection_id);
 
       } else {
-        this.getStaffs();
+        // this.getStaffs();
       }
     });
 
@@ -109,12 +127,24 @@ export class StaffAddLogsPage implements OnInit {
         this.ionicForm.controls['warranty_plan'].setValue(data.warranty_plan);
         this.ionicForm.controls['chassis'].setValue(data.chassis);
         this.ionicForm.controls['remarks'].setValue(data.remarks);
+        this.ionicForm.controls['person_in_charge'].setValue(data.person_in_charge);
+        this.ionicForm.controls['period'].setValue(data.period);
+        this.ionicForm.controls['promo'].setValue(data.promo);
+        this.ionicForm.controls['inspection_type'].setValue(data.inspection_type);
+
         this.ionicForm.controls['marketing_officer'].setValue(data.marketing_officer.id);
-        // this.ionicForm.value.dealer = data.dealer;
+
       }
 
       this.loading = false;
+
+      if (data.status == 'booked' && (this.staff.staff_id == data.marketing_officer.id || this.staff.user_id == data.created_by)) {
+        this.editable = true;
+        // this.inspection_id = null;
+      }
+
       console.log(this.inspection);
+      // console.log('data.marketing_officer', data.marketing_officer);
     });
   }
 
@@ -128,8 +158,20 @@ export class StaffAddLogsPage implements OnInit {
 
         if (data && data.data) {
 
-          console.log('data', data);
-          this.staffs = data.data;
+          this.staffs = [];
+
+          data.data.forEach(staff => {
+
+            this.staffs.push({
+              id: staff.id,
+              name: staff.name,
+            });
+
+          });
+
+          this.warrantyPlans = data.warranty_plan;
+          this.periods = data.periods;
+          this.promos = data.promos;
         }
       }, error => {
         this.helper.dissmissLoading();
@@ -201,24 +243,35 @@ export class StaffAddLogsPage implements OnInit {
 
   }
 
-  async addInspection() {
+  async addInspection(isUpdate = false) {
 
     this.loading = true;
     this.loadingText = 'Please wait ';
 
     let data: any = this.ionicForm.value;
 
-    if (this.ionicForm.value.marketing_officer && this.ionicForm.value.marketing_officer.id) {
+    let choosedMO = this.staffs.find(x => x.id == this.ionicForm.value.marketing_officer);
+
+    if (choosedMO) {
       data.marketing_officer = {
-        id: this.ionicForm.value.marketing_officer.id,
-        name: this.ionicForm.value.marketing_officer.name,
+        id: choosedMO.id,
+        name: choosedMO.name,
       };
     }
     data.date = new Date();
     data.images = [];
     data.created_by = this.staff.user_id;
+    data.created_by_staff_id = this.staff.staff_id;
     data.created_by_name = this.staff.user_fullname;
-    data.status = 'pending';
+
+    if (data.reminder_date) {
+
+      data.status = 'booked';
+      data.reminder_date = moment(data.reminder_date, 'YYYY-MM-DD H:i').toDate();
+
+    } else {
+      data.status = 'pending';
+    }
 
     let index = 1;
     for (const inspectImage of this.inspectImages) {
@@ -244,21 +297,41 @@ export class StaffAddLogsPage implements OnInit {
     console.log('finish upload', data);
     this.loadingText = 'Almost finish ';
 
-    this.firestore.collection('/inspections/').add(data).then(() => {
-      console.log('success');
-      this.loading = false;
-      this.loadingText = '';
-      this.helper.presentToast('Inspection successfully added.');
-      this.navCtrl.back();
+    if (!isUpdate) {
+      this.firestore.collection('/inspections/').add(data).then(() => {
+        console.log('success');
+        this.loading = false;
+        this.loadingText = '';
+        this.helper.presentToast('Inspection successfully added.');
+        this.navCtrl.back();
 
-      // this.addrecord = {type :'', description :'', amount: null} 
-    }).catch(error => {
+        // this.addrecord = {type :'', description :'', amount: null} 
+      }).catch(error => {
 
-      this.helper.presentToast('Sorry, there is some error occured.');
-      this.loading = false;
-      this.loadingText = '';
+        this.helper.presentToast('Sorry, there is some error occured.');
+        this.loading = false;
+        this.loadingText = '';
 
-    });
+      });
+    } else {
+
+      this.firestore.doc<any>('inspections/' + this.inspection_id).update(data).then(() => {
+        console.log('success');
+        this.loading = false;
+        this.loadingText = '';
+        this.helper.presentToast('Inspection successfully updated.');
+        this.navCtrl.back();
+
+      }).catch(error => {
+
+        this.helper.presentToast('Sorry, there is some error occured.');
+        this.loading = false;
+        this.loadingText = '';
+
+      });
+
+    }
+
   }
 
   updateInspectionStatus(status) {
@@ -327,7 +400,16 @@ export class StaffAddLogsPage implements OnInit {
 
   imagePreview(src) {
 
-    this.photoViewer.show(src);
+    var options = {
+      share: true, // default is false
+      closeButton: true, // default is true
+      copyToReference: true, // default is false
+      // headers: '',  // If this is not provided, an exception will be triggered
+      // piccasoOptions: { } // If this is not provided, an exception will be triggered
+    };
+
+    // console.log('decodeURIComponent(src)', (this.file.applicationDirectory + src));
+    this.photoViewer.show((src), 'Inspection', options);
 
   }
 

@@ -23,6 +23,8 @@ import { PhotoViewer } from '@awesome-cordova-plugins/photo-viewer/ngx';
 import { DocumentViewer } from '@awesome-cordova-plugins/document-viewer/ngx';
 import { Chooser } from '@awesome-cordova-plugins/chooser/ngx';
 import { PreviewAnyFile } from '@awesome-cordova-plugins/preview-any-file/ngx';
+import { InAppBrowser } from '@awesome-cordova-plugins/in-app-browser/ngx';
+import { LaunchNavigator, LaunchNavigatorOptions } from '@awesome-cordova-plugins/launch-navigator/ngx';
 
 @NgModule({
   declarations: [
@@ -47,6 +49,8 @@ import { PreviewAnyFile } from '@awesome-cordova-plugins/preview-any-file/ngx';
     DocumentViewer,
     Chooser,
     PreviewAnyFile,
+    InAppBrowser,
+    LaunchNavigator,
     { provide: RouteReuseStrategy, useClass: IonicRouteStrategy }
   ],
   bootstrap: [AppComponent],

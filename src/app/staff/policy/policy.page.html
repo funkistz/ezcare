@@ -1,13 +1,20 @@
 <ion-header>
-  <ion-toolbar mode="ios" color="primary">
+  <ion-toolbar mode="md" color="primary">
     <ion-buttons slot="start">
       <ion-back-button></ion-back-button>
     </ion-buttons>
     <ion-title>
-      Policy List
+      Policies
     </ion-title>
   </ion-toolbar>
-  <ion-toolbar *ngIf="status && status != 'complete'">
+  <ion-searchbar mode="ios" (ionInput)="searching($event)" debounce="300" placeholder="Search by Reg No"
+    *ngIf="status && status == 'complete'">
+  </ion-searchbar>
+</ion-header>
+
+<ion-content>
+
+  <ion-toolbar *ngIf="status && status != 'complete'" style="position: fixed; background-color: white;">
     <ion-grid>
       <ion-row>
         <ion-col size="7">
@@ -27,12 +34,14 @@
       </ion-row>
     </ion-grid>
   </ion-toolbar>
-  <ion-searchbar mode="ios" (ionInput)="searching($event)" debounce="300" placeholder="Search by Reg No"
-    *ngIf="status && status == 'complete'">
-  </ion-searchbar>
-</ion-header>
 
-<ion-content>
+  <div style="margin-top: 120px;" *ngIf="status && status != 'complete' && this.year">
+
+  </div>
+
+  <div style="margin-top: 80px;" *ngIf="status && status != 'complete' && !this.year">
+
+  </div>
 
   <ion-grid *ngIf="!status">
     <ion-row>

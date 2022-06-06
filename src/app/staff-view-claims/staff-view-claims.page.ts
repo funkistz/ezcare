@@ -14,6 +14,7 @@ import { AngularFirestore, AngularFirestoreCollection } from '@angular/fire/comp
 import { Observable } from 'rxjs';
 import { finalize, tap } from 'rxjs/operators';
 import { DatePipe } from '@angular/common';
+import { Chooser } from '@awesome-cordova-plugins/chooser/ngx';
 
 @Component({
   selector: 'app-staff-view-claims',
@@ -30,6 +31,7 @@ export class StaffViewClaimsPage implements OnInit {
   actionType;
   statusImages = [];
   statusImagesUrl = [];
+  void_type;
 
   input_claim_date;
   input_remarks;
@@ -40,6 +42,7 @@ export class StaffViewClaimsPage implements OnInit {
   input_amount;
   input_description1;
   input_description2;
+
 
   // File upload task 
   fileUploadTask: AngularFireUploadTask;
@@ -53,6 +56,8 @@ export class StaffViewClaimsPage implements OnInit {
   // Uploaded File URL
   UploadedImageURL: Observable<string>;
 
+  void_reasons = [];
+
   constructor(
     private authService: AuthenticationService,
     private router: Router,
@@ -62,12 +67,13 @@ export class StaffViewClaimsPage implements OnInit {
     public toastController: ToastController,
     private photoViewer: PhotoViewer,
     private actionSheetCtrl: ActionSheetController,
-    private helper: HelperService,
+    public helper: HelperService,
     private afs: AngularFirestore,
     private afStorage: AngularFireStorage,
     private datePipe: DatePipe,
     private firestore: AngularFirestore,
     private navCtrl: NavController,
+    private chooser: Chooser,
   ) { }
 
   ngOnInit() {
@@ -108,6 +114,8 @@ export class StaffViewClaimsPage implements OnInit {
             event.target.complete();
           }
 
+          this.void_reasons = data.void_reasons;
+
           data.data.claim_status.forEach(status => {
 
             if (status.claim_status_code == 'pending') {
@@ -124,6 +132,7 @@ export class StaffViewClaimsPage implements OnInit {
           });
 
           this.claim = data.data;
+
           console.log('claim', this.claim);
         }
       }, error => {
@@ -231,14 +240,21 @@ export class StaffViewClaimsPage implements OnInit {
         text: 'Take Photo',
         icon: 'camera',
         handler: () => {
-          this.addImage(CameraSource.Camera, type);
+          this.takePicture(type);
         }
       },
       {
         text: 'Choose From Photos',
         icon: 'image',
         handler: () => {
-          this.addImage(CameraSource.Photos, type);
+          this.pickImage(type);
+        }
+      },
+      {
+        text: 'Files',
+        icon: 'document',
+        handler: () => {
+          this.filePicker(type);
         }
       }
     ];
@@ -249,6 +265,89 @@ export class StaffViewClaimsPage implements OnInit {
       buttons
     });
     await actionSheet.present();
+  }
+
+  async pickImage(type) {
+
+    let images = await this.helper.imagePicker();
+
+    let index = 1;
+    images.forEach(image => {
+
+      let data = {
+        id: Date.now(),
+        file: image.file.original,
+        file_thumbnail: image.file.thumbnail,
+        url: image.webPath,
+        format: image.format,
+        type: 'image',
+        name: Date.now() + '_picker_' + index,
+      }
+
+      this.statusImages.push(data);
+
+      index++;
+
+    });
+  }
+
+  async takePicture(type) {
+    let image = await this.helper.camera();
+
+    let data = {
+      id: Date.now(),
+      file: image.file.original,
+      file_thumbnail: image.file.thumbnail,
+      url: image.webPath,
+      format: image.format,
+      type: 'image',
+      name: Date.now() + '_camera',
+    }
+
+    this.statusImages.push(data);
+
+  }
+
+  async filePicker(type) {
+
+    let file = await this.helper.filePicker();
+
+    if (file) {
+      let data = {
+        id: Date.now(),
+        file: file.file,
+        type: 'file',
+        name: file.name
+      }
+
+      this.statusImages.push(data);
+    }
+
+    return;
+
+    await this.chooser.getFile()
+      .then(async file => {
+        console.log(file ? file.name : 'canceled');
+        file.data = null;
+        console.log(file ? JSON.stringify(file) : 'canceled');
+
+        // let upload = await this.helper.uploadToFirebase(file, file.name);
+        // console.log('finish... report', JSON.stringify(upload));
+
+        let data = {
+          id: Date.now(),
+          file: file,
+          type: 'file',
+          name: file.name
+        }
+
+        this.statusImages.push(data);
+
+
+      })
+      .catch((error: any) => {
+        console.error(error);
+      });
   }
 
   async addImage(source: CameraSource, type) {
@@ -428,6 +527,7 @@ export class StaffViewClaimsPage implements OnInit {
     data.status = this.input_status;
     data.workshop = this.input_workshop;
     data.created_by_staff = this.staff.user_id;
+    data.policy_id = this.claim.policy_id;
 
     console.log('data', data);
 
@@ -440,13 +540,20 @@ export class StaffViewClaimsPage implements OnInit {
       data.description2 = this.input_description2;
     }
 
+    if (this.input_status == 'void') {
+      data.void_type = this.void_type;
+    }
+
     if (this.statusImages) {
+
       for (const reportImage of this.statusImages) {
-        let upload = await this.uploadToFirebase(reportImage.file, data.reg_no, 'report');
+        let upload = await this.helper.uploadToFirebase(reportImage.file, data.reg_no);
         console.log('finish... report', upload.url);
+
         this.statusImagesUrl.push({
-          name: upload.filename,
+          name: reportImage.name,
           image_link: upload.url,
+          type: reportImage.type,
         });
       }
 
@@ -456,7 +563,21 @@ export class StaffViewClaimsPage implements OnInit {
     this.authService.updateClaimStatus(data).subscribe(
       data2 => {
 
-        this.addNotification(data.status);
+        let tempData: any = {};
+        tempData.customer_id = data2.customer_id;
+        tempData.status = data.status;
+        tempData.claim_id = data.claim_id;
+        tempData.marketing_officer = this.claim.marketing_officer.id;
+
+        console.log('tempData', tempData);
+
+        this.firestore.collection('/claim_status_update/').add(tempData).then(() => {
+          console.log('success');
+        }).catch(error => {
+          console.log(error);
+        });
+
+        // this.addNotification(data.status);
 
         console.log(data2);
         this.helper.dissmissLoading();

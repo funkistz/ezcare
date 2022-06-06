@@ -51,7 +51,7 @@
 
             <ion-text color="dark">
               <h3 style="font-size: 17px !important;">
-                Status: <span style="font-style: italic; font-weight: bolder;"> {{ claim.status }}</span>
+                Status: <span style="font-style: italic; font-weight: bolder;"> {{ claim.status | titlecase }}</span>
               </h3>
             </ion-text>
           </div>
@@ -62,8 +62,7 @@
                 <ion-text color="dark">
                   <h3 style="font-size: 17px !important;">No active claim found<ion-icon name="alert-outline">
                     </ion-icon>
-                    <br>Enter
-                    details below to add new claim.
+                    <br>Please enter the details below to add new claim.
                   </h3>
                 </ion-text>
               </div>
@@ -97,8 +96,7 @@
           <ion-item fill="outline" mode="md" class="ez-material-input">
             <ion-label position="default">Claim Date: </ion-label>
             <!-- <ion-datetime placeholder="" formControlName="claim_date" presentation="date"> -->
-            <ion-input placeholder="" formControlName="claim_date" type="date" class="ion-text-end"
-              [ngModel]="claim.claim_date | date:'yyyy-MM-dd'" [readonly]="claim ? true : false" *ngIf="claim">
+            <ion-input placeholder="" formControlName="claim_date" class="ion-text-end" readonly *ngIf="claim">
             </ion-input>
             <ion-input placeholder="" formControlName="claim_date" type="date" class="ion-text-end" *ngIf="!claim">
             </ion-input>
@@ -166,13 +164,24 @@
               <ng-container *ngIf="claim">
                 <ion-col size="6" *ngFor="let image of claim.claim_reports">
                   <ion-img style="border:1px solid; margin: 5px;" role="button" class="image" [src]="image.image_link"
-                    *ngIf="image.image_link"></ion-img>
+                    *ngIf="image.image_link && image.remarks != 'file'" (click)="helper.imagePreview(image.image_link)">
+                  </ion-img>
+                  <div *ngIf="image.remarks == 'file'" (click)="helper.downloadPDF(image.image_link)" class="file-box">
+                    {{ image.name }}
+                  </div>
                 </ion-col>
               </ng-container>
 
-              <ion-col size="6" *ngFor="let image of reportImages">
+              <ion-col size="6" *ngFor="let image of reportImages; let i = index">
                 <ion-img style="border:1px solid; margin: 5px;" role="button" class="image" [src]="image.url"
-                  *ngIf="image.url"></ion-img>
+                  *ngIf="image.type == 'image'" (click)="helper.imagePreview(image.url)">
+                </ion-img>
+                <ion-text *ngIf="image.type == 'file'">
+                  {{ image.file.name }}
+                </ion-text>
+                <ion-chip class="chip-close" (click)="removeImage(i,'report')">
+                  <ion-icon name="close"></ion-icon>
+                </ion-chip>
               </ion-col>
             </ion-row>
           </ion-grid>
@@ -188,18 +197,29 @@
               <ng-container *ngIf="claim">
                 <ion-col size="6" *ngFor="let image of claim.claim_quotations">
                   <ion-img style="border:1px solid; margin: 5px;" role="button" class="image" [src]="image.image_link"
-                    *ngIf="image.image_link"></ion-img>
+                    *ngIf="image.image_link && image.remarks != 'file'" (click)="helper.imagePreview(image.image_link)">
+                  </ion-img>
+                  <div *ngIf="image.remarks == 'file'" (click)="helper.downloadPDF(image.image_link)" class="file-box">
+                    {{ image.name }}
+                  </div>
                 </ion-col>
               </ng-container>
 
-              <ion-col size="6" *ngFor="let image of quotationImages">
+              <ion-col size="6" *ngFor="let image of quotationImages; let i = index">
                 <ion-img style="border:1px solid; margin: 5px;" role="button" class="image" [src]="image.url"
-                  *ngIf="image.url"></ion-img>
+                  *ngIf="image.type == 'image'" (click)="helper.imagePreview(image.url)">
+                </ion-img>
+                <ion-text *ngIf="image.type == 'file'">
+                  {{ image.file.name }}
+                </ion-text>
+                <ion-chip class="chip-close" (click)="removeImage(i,'quotation')">
+                  <ion-icon name="close"></ion-icon>
+                </ion-chip>
               </ion-col>
             </ion-row>
           </ion-grid>
 
-          <ion-button class="ez-icon-btn" expand="block" shape="round" style="margin-top: 30px;"
+          <!-- <ion-button class="ez-icon-btn" expand="block" shape="round" style="margin-top: 30px;"
             (click)="selectImageSource('claim_letter')" color="warning">
             <ion-icon slot="start" name="images-outline" class="ez-icon-btn-left"></ion-icon>
             <span>Add Claim Letter</span>
@@ -210,16 +230,27 @@
               <ng-container *ngIf="claim">
                 <ion-col size="6" *ngFor="let image of claim.claim_letters">
                   <ion-img style="border:1px solid; margin: 5px;" role="button" class="image" [src]="image.image_link"
-                    *ngIf="image.url"></ion-img>
+                    *ngIf="image.image_link && image.remarks != 'file'" (click)="helper.imagePreview(image.image_link)">
+                  </ion-img>
+                  <div *ngIf="image.remarks == 'file'" (click)="helper.imagePreview(image.image_link)" class="file-box">
+                    {{ image.name }}
+                  </div>
                 </ion-col>
               </ng-container>
 
-              <ion-col size="6" *ngFor="let image of claimLetterImages">
+              <ion-col size="6" *ngFor="let image of claimLetterImages; let i = index">
                 <ion-img style="border:1px solid; margin: 5px;" role="button" class="image" [src]="image.url"
-                  *ngIf="image.base64"></ion-img>
+                  *ngIf="image.type == 'image'" (click)="helper.imagePreview(image.url)">
+                </ion-img>
+                <ion-text *ngIf="image.type == 'file'">
+                  {{ image.file.name }}
+                </ion-text>
+                <ion-chip class="chip-close" (click)="removeImage(i,'claim_letter')">
+                  <ion-icon name="close"></ion-icon>
+                </ion-chip>
               </ion-col>
             </ion-row>
-          </ion-grid>
+          </ion-grid> -->
 
         </div>
 
@@ -236,12 +267,22 @@
 </ion-content>
 
 <ion-footer>
-  <ion-toolbar style="padding-left: 10px; padding-right: 10px;" *ngIf="!claim && !isLoading">
-    <ion-button expand="block" (click)="addClaim()" *ngIf="ionicForm.valid">
+  <ion-toolbar style="padding-left: 10px; padding-right: 10px;" *ngIf="!isLoading">
+    <ion-button expand="block" (click)="addClaim()" *ngIf="!claim && ionicForm.valid">
       Submit Claim
     </ion-button>
-    <ion-button expand="block" *ngIf="!ionicForm.valid" disabled>
+    <ion-button expand="block" *ngIf="!claim && !ionicForm.valid" disabled>
       Submit Claim
+    </ion-button>
+
+    <ion-button expand="block" (click)="updateClaim()"
+      *ngIf="claim && (reportImages.length > 0 || quotationImages.length > 0 || claimLetterImages.length > 0)">
+      Update Claim
+    </ion-button>
+    <ion-button expand="block"
+      *ngIf="claim && (reportImages.length == 0 && quotationImages.length == 0 && claimLetterImages.length == 0)"
+      disabled>
+      Update Claim
     </ion-button>
   </ion-toolbar>
 </ion-footer>

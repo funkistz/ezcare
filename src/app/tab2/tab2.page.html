@@ -161,6 +161,16 @@
             {{ cPolicy.cust_vehicleregno }}
           </ion-col>
         </ion-row>
+
+        <ion-row *ngIf="cPolicy.cust_void">
+          <ion-col size="6">
+            <span class="bold">Policy Status:</span>
+          </ion-col>
+          <ion-col size="6" *ngIf="cPolicy && cPolicy.cust_void" style="color: #eb445a;">
+            <span style="font-weight: bolder;">Void/Terminated</span><br>
+            <span *ngIf="cPolicy.void_reason">({{ cPolicy.void_reason.name }})</span>
+          </ion-col>
+        </ion-row>
       </ion-grid>
     </div>
   </ion-card>
@@ -179,6 +189,13 @@
 
     <ion-card-content style="padding-top:0; padding-bottom: 40px;">
       <ion-list mode="ios">
+
+        <ion-list-header>
+          <ion-label>
+            <h2>Engine Oil</h2>
+          </ion-label>
+        </ion-list-header>
+
         <ion-item class="ez-item" *ngFor="let service of services" (click)="viewService(service.id)">
           <ion-thumbnail slot="start" class="ez-square-badge">
             <ion-badge color="warning" *ngIf="service.service_type_id == 1">

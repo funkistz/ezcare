@@ -1,7 +1,10 @@
 <ion-header>
   <ion-toolbar mode="md" color="primary">
+    <ion-buttons slot="start">
+      <ion-back-button></ion-back-button>
+    </ion-buttons>
     <ion-title>
-      Services
+      Customer service history
     </ion-title>
   </ion-toolbar>
 
@@ -30,7 +33,7 @@
       </ion-item>
 
       <ion-list slot="content">
-        <ion-item *ngFor="let service of groupService.data" (click)="viewClaim(service.id)">
+        <ion-item *ngFor="let service of groupService.data" (click)="viewService(service.id)">
           <ion-thumbnail slot="start" class="ez-square-badge">
             <ion-badge color="warning" *ngIf="service.service_type_id == 1">
               Engine<br>Oil

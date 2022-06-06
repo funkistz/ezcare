@@ -102,6 +102,33 @@ const routes: Routes = [
           },
         ]
       },
+      {
+        path: 'endorsement',
+        children: [
+          {
+            path: '',
+            loadChildren: () => import('../endorsement/endorsement.module').then(m => m.EndorsementPageModule),
+          }
+        ]
+      },
+      {
+        path: 'sponsorship',
+        children: [
+          {
+            path: '',
+            loadChildren: () => import('../sponsorship/sponsorship.module').then(m => m.SponsorshipPageModule),
+          }
+        ]
+      },
+      {
+        path: 'policy',
+        children: [
+          {
+            path: '',
+            loadChildren: () => import('../staff/policy/policy.module').then(m => m.PolicyPageModule),
+          }
+        ]
+      },
     ]
   }
 ];

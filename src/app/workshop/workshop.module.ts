@@ -7,6 +7,7 @@ import { IonicModule } from '@ionic/angular';
 import { WorkshopPageRoutingModule } from './workshop-routing.module';
 
 import { WorkshopPage } from './workshop.page';
+import { WorkshopDetailsComponent } from '../components/workshop-details/workshop-details.component';
 
 @NgModule({
   imports: [
@@ -15,6 +16,6 @@ import { WorkshopPage } from './workshop.page';
     IonicModule,
     WorkshopPageRoutingModule
   ],
-  declarations: [WorkshopPage]
+  declarations: [WorkshopPage, WorkshopDetailsComponent]
 })
-export class WorkshopPageModule {}
+export class WorkshopPageModule { }

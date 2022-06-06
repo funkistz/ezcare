@@ -3,11 +3,8 @@ import { FormGroup, FormBuilder, Validators } from "@angular/forms";
 import { AngularFirestore } from '@angular/fire/compat/firestore';
 import { AuthenticationService } from '../../services/authentication.service';
 import { HelperService } from '../../services/helper.service';
-import { Camera, CameraResultType, CameraSource, Photo } from '@capacitor/camera';
 import { Platform, LoadingController, ToastController, ActionSheetController, AlertController } from '@ionic/angular';
-import { decode } from "base64-arraybuffer";
 import * as moment from 'moment';
-import { finalize, tap } from 'rxjs/operators';
 import { AngularFireStorage, AngularFireUploadTask } from '@angular/fire/compat/storage';
 import { Observable } from 'rxjs';
 import { Storage } from '@capacitor/storage';
@@ -47,12 +44,13 @@ export class AddPage implements OnInit {
   inspection_id;
 
   remarks;
+  warrantyPlans;
 
   constructor(
     public formBuilder: FormBuilder,
     private firestore: AngularFirestore,
     private authService: AuthenticationService,
-    private helper: HelperService,
+    public helper: HelperService,
     private actionSheetCtrl: ActionSheetController,
     public alertController: AlertController,
     private afStorage: AngularFireStorage,
@@ -82,7 +80,6 @@ export class AddPage implements OnInit {
     this.route.queryParams.subscribe(params => {
       if (params && params.inspection_id) {
         this.inspection_id = params.inspection_id;
-        console.log(this.inspection_id);
 
         this.getInspection(this.inspection_id);
 
@@ -96,7 +93,7 @@ export class AddPage implements OnInit {
   async getStaff() {
     let { value }: any = await Storage.get({ key: 'staff' });
     this.staff = JSON.parse(value);
-    console.log('staff', this.staff);
+    // console.log('staff', this.staff);
   }
 
   getInspection(id) {
@@ -124,7 +121,6 @@ export class AddPage implements OnInit {
       }
 
       this.loading = false;
-      console.log(this.inspection);
     });
   }
 
@@ -138,8 +134,8 @@ export class AddPage implements OnInit {
 
         if (data && data.data) {
 
-          console.log('data', data);
           this.staffs = data.data;
+          this.warrantyPlans = data.warranty_plan;
         }
       }, error => {
         this.helper.dissmissLoading();
@@ -155,14 +151,14 @@ export class AddPage implements OnInit {
         text: 'Take Photo',
         icon: 'camera',
         handler: () => {
-          this.addImage(CameraSource.Camera);
+          this.takePicture();
         }
       },
       {
         text: 'Choose From Photos',
         icon: 'image',
         handler: () => {
-          this.addImage(CameraSource.Photos);
+          this.pickImage();
         }
       }
     ];
@@ -175,115 +171,39 @@ export class AddPage implements OnInit {
     await actionSheet.present();
   }
 
-  async addImage(source: CameraSource) {
+  async pickImage() {
 
-    const image = await Camera.getPhoto({
-      quality: 50,
-      allowEditing: true,
-      resultType: CameraResultType.Base64,
-      source
-    });
+    let images = await this.helper.imagePicker();
+    console.log('pickImage', images);
 
-    const blob = new Blob([new Uint8Array(decode(image.base64String))], {
-      type: `image/${image.format}`,
-    });
-    let filename: string = "" + moment().unix();
-
-    const file = new File([blob], filename, {
-      lastModified: moment().unix(),
-      type: blob.type,
-    });
-
-    let im = new Image;
-    im.src = "data:image/jpeg;base64, " + image.base64String;
-    im.onload = () => {
-
-      let formula;
-      let width = im.width;
-      let height = im.height;
-      if (im.width < im.height) {
-        formula = im.width / im.height;
-
-        height = 250;
-        width = 250 * formula;
-      } else {
-        formula = im.height / im.width;
-
-        width = 250;
-        height = 250 * formula;
-      }
-
-      this.compressImage("data:image/jpeg;base64, " + image.base64String, width, height).then((compressed: any) => {
-        // console.log('compressed', compressed);
-        // this.resizedBase64 = compressed;
-        compressed = compressed.split(',')[1];
-
-        const blob2 = new Blob([new Uint8Array(decode(compressed))], {
-          type: `image/${image.format}`,
-        });
-        let filename: string = "" + moment().unix();
-
-        const file2 = new File([blob2], filename, {
-          lastModified: moment().unix(),
-          type: blob.type,
-        });
-
-        this.inspectImages.push({
-          id: Date.now(),
-          base64: "data:image/jpeg;base64, " + image.base64String,
-          file: file,
-          fileThumb: file2,
-          format: image.format
-        });
-
-      }, error => {
-        console.log('error', error);
+    images.forEach(image => {
+      this.inspectImages.push({
+        id: Date.now(),
+        file: image.file.original,
+        file_thumbnail: image.file.thumbnail,
+        url: image.webPath,
+        format: image.format
       });
 
-    };
+    });
+  }
 
+  async takePicture() {
+    let image = await this.helper.camera();
+    console.log('takePicture', image);
+
+    this.inspectImages.push({
+      id: Date.now(),
+      file: image.file.original,
+      file_thumbnail: image.file.thumbnail,
+      url: image.webPath,
+      format: image.format
+    });
   }
 
   removeImage(index) {
 
     this.inspectImages.splice(index, 1);
-
-  }
-
-  async uploadToFirebase(file, reg_no): Promise<any> {
-
-    return new Promise(async (resolve, reject) => {
-
-      console.log('uploading...');
-
-      const filename = new Date().getTime() + '_' + reg_no;
-
-      // Storage path
-      const fileStoragePath = `inspections/${new Date().getTime()}_${reg_no}`;
-
-      // Image reference
-      const imageRef = this.afStorage.ref(fileStoragePath);
-
-      // File upload task
-      this.fileUploadTask = this.afStorage.upload(fileStoragePath, file);
-      // Show uploading progress
-      this.percentageVal = this.fileUploadTask.percentageChanges();
-
-      await this.fileUploadTask.snapshotChanges().pipe(
-        finalize(async () => {
-          console.log('finish fileUploadTask');
-
-          await imageRef.getDownloadURL().subscribe(downloadURL => {
-
-            resolve({
-              name: filename,
-              url: downloadURL,
-            });
-
-          });
-        })
-      ).toPromise();
-    });
 
   }
 
@@ -303,10 +223,17 @@ export class AddPage implements OnInit {
     data.date = new Date();
     data.images = [];
     data.created_by = this.staff.user_id;
+    data.created_by_staff_id = this.staff.staff_id;
     data.created_by_name = this.staff.user_fullname;
     data.status = 'pending';
-    data.activated_date = moment(this.ionicForm.value.activated_date, 'YYYY-MM-DD').toDate();
-    data.expired_date = moment(this.ionicForm.value.expired_date, 'YYYY-MM-DD').toDate();
+
+    if (this.ionicForm.value.activated_date) {
+      data.activated_date = moment(this.ionicForm.value.activated_date, 'YYYY-MM-DD').toDate();
+    }
+
+    if (this.ionicForm.value.expired_date) {
+      data.expired_date = moment(this.ionicForm.value.expired_date, 'YYYY-MM-DD').toDate();
+    }
 
     let index = 1;
     for (const inspectImage of this.inspectImages) {
@@ -317,8 +244,8 @@ export class AddPage implements OnInit {
         this.loadingText = 'Uploading ' + index + 'th image ';
       }
 
-      let upload = await this.uploadToFirebase(inspectImage.file, data.reg_no);
-      let uploadThumb = await this.uploadToFirebase(inspectImage.fileThumb, data.reg_no);
+      let upload = await this.helper.uploadToFirebase(inspectImage.file, data.reg_no);
+      let uploadThumb = await this.helper.uploadToFirebase(inspectImage.file_thumbnail, data.reg_no);
       console.log('finish... report', upload.url);
 
       data.images.push({
@@ -413,26 +340,17 @@ export class AddPage implements OnInit {
     await alert.present();
   }
 
-  compressImage(src, newX, newY) {
-    return new Promise((res, rej) => {
-      const img = new Image();
-      img.src = src;
-      img.onload = () => {
-        const elem = document.createElement('canvas');
-        elem.width = newX;
-        elem.height = newY;
-        const ctx = elem.getContext('2d');
-        ctx.drawImage(img, 0, 0, newX, newY);
-        const data = ctx.canvas.toDataURL();
-        res(data);
-      }
-      img.onerror = error => rej(error);
-    })
-  }
-
   imagePreview(src) {
 
-    this.photoViewer.show(src);
+    var options = {
+      share: true, // default is false
+      closeButton: true, // default is true
+      copyToReference: true, // default is false
+      // headers: '',  // If this is not provided, an exception will be triggered
+      // piccasoOptions: { } // If this is not provided, an exception will be triggered
+    };
+
+    this.photoViewer.show(src, 'Endorsement', options);
 
   }
 

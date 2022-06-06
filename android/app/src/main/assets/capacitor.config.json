@@ -1,9 +1,15 @@
 {
 	"appId": "io.ezcare.ezcare",
-	"appName": "ezcare",
+	"appName": "Ezcare Warranty",
 	"webDir": "www",
 	"bundledWebRuntime": false,
-	"server": {
-		"url": "http://192.168.1.25:8101"
+	"plugins": {
+		"PushNotifications": {
+			"presentationOptions": [
+				"badge",
+				"sound",
+				"alert"
+			]
+		}
 	}
 }

@@ -15,6 +15,8 @@ export class Tab3Page {
   policies;
   services;
   cService;
+  segment = 'claim';
+  claim_payments;
 
   constructor(
     private authService: AuthenticationService,
@@ -38,6 +40,10 @@ export class Tab3Page {
     this.getClaims(this.user.cust_id, event);
   }
 
+  segmentChanged(ev: any) {
+    this.segment = ev.detail.value;
+  }
+
   async getClaims(policy_id, event) {
 
     this.authService.getClaims(policy_id).subscribe(
@@ -50,6 +56,7 @@ export class Tab3Page {
           }
 
           this.services = data.data;
+          this.claim_payments = data.claim_payments;
           console.log('claim', this.services);
           this.cService = this.services[this.services.length - 1];
         }

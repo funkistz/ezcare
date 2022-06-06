@@ -48,6 +48,7 @@ export class StaffLogsPage implements OnInit {
   ngOnInit() {
 
     this.checkUser();
+    this.helper.getStaffs();
 
   }
 
@@ -79,21 +80,64 @@ export class StaffLogsPage implements OnInit {
 
   filterData() {
 
+    console.log(this.segment);
+
     this.inspections = this.inspectionsTemp.filter((inspection: any) => {
 
       if (this.segment == 'mine') {
 
-        if (this.staff.staff_id == inspection.marketing_officer.id) {
+        if (this.staff.staff_id == inspection.marketing_officer.id && inspection.status != 'booked') {
           return true;
         } else {
-          return false
+          return false;
         }
 
-      } else {
-        return true;
+      } else if (this.segment == 'all') {
+
+        if (inspection.status != 'booked') {
+          return true;
+        } else {
+          return false;
+        }
+      } else if (this.segment == 'schedule') {
+
+        if (inspection.status == 'booked' && moment(inspection.reminder_date.toDate()).diff(new Date(), 'days') >= 0) {
+          console.log(moment(inspection.reminder_date.toDate()).diff(new Date(), 'days'));
+          return true;
+        } else {
+          return false;
+        }
+      } else if (this.segment == 'history') {
+
+        if (inspection.status == 'booked') {
+          return true;
+        } else {
+          return false;
+        }
       }
 
     });
+
+
+    if (this.segment == 'history') {
+
+      this.inspections = this.inspections.sort(
+        (objA, objB) => objB.reminder_date - objA.reminder_date,
+      );
+
+    } else if (this.segment == 'all' || this.segment == 'mine') {
+
+      this.inspections = this.inspections.sort(
+        (objA, objB) => objB.date - objA.date,
+      );
+
+    } else if (this.segment == 'schedule') {
+
+      this.inspections = this.inspections.sort(
+        (objA, objB) => objA.reminder_date - objB.reminder_date,
+      );
+
+    }
 
     this.inspections = this.inspections.filter((inspection: any) => {
 
@@ -127,29 +171,54 @@ export class StaffLogsPage implements OnInit {
     this.groupInspections[indexGrow].data = [];
 
     let previousDate = null;
-    if (this.inspections[0]) {
-      previousDate = moment(this.inspections[0].date.toDate()).format('YYYYMM');
-      this.groupInspections[indexGrow].name = moment(this.inspections[0].date.toDate()).format('MMM YYYY');
-    }
 
-    this.inspections.forEach(inspection => {
+    if (this.segment == 'mine' || this.segment == 'all') {
 
-      const index = moment(inspection.date.toDate()).format('YYYYMM');
-
-      if (index != previousDate) {
-        indexGrow++;
-        this.groupInspections[indexGrow] = {};
-        this.groupInspections[indexGrow].data = [];
-        this.groupInspections[indexGrow].name = moment(inspection.date.toDate()).format('MMM YYYY');
-        previousDate = moment(inspection.date.toDate()).format('YYYYMM');
+      if (this.inspections[0]) {
+        previousDate = moment(this.inspections[0].date.toDate()).format('YYYYMM');
+        this.groupInspections[indexGrow].name = moment(this.inspections[0].date.toDate()).format('MMM YYYY');
       }
 
-      this.groupInspections[indexGrow].data.push(inspection);
+      this.inspections.forEach(inspection => {
 
-    });
+        const index = moment(inspection.date.toDate()).format('YYYYMM');
 
-    console.log('groupInspections', this.groupInspections);
+        if (index != previousDate) {
+          indexGrow++;
+          this.groupInspections[indexGrow] = {};
+          this.groupInspections[indexGrow].data = [];
+          this.groupInspections[indexGrow].name = moment(inspection.date.toDate()).format('MMM YYYY');
+          previousDate = moment(inspection.date.toDate()).format('YYYYMM');
+        }
 
+        this.groupInspections[indexGrow].data.push(inspection);
+
+      });
+
+    } else {
+
+      if (this.inspections[0]) {
+        previousDate = moment(this.inspections[0].reminder_date.toDate()).format('YYYYMM');
+        this.groupInspections[indexGrow].name = moment(this.inspections[0].reminder_date.toDate()).format('MMM YYYY');
+      }
+
+      this.inspections.forEach(inspection => {
+
+        const index = moment(inspection.reminder_date.toDate()).format('YYYYMM');
+
+        if (index != previousDate) {
+          indexGrow++;
+          this.groupInspections[indexGrow] = {};
+          this.groupInspections[indexGrow].data = [];
+          this.groupInspections[indexGrow].name = moment(inspection.reminder_date.toDate()).format('MMM YYYY');
+          previousDate = moment(inspection.reminder_date.toDate()).format('YYYYMM');
+        }
+
+        this.groupInspections[indexGrow].data.push(inspection);
+
+      });
+
+    }
   }
 
   getTasks() {
@@ -169,9 +238,11 @@ export class StaffLogsPage implements OnInit {
         };
       });
 
-      console.log('inspections', this.inspectionsTemp);
-
       this.filterData();
+    }, err => {
+      this.helper.dissmissLoading();
+      this.loaded = true;
+      console.log('inspections err', err);
     });
   }
 

@@ -85,7 +85,7 @@
       <ion-item fill="outline" mode="md" class="ez-material-input">
         <ion-label position="floating">State <span class="required">*</span>: </ion-label>
         <ion-select placeholder="Please Select" formControlName="state">
-          <ion-select-option [value]="state" *ngFor="let state of states">{{ state }}</ion-select-option>
+          <ion-select-option [value]="state" *ngFor="let state of states">{{ state | uppercase }}</ion-select-option>
         </ion-select>
       </ion-item>
 

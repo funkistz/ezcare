@@ -106,14 +106,6 @@
               <ion-skeleton-text animated style="width: 60%"></ion-skeleton-text>
             </ion-col>
           </ion-row>
-          <ion-row>
-            <ion-col size="6">
-              <span class="bold">First Mileage Reg:</span>
-            </ion-col>
-            <ion-col size="6">
-              <ion-skeleton-text animated style="width: 60%"></ion-skeleton-text>
-            </ion-col>
-          </ion-row>
         </ion-grid>
       </div>
     </ion-card>
@@ -203,8 +195,33 @@
               {{ cPolicy.cust_vehiclemileage }} KM
             </ion-col>
           </ion-row>
+
+          <ion-row *ngIf="cPolicy.cust_void">
+            <ion-col size="6">
+              <span class="bold">Policy Status:</span>
+            </ion-col>
+            <ion-col size="6" *ngIf="cPolicy && cPolicy.cust_void" style="color: #eb445a;">
+              <span style="font-weight: bolder;">Void/Terminated</span><br>
+              <span *ngIf="cPolicy.void_reason">({{ cPolicy.void_reason.name }})</span>
+            </ion-col>
+          </ion-row>
+
         </ion-grid>
       </div>
+    </ion-card>
+
+    <ion-card mode="ios">
+      <ion-card-content>
+        <div style="font-style: italic;">
+          The <span style="font-weight: bolder;">Next Service</span> Schedule below are the estimation calculated from
+          the first mileage and activated date for
+          new
+          registered vehicle or from the last service mileage entered in the Services tab.
+          <br><br>
+          For the actual service mileage and date schedule, please follow accordingly to the service schedule /or
+          intervals stipulated in Ezcare Warranty & Service Booklet in Warranty Policy section below.
+        </div>
+      </ion-card-content>
     </ion-card>
 
     <ion-card mode="ios">
@@ -219,11 +236,8 @@
           </ion-card-title>
         </div>
         <div class="flex-right">
-          <ion-card-title style="margin-top: 14px; font-size: 20px;" *ngIf="cService">
+          <ion-card-title style="margin-top: 14px; font-size: 20px;">
             Next Service
-          </ion-card-title>
-          <ion-card-title style="margin-top: 14px; font-size: 20px;" *ngIf="!cService">
-            Next Service (reminder)
           </ion-card-title>
         </div>
       </div>
@@ -431,8 +445,8 @@
           </ion-row>
           <ion-row>
             <ion-col size="6" *ngIf="cPolicy.plan && cPolicy.warranty_plan">
-              <span class="bold" style="color: blue;"
-                (click)="downloadPDF(cPolicy.plan.plan_desc, cPolicy.warranty_plan.file)">Click here to
+              <span class="bold" style="color: blue;" (click)="helper.downloadPDF(cPolicy.warranty_plan.file)">Click
+                here to
                 view</span>
             </ion-col>
             <!-- <ion-col size="6" *ngIf="cPolicy">
@@ -462,18 +476,20 @@
     </ion-fab-list>
   </ion-fab> -->
 
-  <ion-fab vertical="bottom" horizontal="center" slot="fixed" *ngIf="user && settings && settings.generals_phones"
-    class="ez-fab" style="left: 40%;">
-    <ion-fab-button color="danger" (click)="call()">
+  <ion-fab vertical="bottom" horizontal="end" slot="fixed" *ngIf="user && settings && settings.generals_phones"
+    class="ez-fab">
+    <ion-fab-button color="success" style="margin-left: 35px;" (click)="whatsapp()" style="margin-bottom: 5px;">
+      <ion-icon name="logo-whatsapp"></ion-icon>
+    </ion-fab-button>
+    <ion-fab-button color="danger" (click)="call()" style="margin-bottom: 5px;">
       <ion-icon name="call-outline"></ion-icon>
     </ion-fab-button>
   </ion-fab>
 
-  <ion-fab vertical="bottom" horizontal="center" slot="fixed" *ngIf="user && settings && settings.whatsapp"
-    class="ez-fab">
-    <ion-fab-button color="success" style="margin-left: 35px;" (click)="whatsapp()">
+  <!-- <ion-fab vertical="bottom" horizontal="end" slot="fixed" *ngIf="user && settings && settings.whatsapp" class="ez-fab">
+    <ion-fab-button color="success" style="margin-left: 35px;" (click)="whatsapp()" style="margin-bottom: 70px;">
       <ion-icon name="logo-whatsapp"></ion-icon>
     </ion-fab-button>
-  </ion-fab>
+  </ion-fab> -->
 
 </ion-content>

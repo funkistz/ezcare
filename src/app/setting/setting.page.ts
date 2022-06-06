@@ -107,7 +107,7 @@ export class SettingPage implements OnInit {
           value: this.settings.policy,
         });
       }, error => {
-        console.log(error);
+        console.log('getSettings errror', error);
       });
   }
 

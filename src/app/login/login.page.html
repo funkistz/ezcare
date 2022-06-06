@@ -8,7 +8,7 @@
   </ion-toolbar>
 </ion-header> -->
 
-<ion-content>
+<ion-content [fullscreen]="true">
 
   <ion-grid>
     <ion-row>
@@ -18,8 +18,10 @@
     </ion-row>
 
     <ion-row>
-      <ion-col>
-
+      <ion-col size="12">
+        <ion-title style="color: #ffffff; text-align: center; font-size: 14px;">
+          Version 1.2.1
+        </ion-title>
       </ion-col>
     </ion-row>
   </ion-grid>
@@ -124,15 +126,17 @@
 </ion-content>
 
 <ion-footer class="ion-no-border" color="light">
-  <ion-segment (ionChange)="segmentChanged($event)" value="{{ segment }}" mode="md" color="light">
-    <ion-segment-button value="customer">
-      <ion-label>Customer</ion-label>
-    </ion-segment-button>
-    <ion-segment-button value="staff">
-      <ion-label>Staff</ion-label>
-    </ion-segment-button>
-    <!-- <ion-segment-button value="workshop">
-      <ion-label>Workshop</ion-label>
-    </ion-segment-button> -->
-  </ion-segment>
+  <ion-toolbar>
+    <ion-segment (ionChange)="segmentChanged($event)" value="{{ segment }}" mode="md" color="light">
+      <ion-segment-button value="customer">
+        <ion-label>Customer</ion-label>
+      </ion-segment-button>
+      <ion-segment-button value="staff">
+        <ion-label>Staff</ion-label>
+      </ion-segment-button>
+      <!-- <ion-segment-button value="workshop">
+        <ion-label>Workshop</ion-label>
+      </ion-segment-button> -->
+    </ion-segment>
+  </ion-toolbar>
 </ion-footer>

@@ -4,88 +4,122 @@
       <ion-back-button></ion-back-button>
     </ion-buttons>
     <ion-title>
-      Endorsement
+      Staff Request
     </ion-title>
   </ion-toolbar>
 
-  <ion-searchbar mode="ios" (ionInput)="searching($event)" debounce="100" placeholder="Search by dealer or plate no">
+  <ion-segment (ionChange)="segmentChanged($event)" mode="md" [value]="segment" scrollable>
+    <ion-segment-button value="endorsement">
+      <ion-label>Endorsement</ion-label>
+    </ion-segment-button>
+    <ion-segment-button value="sponsorship">
+      <ion-label>Sponsorship</ion-label>
+    </ion-segment-button>
+  </ion-segment>
+
+  <ion-searchbar mode="ios" (ionInput)="searchingEndorsement($event)" debounce="100"
+    placeholder="Search by dealer or plate no" *ngIf="segment == 'endorsement'" [value]="searchEndorsement">
   </ion-searchbar>
 
-  <!-- <ion-segment (ionChange)="segmentChanged($event)" mode="md" [value]="segment">
-    <ion-segment-button value="mine">
-      <ion-label>My Endorsement</ion-label>
-    </ion-segment-button>
-    <ion-segment-button value="all">
-      <ion-label>View All</ion-label>
-    </ion-segment-button>
-  </ion-segment> -->
+  <ion-searchbar mode="ios" (ionInput)="searchingSponsorship($event)" debounce="100"
+    placeholder="Search by dealer or plate no" *ngIf="segment == 'sponsorship'" [value]="searchSponsorship">
+  </ion-searchbar>
 </ion-header>
 
 <ion-content>
 
+  <div *ngIf="segment == 'endorsement'">
 
-  <!-- <ion-text>
-    <h2 class="ez-title bold" style="margin-top: 30px;">Staff Inspections</h2>
-  </ion-text> -->
+    <h6 *ngIf="loaded && inspections && inspections.length == 0" class="ion-text-center">
+      No endorsement available
+    </h6>
 
-  <h6 *ngIf="loaded && inspections && inspections.length == 0" class="ion-text-center">
-    No endorsement available
-  </h6>
+    <ion-accordion-group [value]="groupInspections[0].name" class="ion-margin-bottom"
+      *ngIf="groupInspections && groupInspections[0] && groupInspections[0].data && groupInspections[0].data.length > 0">
 
-  <ion-accordion-group [value]="groupInspections[0].name" class="ion-margin-bottom"
-    *ngIf="groupInspections && groupInspections[0] && groupInspections[0].data && groupInspections[0].data.length > 0">
-
-    <ion-accordion [value]="groupInspection.name" *ngFor="let groupInspection of groupInspections">
-      <ion-item slot="header">
-        <ion-label>{{ groupInspection.name }}</ion-label>
-      </ion-item>
-
-      <ion-list slot="content">
-        <ion-item *ngFor="let inspection of groupInspection.data" (click)="viewLog(inspection.id)">
-          <ion-thumbnail slot="start">
-            <img [src]="inspection.images[0].image_thumb_link">
-          </ion-thumbnail>
-          <ion-label>
-            <h2>
-              {{ inspection.dealer }}
-              <ion-badge color="danger" *ngIf="inspection.status == 'rejected'" style="float: right;">Rejected
-              </ion-badge>
-              <ion-badge color="success" *ngIf="inspection.status == 'proceed'" style="float: right;">Proceed
-              </ion-badge>
-            </h2>
-            <p *ngIf="inspection.marketing_officer">MO: {{ inspection.marketing_officer.name }}</p>
-            <p *ngIf="inspection.marketing_officer">Created by: {{ inspection.created_by_name }}</p>
-            <p>{{ inspection.date.toDate() | date: 'dd/MM/YYYY' }}</p>
-          </ion-label>
+      <ion-accordion [value]="groupInspection.name" *ngFor="let groupInspection of groupInspections">
+        <ion-item slot="header">
+          <ion-label>{{ groupInspection.name }}</ion-label>
         </ion-item>
-      </ion-list>
-    </ion-accordion>
 
-  </ion-accordion-group>
+        <ion-list slot="content">
+          <ion-item *ngFor="let inspection of groupInspection.data" (click)="viewLog(inspection.id)">
+            <!-- <ion-thumbnail slot="start">
+              <img [src]="inspection.images[0].image_thumb_link">
+            </ion-thumbnail> -->
+            <ion-label>
+              <h2>
+                {{ inspection.dealer }}
+                <ion-badge color="warning" *ngIf="inspection.status == 'pending'" style="float: right;">Pending
+                </ion-badge>
+                <ion-badge color="danger" *ngIf="inspection.status == 'rejected'" style="float: right;">Rejected
+                </ion-badge>
+                <ion-badge color="success" *ngIf="inspection.status == 'proceed'" style="float: right;">Proceed
+                </ion-badge>
+              </h2>
+              <p *ngIf="inspection.marketing_officer">MO: {{ inspection.marketing_officer.name }}</p>
+              <p *ngIf="inspection.marketing_officer">Created by: {{ inspection.created_by_name }}</p>
+              <p>{{ inspection.date.toDate() | date: 'dd/MM/YYYY' }}</p>
+            </ion-label>
+          </ion-item>
+        </ion-list>
+      </ion-accordion>
 
-  <!-- <ion-card mode="ios" *ngFor="let inspection of inspections" (click)="viewLog(inspection.id)"
-    style="margin-top: 10px; margin-bottom: 10px;">
-    <ion-item lines="none">
-      <ion-thumbnail slot="start">
-        <img [src]="inspection.images[0].image_thumb_link">
-      </ion-thumbnail>
-      <ion-label>
-        <h2>
-          {{ inspection.dealer }}
-          <ion-badge color="danger" *ngIf="inspection.status == 'rejected'" style="float: right;">Rejected</ion-badge>
-          <ion-badge color="success" *ngIf="inspection.status == 'proceed'" style="float: right;">Proceed</ion-badge>
-        </h2>
-        <p *ngIf="inspection.marketing_officer">MO: {{ inspection.marketing_officer.name }}</p>
-        <p *ngIf="inspection.marketing_officer">Created by: {{ inspection.created_by_name }}</p>
-        <p>{{ inspection.date.toDate() | date: 'dd/MM/YYYY' }}</p>
-      </ion-label>
-    </ion-item>
-  </ion-card> -->
+    </ion-accordion-group>
 
-  <ion-fab vertical="bottom" horizontal="end" slot="fixed">
-    <ion-fab-button color="success" (click)="addEndorsement()">
-      <ion-icon name="add-outline"></ion-icon>
-    </ion-fab-button>
-  </ion-fab>
+    <ion-fab vertical="bottom" horizontal="end" slot="fixed">
+      <ion-fab-button color="success" (click)="addEndorsement()">
+        <ion-icon name="add-outline"></ion-icon>
+      </ion-fab-button>
+    </ion-fab>
+
+  </div>
+
+  <div *ngIf="segment == 'sponsorship'">
+
+    <h6 *ngIf="loaded && sponsorships && sponsorships.length == 0" class="ion-text-center">
+      No sponsorships available
+    </h6>
+
+    <ion-accordion-group [value]="groupSponsorships[0].name" class="ion-margin-bottom"
+      *ngIf="groupSponsorships && groupSponsorships[0] && groupSponsorships[0].data && groupSponsorships[0].data.length > 0">
+
+      <ion-accordion [value]="groupSponsorship.name" *ngFor="let groupSponsorship of groupSponsorships">
+        <ion-item slot="header">
+          <ion-label>{{ groupSponsorship.name }}</ion-label>
+        </ion-item>
+
+        <ion-list slot="content">
+          <ion-item *ngFor="let sponsorship of groupSponsorship.data" (click)="viewSponsorship(sponsorship.id)">
+            <!-- <ion-thumbnail slot="start">
+              <img [src]="sponsorship.images[0].image_thumb_link">
+            </ion-thumbnail> -->
+            <ion-label>
+              <h2>
+                {{ sponsorship.dealer }}
+                <ion-badge color="warning" *ngIf="sponsorship.status == 'pending'" style="float: right;">Pending
+                </ion-badge>
+                <ion-badge color="danger" *ngIf="sponsorship.status == 'rejected'" style="float: right;">Rejected
+                </ion-badge>
+                <ion-badge color="success" *ngIf="sponsorship.status == 'proceed'" style="float: right;">Approved
+                </ion-badge>
+              </h2>
+              <p *ngIf="sponsorship.marketing_officer">MO: {{ sponsorship.marketing_officer.name }}</p>
+              <p *ngIf="sponsorship.marketing_officer">Created by: {{ sponsorship.created_by_name }}</p>
+              <p>{{ sponsorship.date.toDate() | date: 'dd/MM/YYYY' }}</p>
+            </ion-label>
+          </ion-item>
+        </ion-list>
+      </ion-accordion>
+
+    </ion-accordion-group>
+
+    <ion-fab vertical="bottom" horizontal="end" slot="fixed">
+      <ion-fab-button color="success" (click)="addSponsorship()">
+        <ion-icon name="add-outline"></ion-icon>
+      </ion-fab-button>
+    </ion-fab>
+
+  </div>
 
 </ion-content>

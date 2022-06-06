@@ -8,6 +8,9 @@ import { DocumentViewer, DocumentViewerOptions } from '@awesome-cordova-plugins/
 import { Capacitor } from '@capacitor/core';
 import { AngularFirestore } from '@angular/fire/compat/firestore';
 import { PreviewAnyFile } from '@awesome-cordova-plugins/preview-any-file/ngx';
+import { LocalNotificationService } from '../services/local-notification.service'
+import * as moment from 'moment';
+import { HelperService } from '../services/helper.service';
 
 @Component({
   selector: 'app-tab1',
@@ -40,6 +43,8 @@ export class Tab1Page {
     private document: DocumentViewer,
     private firestore: AngularFirestore,
     private previewAnyFile: PreviewAnyFile,
+    private localNotification: LocalNotificationService,
+    public helper: HelperService,
   ) {
 
     this.getSettingCache();
@@ -49,6 +54,8 @@ export class Tab1Page {
 
   ionViewDidEnter() {
     this.checkUser();
+
+    // this.setNotification(new Date());
   }
 
   async checkUser(event = null, policy_id = null) {
@@ -87,12 +94,25 @@ export class Tab1Page {
     this.authService.getServices(policy_id).subscribe(
       data => {
 
+        data.data.forEach(service => {
+
+          if (service.next_due_date_atf) {
+            service.next_due_date_atf = moment(service.next_due_date_atf, 'YYYY-MM-DD').toDate();
+          } else if (service.next_due_date) {
+            service.next_due_date = moment(service.next_due_date, 'YYYY-MM-DD').toDate();
+          }
+
+        });
+
         if (data && data.data) {
 
           if (data.data.length <= 0) {
 
-            let currentMileage = parseInt(this.cPolicy.cust_vehiclemileagecur);
-            let dateActivated = new Date(this.cPolicy.cust_dateactivated);
+            console.log('no services');
+
+            let currentMileage = parseInt(this.cPolicy.cust_vehiclemileage);
+            // let dateActivated = new Date(this.cPolicy.cust_dateactivated);
+            let dateActivated = moment(this.cPolicy.cust_dateactivated, 'YYYY-MM-DD').toDate();
 
             this.cPolicy;
             this.tempService = {
@@ -104,15 +124,26 @@ export class Tab1Page {
               next_due_date_atf: this.addMonths(dateActivated, 12),
             }
 
-          }
+            dateActivated = moment(dateActivated).add(12, 'h').toDate();
+            this.setNotification(this.addMonths(dateActivated, 3));
 
+          } else {
+
+            let services = data.data;
+            this.cService = services[services.length - 1];
+
+            console.log('this.cService', this.cService);
+
+            // let dateActivated = new Date(this.cService.invoice_date);
+            let dateActivated = moment(this.cService.invoice_date, 'YYYY-MM-DD').toDate();
+            dateActivated = moment(dateActivated).add(12, 'h').toDate();
+            this.setNotification(this.addMonths(dateActivated, 3));
+
+          }
 
           if (event) {
             event.target.complete();
           }
-
-          let services = data.data;
-          this.cService = services[services.length - 1];
 
         }
       }, error => {
@@ -201,6 +232,8 @@ export class Tab1Page {
   }
 
   call() {
+
+    console.log('calling...');
 
     const call = this.settings.generals_phones;
     const random = Math.floor(Math.random() * call.length);
@@ -311,6 +344,16 @@ export class Tab1Page {
     if (link) {
       window.open(link, '_system', 'location=yes');
     }
+  }
+
+  setNotification(date) {
+
+    this.localNotification.clearAllNotification();
+    this.localNotification.showLocalNotification(Date.now(), "Service Reminder Notice",
+      'REMINDER. It may be the time for your vehicle service. Please remember that servicing on time is very important to maintain your warranty. If you already service your vehicle accordingly to the service schedule, you can ignore this message.',
+      'Hi valued customer, this is a friendly reminder from Ezcare Warranty. We`re here to notifying you that it may be time for your recommended service for your vehicle. Please remember that servicing on time is very important to maintain your warranty. If you are in Klang Valley or Johor Bahru, you can service your vehicle directly at your home with our ECW Mobile Service. Book appointment now at 013 288 0699. You can ignore this message if you already service your vehicle accordingly to the service schedule in your warranty booklet in this mobile app. Thank you and stay safe. "we care & we protect"',
+      date);
+
   }
 
 }

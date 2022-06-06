@@ -65,11 +65,12 @@ export class StaffAddClaimsPage implements OnInit {
     private navCtrl: NavController,
     private plt: Platform,
     private actionSheetCtrl: ActionSheetController,
-    private helper: HelperService,
+    public helper: HelperService,
     private afs: AngularFirestore,
     private afStorage: AngularFireStorage,
     public alertController: AlertController,
-    private chooser: Chooser
+    private chooser: Chooser,
+    private firestore: AngularFirestore,
   ) { }
 
   ngOnInit() {
@@ -84,18 +85,6 @@ export class StaffAddClaimsPage implements OnInit {
       home_or_workshop: ['', [Validators.required]],
       workshop_name: ['', []],
       marketing_officer: ['', [Validators.required]],
-      // engine_oil_type_id: ['', []],
-      // invoice_no: ['', [Validators.required]],
-      // invoice_date: [currentDate, [Validators.required]],
-      // current_mileage: ['', [Validators.required]],
-
-      // next_due_mileage: ['', []],
-      // next_due_date: ['', []],
-      // next_due_mileage_atf: ['', []],
-      // next_due_date_atf: ['', []],
-
-      // workshop_name: ['', [Validators.required]],
-      // remarks: ['', []],
     });
 
     this.route.queryParams.subscribe(params => {
@@ -137,17 +126,9 @@ export class StaffAddClaimsPage implements OnInit {
     console.log(this.staff);
   }
 
-  loadImages() {
-    // this.api.getImages().subscribe(images => {
-    //   this.images = images;
-    // });
-  }
-
   searchCar() {
 
     let search = this.ionicForm.value.reg_no;
-
-    console.log(search);
 
     this.getClaims(search);
 
@@ -159,6 +140,7 @@ export class StaffAddClaimsPage implements OnInit {
     this.claim = null;
     this.reportImages = [];
     this.quotationImages = [];
+    this.claimLetterImages = [];
     this.reportImagesUrl = [];
     this.quotationImagesUrl = [];
     this.claimLetterImagesUrl = [];
@@ -249,72 +231,30 @@ export class StaffAddClaimsPage implements OnInit {
 
     let images = await this.helper.imagePicker();
 
-    if (this.claim && this.claim.id) {
-      const alert = await this.alertController.create({
-        header: 'Claim Exist!',
-        message: 'Are you sure want to upload the image?',
-        buttons: [
-          {
-            text: 'Cancel',
-            role: 'cancel',
-            cssClass: 'secondary',
-            handler: (blah) => {
-            }
-          }, {
-            text: 'Upload',
-            handler: () => {
+    let index = 1;
+    images.forEach(image => {
 
-              images.forEach(image => {
+      let data = {
+        id: Date.now(),
+        file: image.file.original,
+        file_thumbnail: image.file.thumbnail,
+        url: image.webPath,
+        format: image.format,
+        type: 'image',
+        name: Date.now() + '_picker_' + index,
+      }
 
-                let data = {
-                  id: Date.now(),
-                  file: image.file.original,
-                  file_thumbnail: image.file.thumbnail,
-                  url: image.webPath,
-                  format: image.format
-                }
+      if (type == 'report') {
+        this.reportImages.push(data);
+      } else if (type == 'quotation') {
+        this.quotationImages.push(data);
+      } else if (type == 'claim_letter') {
+        this.claimLetterImages.push(data);
+      }
 
-                if (type == 'report') {
-                  this.reportImages.push(data);
-                } else if (type == 'quotation') {
-                  this.quotationImages.push(data);
-                } else if (type == 'claim_letter') {
-                  this.claimLetterImages.push(data);
-                }
+      index++;
 
-              });
-
-              console.log('reportImages', this.reportImages);
-
-              // this.processUpload(data.file, data.reg_no, type);
-            }
-          }
-        ]
-      });
-      await alert.present();
-    } else {
-
-      await images.forEach(image => {
-
-        let data = {
-          id: Date.now(),
-          file: image.file.original,
-          file_thumbnail: image.file.thumbnail,
-          url: image.webPath,
-          format: image.format
-        }
-
-        if (type == 'report') {
-          this.reportImages.push(data);
-        } else if (type == 'quotation') {
-          this.quotationImages.push(data);
-        } else if (type == 'claim_letter') {
-          this.claimLetterImages.push(data);
-        }
-
-      });
-
-    }
+    });
   }
 
   async takePicture(type) {
@@ -325,39 +265,32 @@ export class StaffAddClaimsPage implements OnInit {
       file: image.file.original,
       file_thumbnail: image.file.thumbnail,
       url: image.webPath,
-      format: image.format
+      format: image.format,
+      type: 'image',
+      name: Date.now() + '_camera',
     }
 
-    if (this.claim && this.claim.id) {
-      const alert = await this.alertController.create({
-        header: 'Claim Exist!',
-        message: 'Are you sure want to upload the image?',
-        buttons: [
-          {
-            text: 'Cancel',
-            role: 'cancel',
-            cssClass: 'secondary',
-            handler: (blah) => {
-            }
-          }, {
-            text: 'Upload',
-            handler: () => {
+    if (type == 'report') {
+      this.reportImages.push(data);
+    } else if (type == 'quotation') {
+      this.quotationImages.push(data);
+    } else if (type == 'claim_letter') {
+      this.claimLetterImages.push(data);
+    }
 
-              if (type == 'report') {
-                this.reportImages.push(data);
-              } else if (type == 'quotation') {
-                this.quotationImages.push(data);
-              } else if (type == 'claim_letter') {
-                this.claimLetterImages.push(data);
-              }
+  }
 
-              // this.processUpload(data.file, data.reg_no, type);
-            }
-          }
-        ]
-      });
-      await alert.present();
-    } else {
+  async filePicker(type) {
+
+    let file = await this.helper.filePicker();
+
+    if (file) {
+      let data = {
+        id: Date.now(),
+        file: file.file,
+        type: 'file',
+        name: file.name
+      }
 
       if (type == 'report') {
         this.reportImages.push(data);
@@ -366,90 +299,9 @@ export class StaffAddClaimsPage implements OnInit {
       } else if (type == 'claim_letter') {
         this.claimLetterImages.push(data);
       }
-
     }
 
-  }
-
-  filePicker(type) {
-    this.chooser.getFile()
-      .then(file => console.log(file ? file.name : 'canceled'))
-      .catch((error: any) => console.error(error));
-  }
-
-  async addImage(source: CameraSource, type) {
-
-    const image = await Camera.getPhoto({
-      quality: 50,
-      allowEditing: true,
-      resultType: CameraResultType.Base64,
-      source
-    });
-
-    // const base64Data = await this.readAsBase64(image);
-
-    // const blobData = this.b64toBlob(image.base64String, `image/${image.format}`);
-
-    const blob = new Blob([new Uint8Array(decode(image.base64String))], {
-      type: `image/${image.format}`,
-    });
-    let filename: string = "" + moment().unix();
-
-    const file = new File([blob], filename, {
-      lastModified: moment().unix(),
-      type: blob.type,
-    });
-
-    let data: any = {};
-    data = this.ionicForm.value;
-    this.reportImagesUrl = [];
-    this.quotationImagesUrl = [];
-
-    if (this.claim && this.claim.id) {
-      const alert = await this.alertController.create({
-        header: 'Claim Exist!',
-        message: 'Are you sure want to upload the image?',
-        buttons: [
-          {
-            text: 'Cancel',
-            role: 'cancel',
-            cssClass: 'secondary',
-            handler: (blah) => {
-            }
-          }, {
-            text: 'Upload',
-            handler: () => {
-              this.processUpload(file, data.reg_no, type);
-            }
-          }
-        ]
-      });
-      await alert.present();
-
-    } else {
-      if (type == 'report') {
-        this.reportImages.push({
-          id: Date.now(),
-          base64: "data:image/jpeg;base64, " + image.base64String,
-          file: file,
-          format: image.format
-        });
-      } else if (type == 'quotation') {
-        this.quotationImages.push({
-          id: Date.now(),
-          base64: "data:image/jpeg;base64, " + image.base64String,
-          file: file,
-          format: image.format
-        });
-      } else if (type == 'claim_letter') {
-        this.claimLetterImages.push({
-          id: Date.now(),
-          base64: "data:image/jpeg;base64, " + image.base64String,
-          file: file,
-          format: image.format
-        });
-      }
-    }
+    return;
   }
 
   async processUpload(file, reg_no, type) {
@@ -465,35 +317,6 @@ export class StaffAddClaimsPage implements OnInit {
     }
   }
 
-  convertBlobToBase64 = (blob: Blob) => new Promise((resolve, reject) => {
-    const reader = new FileReader;
-    reader.onerror = reject;
-    reader.onload = () => {
-      resolve(reader.result);
-    };
-    reader.readAsDataURL(blob);
-  });
-
-  b64toBlob(b64Data, contentType = '', sliceSize = 512) {
-    const byteCharacters = atob(b64Data);
-    const byteArrays = [];
-
-    for (let offset = 0; offset < byteCharacters.length; offset += sliceSize) {
-      const slice = byteCharacters.slice(offset, offset + sliceSize);
-
-      const byteNumbers = new Array(slice.length);
-      for (let i = 0; i < slice.length; i++) {
-        byteNumbers[i] = slice.charCodeAt(i);
-      }
-
-      const byteArray = new Uint8Array(byteNumbers);
-      byteArrays.push(byteArray);
-    }
-
-    const blob = new Blob(byteArrays, { type: contentType });
-    return blob;
-  }
-
   async addClaim() {
 
     console.log('add', this.ionicForm.value);
@@ -503,6 +326,7 @@ export class StaffAddClaimsPage implements OnInit {
     data = this.ionicForm.value;
     data.status = 'pending';
     data.created_by = this.staff.user_id;
+    data.created_by_staff_id = this.staff.staff_id;
 
     console.log('data', data);
 
@@ -510,8 +334,9 @@ export class StaffAddClaimsPage implements OnInit {
       let upload = await this.helper.uploadToFirebase(reportImage.file, data.reg_no);
       console.log('finish... report', upload.url);
       this.reportImagesUrl.push({
-        name: upload.filename,
+        name: reportImage.name,
         image_link: upload.url,
+        type: reportImage.type,
       });
     }
 
@@ -519,8 +344,9 @@ export class StaffAddClaimsPage implements OnInit {
       let upload2 = await this.helper.uploadToFirebase(quotationImage.file, data.reg_no);
       console.log('finish... quotation', upload2.url2);
       this.quotationImagesUrl.push({
-        name: upload2.filename,
+        name: quotationImage.name,
         image_link: upload2.url,
+        type: quotationImage.type,
       });
     }
 
@@ -528,34 +354,94 @@ export class StaffAddClaimsPage implements OnInit {
       let upload3 = await this.helper.uploadToFirebase(claimLetterImage.file, data.reg_no);
       console.log('finish... claim_letter', upload3.url2);
       this.claimLetterImagesUrl.push({
-        name: upload3.filename,
+        name: claimLetterImage.name,
         image_link: upload3.url,
+        type: claimLetterImage.type,
       });
     }
-
-    console.log('finish... all');
-    console.log('reports', this.reportImagesUrl);
-    console.log('quotations', this.quotationImagesUrl);
 
     data.reports = this.reportImagesUrl;
     data.quotations = this.quotationImagesUrl;
     data.claimLetters = this.claimLetterImagesUrl;
+
+    console.log(JSON.stringify(data));
 
     this.authService.addClaim(data).subscribe(
       result => {
 
         this.helper.dissmissLoading();
         this.helper.presentToast('Claim added successfully');
-        // this.isSubmitted = true;
-        // this.navCtrl.back();
-        console.log(result);
+
+        data.customer_id = result.customer_id;
+
+        this.firestore.collection('/claims/').add(data).then(() => {
+          console.log('success');
+        }).catch(error => {
+          console.log('success');
+        });
 
         setTimeout(() => {
           this.searchCar();
         }, 500);
 
-        // if (data && data) {
-        // }
+      }, error => {
+        console.log(error);
+        this.helper.dissmissLoading();
+        this.helper.presentToast(error.error.message);
+      });
+
+  }
+
+  async updateClaim() {
+
+    this.helper.presentLoading();
+
+    let data: any = {};
+    data = this.ionicForm.value;
+    data.reports = this.reportImagesUrl;
+    data.quotations = this.quotationImagesUrl;
+    data.claimLetters = this.claimLetterImagesUrl;
+
+    for (const reportImage of this.reportImages) {
+      let upload = await this.helper.uploadToFirebase(reportImage.file, data.reg_no);
+      console.log('finish... report', upload.url);
+      this.reportImagesUrl.push({
+        name: reportImage.name,
+        image_link: upload.url,
+        type: reportImage.type,
+      });
+    }
+
+    for (const quotationImage of this.quotationImages) {
+      let upload2 = await this.helper.uploadToFirebase(quotationImage.file, data.reg_no);
+      console.log('finish... quotation', upload2.url2);
+      this.quotationImagesUrl.push({
+        name: quotationImage.name,
+        image_link: upload2.url,
+        type: quotationImage.type,
+      });
+    }
+
+    for (const claimLetterImage of this.claimLetterImages) {
+      let upload3 = await this.helper.uploadToFirebase(claimLetterImage.file, data.reg_no);
+      console.log('finish... claim_letter', upload3.url2);
+      this.claimLetterImagesUrl.push({
+        name: claimLetterImage.name,
+        image_link: upload3.url,
+        type: claimLetterImage.type,
+      });
+    }
+
+    data.claim_id = this.claim.id;
+
+    this.authService.updateClaimAttachments(this.claim.id, data, 'storeAttachments').subscribe(
+      result => {
+
+        this.helper.dissmissLoading();
+        this.helper.presentToast('Claim update successfully');
+        this.searchCar();
+        console.log(result);
+
       }, error => {
         console.log(error);
         this.helper.dissmissLoading();
@@ -586,42 +472,15 @@ export class StaffAddClaimsPage implements OnInit {
 
   }
 
-  async uploadToFirebase(file, reg_no): Promise<any> {
+  removeImage(index, type) {
 
-    return new Promise(async (resolve, reject) => {
-
-      console.log('uploading...');
-
-      const filename = new Date().getTime() + '_' + reg_no;
-
-      // Storage path
-      const fileStoragePath = `claims/${new Date().getTime()}_${reg_no}`;
-
-      // Image reference
-      const imageRef = this.afStorage.ref(fileStoragePath);
-
-      // File upload task
-      this.fileUploadTask = this.afStorage.upload(fileStoragePath, file);
-      // Show uploading progress
-      this.percentageVal = this.fileUploadTask.percentageChanges();
-
-      await this.fileUploadTask.snapshotChanges().pipe(
-        finalize(async () => {
-          console.log('finish fileUploadTask');
-
-          await imageRef.getDownloadURL().subscribe(downloadURL => {
-
-            resolve({
-              name: filename,
-              url: downloadURL,
-            });
-
-          });
-        })
-      ).toPromise();
-
-
-    });
+    if (type == 'report') {
+      this.reportImages.splice(index, 1);
+    } else if (type == 'quotation') {
+      this.quotationImages.splice(index, 1);
+    } else if (type == 'claim_letter') {
+      this.claimLetterImages.splice(index, 1);
+    }
 
   }
 

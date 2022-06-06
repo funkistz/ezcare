@@ -39,8 +39,8 @@
               <ion-col size="6" style="height: 140px;" *ngFor="let image of inspectImages; index as i;">
                 <ion-img
                   style="height: 100%; object-fit: cover; border-radius: 8px; overflow: hidden; border: 2px solid;"
-                  role="button" class="image" [src]="image.base64" *ngIf="image.base64"
-                  (click)="imagePreview(image.base64)">
+                  role="button" class="image" [src]="image.url" *ngIf="image.url"
+                  (click)="helper.imagePreview(image.url)">
                 </ion-img>
                 <ion-chip class="chip-close" (click)="removeImage(i)">
                   <ion-icon name="close"></ion-icon>
@@ -84,7 +84,15 @@
               <ion-label position="floating">
                 Warranty Plan
               </ion-label>
-              <ion-textarea placeholder="" formControlName="warranty_plan" rows="2"></ion-textarea>
+              <!-- <ion-textarea placeholder="" formControlName="warranty_plan" rows="2"></ion-textarea> -->
+              <ion-select placeholder="Select One" formControlName="warranty_plan" interface="action-sheet" value="">
+                <ion-select-option value="">
+                  Please select
+                </ion-select-option>
+                <ion-select-option [value]="warrantyPlan.name" *ngFor="let warrantyPlan of warrantyPlans">
+                  {{ warrantyPlan.name }}
+                </ion-select-option>
+              </ion-select>
             </ion-item>
 
             <ion-item fill="outline" mode="md" class="ez-material-input" style="padding: 5px 10px;">
@@ -128,7 +136,7 @@
                 <ion-img
                   style="height: 100%; object-fit: cover; border-radius: 8px; overflow: hidden; border: 2px solid;"
                   role="button" class="image" [src]="image.image_link" *ngIf="image.image_link"
-                  (click)="imagePreview(image.base64)">
+                  (click)="helper.imagePreview(image.image_link)">
                 </ion-img>
               </ion-col>
             </ion-row>
@@ -203,7 +211,7 @@
               <ion-label position="floating">
                 Status
               </ion-label>
-              <ion-input placeholder="" [value]="inspection.status" readonly></ion-input>
+              <ion-input placeholder="" [value]="inspection.status | titlecase" readonly></ion-input>
               <ion-text *ngIf="inspection && inspection.status_changed_by && inspection.status_changed_by.name"
                 color="success">
                 Status Updated By: {{ inspection.status_changed_by.name }} at
@@ -264,10 +272,10 @@
   </div>
 
   <ion-toolbar *ngIf="!inspection" style="padding: 5px 10px;">
-    <ion-button expand="full" (click)="addInspection()" *ngIf="!loading && inspectImages.length > 0 && !inspection_id">
+    <ion-button expand="full" (click)="addInspection()" *ngIf="!loading && !inspection_id && ionicForm.valid">
       Submit Endorsement
     </ion-button>
-    <ion-button expand="full" *ngIf="!loading && inspectImages.length == 0 && !inspection_id" disabled>
+    <ion-button expand="full" *ngIf="!loading && !inspection_id && !ionicForm.valid" disabled>
       Submit Endorsement
     </ion-button>
     <ion-button fill="clear" color="dark ion-text-capitalize" *ngIf="loading" expand="full">

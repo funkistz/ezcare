@@ -14,20 +14,25 @@ import * as moment from 'moment';
 })
 export class EndorsementPage implements OnInit {
 
-  segment = 'mine';
+  segment = 'endorsement';
   inspectionsTemp;
   inspections;
   user;
   staff;
   loaded;
-  search;
+  searchEndorsement;
+  searchSponsorship;
   groupInspections;
+
+  sponsorshipTemp;
+  sponsorships;
+  groupSponsorships;
 
   constructor(
     private authService: AuthenticationService,
     private router: Router,
     private firestore: AngularFirestore,
-    private helper: HelperService,
+    public helper: HelperService,
     private photoViewer: PhotoViewer,
   ) {
 
@@ -57,15 +62,29 @@ export class EndorsementPage implements OnInit {
   segmentChanged(ev: any) {
 
     this.segment = ev.detail.value;
-    this.filterData();
+
+    if (this.segment == 'endorsement') {
+      this.filterEndorsement();
+    } else {
+      this.filterSponsorship();
+    }
   }
 
-  searching(event) {
-    this.search = event.target.value.toLowerCase();
-    this.filterData();
+  searchingEndorsement(event) {
+    if (event.target.value) {
+      this.searchEndorsement = event.target.value.toLowerCase();
+    }
+    this.filterEndorsement();
   }
 
-  filterData() {
+  searchingSponsorship(event) {
+    if (event.target.value) {
+      this.searchSponsorship = event.target.value.toLowerCase();
+    }
+    this.filterSponsorship();
+  }
+
+  filterEndorsement() {
 
     this.inspections = this.inspectionsTemp.filter((inspection: any) => {
 
@@ -87,11 +106,11 @@ export class EndorsementPage implements OnInit {
 
     this.inspections = this.inspections.filter((inspection: any) => {
 
-      if (this.search) {
+      if (this.searchEndorsement) {
 
         if (inspection.dealer) {
-          return inspection.dealer.toLowerCase().includes(this.search) ||
-            inspection.reg_no.toLowerCase().includes(this.search);
+          return inspection.dealer.toLowerCase().includes(this.searchEndorsement) ||
+            inspection.reg_no.toLowerCase().includes(this.searchEndorsement);
         } else {
           return false;
         }
@@ -134,11 +153,86 @@ export class EndorsementPage implements OnInit {
 
   }
 
+  filterSponsorship() {
+
+    this.sponsorships = this.sponsorshipTemp.filter((inspection: any) => {
+
+      return true;
+
+      // if (this.segment == 'mine') {
+
+      //   if (this.staff.staff_id == inspection.marketing_officer.id) {
+      //     return true;
+      //   } else {
+      //     return false
+      //   }
+
+      // } else {
+      //   return true;
+      // }
+
+    });
+
+    this.sponsorships = this.sponsorships.filter((inspection: any) => {
+
+      if (this.searchSponsorship) {
+
+        if (inspection.dealer) {
+
+          let reg_no_rule = false;
+
+          if (inspection.reg_no) {
+            reg_no_rule = inspection.reg_no.toLowerCase().includes(this.searchSponsorship)
+          }
+
+          return inspection.dealer.toLowerCase().includes(this.searchSponsorship) || reg_no_rule;
+        } else {
+          return false;
+        }
+
+
+      } else {
+        return true;
+      }
+
+    });
+
+    this.groupSponsorships = [];
+    let indexGrow = 0;
+    this.groupSponsorships[indexGrow] = {};
+    this.groupSponsorships[indexGrow].data = [];
+
+    let previousDate = null;
+    if (this.sponsorships[0]) {
+      previousDate = moment(this.sponsorships[0].date.toDate()).format('YYYYMM');
+      this.groupSponsorships[indexGrow].name = moment(this.sponsorships[0].date.toDate()).format('MMM YYYY');
+    }
+
+    this.sponsorships.forEach(inspection => {
+
+      const index = moment(inspection.date.toDate()).format('YYYYMM');
+
+      if (index != previousDate) {
+        indexGrow++;
+        this.groupSponsorships[indexGrow] = {};
+        this.groupSponsorships[indexGrow].data = [];
+        this.groupSponsorships[indexGrow].name = moment(inspection.date.toDate()).format('MMM YYYY');
+        previousDate = moment(inspection.date.toDate()).format('YYYYMM');
+      }
+
+      this.groupSponsorships[indexGrow].data.push(inspection);
+
+    });
+
+    console.log('groupSponsorships', this.groupSponsorships);
+
+  }
+
   getTasks() {
 
     this.helper.presentLoading();
 
-    return this.firestore.collection('endorsement', ref => ref.orderBy('date', 'desc')).snapshotChanges().subscribe((res) => {
+    this.firestore.collection('endorsement', ref => ref.orderBy('date', 'desc')).snapshotChanges().subscribe((res) => {
 
       this.helper.dissmissLoading();
       this.loaded = true;
@@ -153,12 +247,30 @@ export class EndorsementPage implements OnInit {
 
       console.log('inspections', this.inspectionsTemp);
 
-      this.filterData();
+      this.filterEndorsement();
+    });
+
+    this.firestore.collection('sponsorship', ref => ref.orderBy('date', 'desc')).snapshotChanges().subscribe((res) => {
+
+      this.helper.dissmissLoading();
+      this.loaded = true;
+
+      this.sponsorshipTemp = res.map((t) => {
+
+        return {
+          id: t.payload.doc.id,
+          ...t.payload.doc.data() as Object
+        };
+      });
+
+      console.log('sponsorship', this.sponsorshipTemp);
+
+      this.filterSponsorship();
     });
   }
 
   addEndorsement() {
-    this.router.navigate(['/endorsement/add']);
+    this.router.navigate(['/staff-tabs/endorsement/add']);
   }
 
   viewLog(inspection_id) {
@@ -167,7 +279,20 @@ export class EndorsementPage implements OnInit {
         inspection_id: inspection_id
       }
     };
-    this.router.navigate(['/endorsement/add'], navigationExtras);
+    this.router.navigate(['/staff-tabs/endorsement/add'], navigationExtras);
+  }
+
+  addSponsorship() {
+    this.router.navigate(['/staff-tabs/endorsement/addSponsorship']);
+  }
+
+  viewSponsorship(inspection_id) {
+    let navigationExtras: NavigationExtras = {
+      queryParams: {
+        inspection_id: inspection_id
+      }
+    };
+    this.router.navigate(['/staff-tabs/endorsement/addSponsorship'], navigationExtras);
   }
 
   imagePreview(src) {

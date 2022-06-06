@@ -1,6 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { AngularFirestore } from '@angular/fire/compat/firestore';
 import { Storage } from '@capacitor/storage';
+import { AlertController } from '@ionic/angular';
 
 @Component({
   selector: 'app-notification',
@@ -12,9 +13,11 @@ export class NotificationPage implements OnInit {
   notifications;
   user;
   staff;
+  reminder;
 
   constructor(
     private firestore: AngularFirestore,
+    public alertController: AlertController
   ) { }
 
   ngOnInit() {
@@ -30,22 +33,24 @@ export class NotificationPage implements OnInit {
     if (!this.user) {
       let { value }: any = await Storage.get({ key: 'staff' });
       this.staff = JSON.parse(value);
-
+      console.log('enter staff', this.staff);
     }
 
     this.getSettings();
 
   }
 
-  getSettings() {
+  async getSettings() {
 
     if (this.user) {
+
+      let { value }: any = await Storage.get({ key: 'reminder_notification' });
+      this.reminder = JSON.parse(value);
 
       let ic = this.user.cust_ic.replace(/[^0-9]/g, '');
 
       return this.firestore.collection('customer_notifications', ref => ref.where('user_id', '==', ic)).snapshotChanges().subscribe((res) => {
 
-        console.log('res', res);
         this.notifications = res.map((t) => {
 
           return {
@@ -53,6 +58,8 @@ export class NotificationPage implements OnInit {
             ...t.payload.doc.data() as any
           };
         });
+
+        console.log('res', this.notifications);
 
       });
 
@@ -62,7 +69,6 @@ export class NotificationPage implements OnInit {
 
       return this.firestore.collection('notifications', ref => ref.where('user_id', '==', ic)).snapshotChanges().subscribe((res) => {
 
-        console.log('res', res);
         this.notifications = res.map((t) => {
 
           return {
@@ -71,10 +77,24 @@ export class NotificationPage implements OnInit {
           };
         });
 
+        console.log('res', this.notifications);
+
+
       });
 
     }
 
   }
 
+  async alertNotification(title, text) {
+
+    const alert = await this.alertController.create({
+      header: title,
+      message: text,
+      buttons: ['Dismiss']
+    });
+
+    await alert.present();
+
+  }
 }

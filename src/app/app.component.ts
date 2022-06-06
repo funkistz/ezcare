@@ -2,6 +2,10 @@ import { Component } from '@angular/core';
 import { Router, Event, NavigationStart, NavigationEnd, NavigationError } from '@angular/router';
 import { Storage } from '@capacitor/storage';
 import { AuthenticationService } from './services/authentication.service';
+import { initializeApp } from 'firebase/app';
+import { indexedDBLocalPersistence, initializeAuth } from 'firebase/auth';
+import { environment } from 'src/environments/environment';
+import { Capacitor } from '@capacitor/core';
 
 @Component({
   selector: 'app-root',
@@ -18,10 +22,17 @@ export class AppComponent {
     private authService: AuthenticationService,
   ) {
 
+    const app = initializeApp(environment.firebaseConfig);
+    if (Capacitor.isNativePlatform) {
+      initializeAuth(app, {
+        persistence: indexedDBLocalPersistence
+      });
+    }
+
     this.router.events.subscribe((event: Event) => {
       if (event instanceof NavigationStart) {
         // Show loading indicator
-        console.log(event.url);
+        // console.log(event.url);
 
         if (event.url != '/login') {
           this.checkUser();
@@ -31,7 +42,7 @@ export class AppComponent {
 
       if (event instanceof NavigationEnd) {
         // Hide loading indicator
-        console.log(event);
+        // console.log(event);
       }
 
       if (event instanceof NavigationError) {
@@ -58,7 +69,7 @@ export class AppComponent {
 
       if (staff) {
         this.staff = JSON.parse(staff);
-        console.log('staff', this.staff);
+        // console.log('staff', this.staff);
 
         this.checkStaff(this.staff.user_name, this.staff.user_password, this.staff.last_login);
 
@@ -81,10 +92,10 @@ export class AppComponent {
   checkStaff(username, password, last_login = null) {
 
     last_login = new Date(last_login);
-    console.log('last_login', last_login);
+    // console.log('last_login', last_login);
     let current: any = new Date();
     let diff: any = (current - last_login) / 1000;
-    console.log('diff', diff);
+    // console.log('diff', diff);
 
     // if (diff > 300) {
     //   this.logout();
@@ -95,7 +106,7 @@ export class AppComponent {
       username, password
     }).subscribe(
       data => {
-        console.log('login data', data);
+        // console.log('login data', data);
         data.data.last_login = new Date();
 
         Storage.set({

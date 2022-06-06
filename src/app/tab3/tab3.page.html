@@ -1,8 +1,11 @@
 <ion-header>
-  <ion-toolbar mode="ios" class="ez-toolbar" color="primary">
-    <img src="../../assets/Ezcarehorizontal.png" class="logo" />
+  <ion-toolbar mode="md" class="ez-toolbar" color="primary">
 
-    <ion-title size="large">
+    <ion-buttons slot="start">
+      <ion-back-button></ion-back-button>
+    </ion-buttons>
+    <ion-title>
+      Customer Claims
     </ion-title>
 
     <ion-buttons slot="end">
@@ -11,37 +14,34 @@
       </ion-button>
     </ion-buttons>
   </ion-toolbar>
+
+  <ion-segment (ionChange)="segmentChanged($event)" mode="md" [value]="segment" scrollable>
+    <ion-segment-button value="claim">
+      <ion-label>Claim History</ion-label>
+    </ion-segment-button>
+    <ion-segment-button value="payment">
+      <ion-label>Claim Payment</ion-label>
+    </ion-segment-button>
+  </ion-segment>
+
 </ion-header>
 
 <ion-content>
 
-  <ion-text>
-    <h2 class="ez-title bold">Customer Claims</h2>
-  </ion-text>
+  <div *ngIf="segment == 'claim'">
 
-  <div class="ion-padding ion-text-center" *ngIf="!services">
-    <ion-spinner></ion-spinner>
-  </div>
-
-  <ion-card mode="ios" *ngIf="services && services.length == 0" style="margin-top: 20px;">
-    <div class="ion-text-center">
-      <h4>No claim record</h4>
+    <div class="ion-padding ion-text-center" *ngIf="!services">
+      <ion-spinner></ion-spinner>
     </div>
-  </ion-card>
 
-  <ion-card mode="ios" *ngIf="services && services.length > 0">
-    <!-- <div class="flex">
-      <div class="flex-left">
-        <ion-card-title>
-          <ion-icon name="cash-outline" class="carIcon"></ion-icon>
-        </ion-card-title>
+    <ion-card mode="ios" *ngIf="services && services.length == 0" style="margin-top: 20px;">
+      <div class="ion-text-center">
+        <h4>No claim record</h4>
       </div>
-      <div class="flex-right">
-        <ion-card-title style="margin-top: 14px; font-size: 20px;">Claims</ion-card-title>
-      </div>
-    </div> -->
+    </ion-card>
 
-    <ion-card-content style="padding-bottom: 40px;">
+    <div *ngIf="services && services.length > 0">
+
       <ion-list mode="ios">
         <ion-item class="ez-item" *ngFor="let service of services" (click)="viewClaim(service.id)">
           <ion-label>
@@ -57,8 +57,56 @@
 
 
       </ion-list>
-    </ion-card-content>
 
-  </ion-card>
+    </div>
+
+  </div>
+
+  <div *ngIf="segment == 'payment'">
+
+    <div class="ion-padding ion-text-center" *ngIf="!claim_payments">
+      <ion-spinner></ion-spinner>
+    </div>
+
+    <ion-card mode="ios" *ngIf="claim_payments && claim_payments.length == 0" style="margin-top: 20px;">
+      <div class="ion-text-center">
+        <h4>No claim payment record</h4>
+      </div>
+    </ion-card>
+
+    <div mode="ios" *ngIf="claim_payments && claim_payments.length > 0">
+
+      <ion-list mode="ios">
+        <ion-item class="ez-item" *ngFor="let claim_payment of claim_payments">
+          <ion-label>
+            <h2>
+              Type: {{ claim_payment.claim_type | titlecase }}
+              <span style="float: right;">
+                {{ claim_payment.claimdate | date : "d MMM, y" }}
+              </span>
+            </h2>
+            <h3>
+              <span>
+                RM {{ claim_payment.amount }}
+              </span>
+            </h3>
+            <p style="white-space:normal;" *ngIf="claim_payment && claim_payment.workshop">
+              Workshop: {{ claim_payment.workshop }}
+            </p>
+            <p style="white-space:normal;">
+              {{ claim_payment.description1 }}
+            </p>
+            <p style="white-space:normal;">
+              {{ claim_payment.description2 }}
+            </p>
+          </ion-label>
+        </ion-item>
+
+
+      </ion-list>
+
+    </div>
+
+  </div>
 
 </ion-content>

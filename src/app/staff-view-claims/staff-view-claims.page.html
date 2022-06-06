@@ -3,7 +3,7 @@
     <ion-buttons slot="start">
       <ion-back-button></ion-back-button>
     </ion-buttons>
-    <ion-buttons slot="end" *ngIf="claim && claim.status == 'pending' && staff && staff.user_role == 5">
+    <ion-buttons slot="end" *ngIf="claim && claim.status == 'pending' && staff && (staff.user_role == 5)">
       <ion-button (click)="edit(claim.policy.cust_vehicleregno)">Edit</ion-button>
     </ion-buttons>
     <ion-title>
@@ -174,7 +174,7 @@
       </div>
     </ion-card>
 
-    <ion-card mode="ios">
+    <ion-card mode="ios" *ngIf="staff">
 
       <div class="flex">
         <div class="flex-left">
@@ -191,10 +191,13 @@
         <ion-grid>
           <ion-row>
             <ng-container *ngIf="claim">
-              <ion-col size="6" *ngFor="let image of claim.claim_reports" (click)="imagePreview(image.image_link)">
+              <ion-col size="6" *ngFor="let image of claim.claim_reports">
                 <ion-img style=" border:1px solid; margin: 5px;" role="button" class="image" [src]="image.image_link"
-                  *ngIf="image.image_link">
+                  *ngIf="image.image_link && image.remarks != 'file'" (click)="helper.imagePreview(image.image_link)">
                 </ion-img>
+                <div *ngIf="image.remarks == 'file'" (click)="helper.downloadPDF(image.image_link)" class="file-box">
+                  {{ image.name }}
+                </div>
               </ion-col>
             </ng-container>
           </ion-row>
@@ -220,9 +223,13 @@
         <ion-grid>
           <ion-row>
             <ng-container *ngIf="claim">
-              <ion-col size="6" *ngFor="let image of claim.claim_quotations" (click)="imagePreview(image.image_link)">
+              <ion-col size="6" *ngFor="let image of claim.claim_quotations">
                 <ion-img style="border:1px solid; margin: 5px;" role="button" class="image" [src]="image.image_link"
-                  *ngIf="image.image_link"></ion-img>
+                  *ngIf="image.image_link && image.remarks != 'file'" (click)="helper.imagePreview(image.image_link)">
+                </ion-img>
+                <div *ngIf="image.remarks == 'file'" (click)="helper.downloadPDF(image.image_link)" class="file-box">
+                  {{ image.name }}
+                </div>
               </ion-col>
             </ng-container>
           </ion-row>
@@ -231,7 +238,7 @@
 
     </ion-card>
 
-    <ion-card mode="ios">
+    <ion-card mode="ios" *ngIf="false">
 
       <div class="flex">
         <div class="flex-left">
@@ -248,9 +255,13 @@
         <ion-grid>
           <ion-row>
             <ng-container *ngIf="claim">
-              <ion-col size="6" *ngFor="let image of claim.claim_letters" (click)="imagePreview(image.image_link)">
+              <ion-col size="6" *ngFor="let image of claim.claim_letters">
                 <ion-img style="border:1px solid; margin: 5px;" role="button" class="image" [src]="image.image_link"
-                  *ngIf="image.image_link"></ion-img>
+                  *ngIf="image.image_link && image.remarks != 'file'" (click)="helper.imagePreview(image.image_link)">
+                </ion-img>
+                <div *ngIf="image.remarks == 'file'" (click)="helper.downloadPDF(image.image_link)" class="file-box">
+                  {{ image.name }}
+                </div>
               </ion-col>
             </ng-container>
           </ion-row>
@@ -277,15 +288,25 @@
           <ion-label>
             <h2 style="font-weight: bolder;">{{ status.claim_status_code | titlecase }}</h2>
             <p *ngIf="status.created_by">by {{ status.created_by.user_fullname }}</p>
-            <p>at {{ status.date | date : "d/MM/y" }}</p>
-            <ion-grid style="padding: 0; margin: 10px -20px 0 -20px;">
-              <ion-row>
-                <ng-container *ngIf="status.files">
-                  <ion-col size="4" *ngFor="let file of status.files" (click)="imagePreview(file.image_link)">
-                    <ion-img style="border:1px solid; margin: 5px;" role="button" class="image" [src]="file.image_link"
-                      *ngIf="file.image_link"></ion-img>
-                  </ion-col>
-                </ng-container>
+            <p>at {{ status.date | date : "d/MM/y h:mma" }}</p>
+            <ion-grid style="padding: 0;">
+              <ion-row *ngIf="status.files">
+                <ion-col size="4" *ngFor="let file of status.files">
+                  <ion-img style="border:1px solid; margin: 5px;" role="button" class="image" [src]="file.image_link"
+                    *ngIf="file.image_link && file.remarks != 'file'" (click)="helper.imagePreview(file.image_link)">
+                  </ion-img>
+
+                  <div *ngIf="file.remarks == 'file'" (click)="helper.downloadPDF(file.image_link)" class="file-box">
+                    {{ file.name }}
+                  </div>
+
+                  <!-- <ion-img style="border:1px solid; margin: 5px;" role="button" class="image" [src]="image.image_link"
+                              *ngIf="image.image_link && image.remarks != 'file'">
+                            </ion-img>
+                            <div *ngIf="image.remarks == 'file'" (click)="helper.imagePreview(image.image_link)" class="file-box">
+                              {{ image.name }}
+                            </div> -->
+                </ion-col>
               </ion-row>
             </ion-grid>
           </ion-label>
@@ -336,7 +357,7 @@
   </ion-row>
 
   <ion-card mode="ios"
-    *ngIf="claim && claim.status == 'pending' && staff && (staff.user_role == 1 || staff.user_role == 5)"
+    *ngIf="claim && ['approved', 'pending'].includes(claim.status) && staff && (staff.user_role == 1 || staff.user_role == 5)"
     style="margin: 0;">
     <ion-card-content style="padding: 10px;">
       <ion-grid>
@@ -367,10 +388,21 @@
             </ion-item>
           </ion-col>
 
+          <ion-col size="12" *ngIf="actionType && actionType == 'void'">
+            <ion-item fill="outline" mode="md" class="ez-material-input" style="margin: 0;">
+              <ion-label position="default">Void Type: </ion-label>
+              <ion-select placeholder="Select One" [(ngModel)]="void_type" interface="action-sheet">
+                <ion-select-option *ngFor="let void of void_reasons" [value]="void.id">
+                  {{ void.name }}
+                </ion-select-option>
+              </ion-select>
+            </ion-item>
+          </ion-col>
+
           <ion-col size="12">
             <ion-item fill="outline" mode="md" class="ez-material-input" style="margin: 0;">
-              <ion-label position="default">Claim Date: </ion-label>
-              <ion-input [(ngModel)]="input_claim_date" type="date" class="ion-text-end">
+              <ion-label position="default">Date: </ion-label>
+              <ion-input [(ngModel)]="input_claim_date" type="datetime-local" class="ion-text-end">
               </ion-input>
             </ion-item>
           </ion-col>
@@ -380,9 +412,15 @@
       <ion-grid *ngIf="actionType">
         <ion-row>
           <ion-col size="6" style="height: 140px;" *ngFor="let image of statusImages; index as i;">
+
             <ion-img style="height: 100%; object-fit: cover; border-radius: 8px; overflow: hidden; border: 2px solid;"
-              role="button" class="image" [src]="image.base64" *ngIf="image.base64">
+              role="button" class="image" [src]="image.url" *ngIf="image.type == 'image'">
             </ion-img>
+
+            <ion-text *ngIf="image.type == 'file'">
+              {{ image.file.name }}
+            </ion-text>
+
             <ion-chip class="chip-close" (click)="removeImage(i)">
               <ion-icon name="close"></ion-icon>
             </ion-chip>

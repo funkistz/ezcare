@@ -24,7 +24,7 @@ export class ViewPage implements OnInit {
 
   ngOnInit() {
 
-    this.route.queryParams.subscribe(params => {
+    const rt = this.route.queryParams.subscribe(params => {
       if (params) {
 
         console.log("params", params);
@@ -35,6 +35,8 @@ export class ViewPage implements OnInit {
         }
       }
     });
+
+    rt.unsubscribe();
 
   }
 

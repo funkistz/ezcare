@@ -3,6 +3,7 @@ import { AuthenticationService } from '../../../services/authentication.service'
 import { ActivatedRoute, Router } from '@angular/router';
 import { FormGroup, FormBuilder, Validators } from "@angular/forms";
 import { HelperService } from '../../../services/helper.service';
+import { NavController } from '@ionic/angular';
 
 @Component({
   selector: 'app-view',
@@ -39,6 +40,7 @@ export class ViewPage implements OnInit {
     private route: ActivatedRoute, private router: Router,
     public formBuilder: FormBuilder,
     private helper: HelperService,
+    private navCtrl: NavController,
   ) { }
 
   ngOnInit() {
@@ -123,6 +125,7 @@ export class ViewPage implements OnInit {
 
           this.helper.dissmissLoading();
           this.helper.presentToast('Successfully updated');
+          this.navCtrl.back();
 
         }, error => {
           console.log(error);
@@ -135,6 +138,7 @@ export class ViewPage implements OnInit {
 
           this.helper.dissmissLoading();
           this.helper.presentToast('Successfully added');
+          this.navCtrl.back();
 
         }, error => {
           console.log(error);

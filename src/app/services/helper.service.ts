@@ -7,6 +7,14 @@ import { decode } from "base64-arraybuffer";
 import * as moment from 'moment';
 import { AngularFireStorage, AngularFireUploadTask } from '@angular/fire/compat/storage';
 import { finalize, tap } from 'rxjs/operators';
+import { PhotoViewer } from '@awesome-cordova-plugins/photo-viewer/ngx';
+import { InAppBrowser } from '@awesome-cordova-plugins/in-app-browser/ngx';
+import { Browser } from '@capacitor/browser';
+import { Storage } from '@capacitor/storage';
+import { AuthenticationService } from '../services/authentication.service';
+import { Capacitor } from '@capacitor/core';
+import { PreviewAnyFile } from '@awesome-cordova-plugins/preview-any-file/ngx';
+import { Chooser } from '@awesome-cordova-plugins/chooser/ngx';
 
 const IMAGE_DIR = 'stored-images';
 
@@ -17,6 +25,13 @@ export class HelperService {
 
   loading;
   images = [];
+  user;
+  staff;
+  staffs;
+  warrantyPlans;
+  promos;
+  periods;
+  inspection_types;
 
   constructor(
     private alertController: AlertController,
@@ -24,7 +39,85 @@ export class HelperService {
     private toastController: ToastController,
     public platform: Platform,
     private afStorage: AngularFireStorage,
+    private photoViewer: PhotoViewer,
+    private iab: InAppBrowser,
+    private authService: AuthenticationService,
+    private previewAnyFile: PreviewAnyFile,
+    private chooser: Chooser
   ) { }
+
+  async getStaffs() {
+
+    let { value }: any = await Storage.get({ key: 'staffs' });
+
+    if (value) {
+      this.staffs = JSON.parse(value);
+    }
+
+    let { value2 }: any = await Storage.get({ key: 'warrantyPlans' });
+
+    if (value2) {
+      this.warrantyPlans = JSON.parse(value2);
+    }
+
+    this.authService.getStaffs().subscribe(
+      (data: any) => {
+        if (data && data.data) {
+
+          this.staffs = [];
+
+          data.data.forEach(staff => {
+
+            this.staffs.push({
+              id: staff.id,
+              name: staff.name,
+            });
+
+          });
+
+          Storage.set({
+            key: 'staffs',
+            value: JSON.stringify(this.staffs)
+          });
+          // console.log('this.staffs', this.staffs);
+
+          this.warrantyPlans = data.warranty_plan;
+
+          Storage.set({
+            key: 'warrantyPlans',
+            value: JSON.stringify(this.warrantyPlans)
+          });
+
+          this.periods = data.periods;
+
+          Storage.set({
+            key: 'periods',
+            value: JSON.stringify(this.periods)
+          });
+
+          this.promos = data.promos;
+
+          Storage.set({
+            key: 'promos',
+            value: JSON.stringify(this.promos)
+          });
+
+          this.inspection_types = data.inspection_types;
+
+          Storage.set({
+            key: 'inspection_types',
+            value: JSON.stringify(this.inspection_types)
+          });
+          // console.log('this.warrantyPlans', this.warrantyPlans);
+
+        }
+      }, error => {
+        this.presentAlertDetails('Error', 'No staff found.');
+        console.log(error);
+      });
+  }
+
+
 
   async presentToast(message) {
     const toast = await this.toastController.create({
@@ -111,8 +204,8 @@ export class HelperService {
       height: 1080,
       allowEditing: false,
       resultType: CameraResultType.Uri,
-      // source: CameraSource.Camera
-      source: CameraSource.Photos
+      source: CameraSource.Camera
+      // source: CameraSource.Photos
     });
 
     return {
@@ -126,6 +219,8 @@ export class HelperService {
   async saveImage(photo) {
 
     const base64Data = await this.readAsBase64(photo);
+    // console.log('photo', photo);
+    // console.log('base64Data', base64Data);
 
     // const savedFile = await Filesystem.writeFile({
     //   path: `${IMAGE_DIR}/${fileName}`,
@@ -133,15 +228,18 @@ export class HelperService {
     //   directory: Directory.Data
     // });
 
-    const blob = new Blob([new Uint8Array(decode(base64Data))], {
-      type: `image/${photo.format}`,
-    });
-    let filename: string = "" + moment().unix();
+    // const blob = new Blob([new Uint8Array(decode(base64Data))], {
+    //   type: `image/${photo.format}`,
+    // });
+    const blob = this.b64toBlob(base64Data, 'image/' + photo.format);
+    let filename: string = "original_" + moment().unix();
 
-    const file = new File([blob], filename, {
-      lastModified: moment().unix(),
-      type: blob.type,
-    });
+    // const file = new File([blob], filename, {
+    //   lastModified: moment().unix(),
+    //   type: blob.type,
+    // });
+    const file = this.blobToFile(blob, filename);
+    console.log('blob.type', blob);
 
     let finalFile = {
       original: file,
@@ -153,15 +251,14 @@ export class HelperService {
       // this.resizedBase64 = compressed;
       compressed = compressed.split(',')[1];
 
-      const blob2 = new Blob([new Uint8Array(decode(compressed))], {
-        type: `image/${photo.format}`,
-      });
-      let filename: string = "" + moment().unix();
+      const blob2 = this.b64toBlob(compressed, 'image/' + photo.format);
+      let filename: string = "thumbnail_" + moment().unix();
 
-      const file2 = new File([blob2], filename, {
-        lastModified: moment().unix(),
-        type: 'image/jpeg',
-      });
+      // const file2 = new File([blob2], filename, {
+      //   lastModified: moment().unix(),
+      //   type: 'image/jpeg',
+      // });
+      const file2 = this.blobToFile(blob2, filename);
 
       finalFile.thumbnail = file2;
 
@@ -179,6 +276,9 @@ export class HelperService {
   }
 
   private async readAsBase64(photo: Photo) {
+
+    console.log('checking photos', photo);
+
     if (this.platform.is('hybrid')) {
       const file = await Filesystem.readFile({
         path: photo.path
@@ -195,6 +295,44 @@ export class HelperService {
     }
   }
 
+  async saveFile(document) {
+
+    const base64Data = document.dataURI.split(',')[1];
+
+    const blob = this.b64toBlob(base64Data, document.mediaType);
+    let filename: string = "original_" + moment().unix() + "_" + document.name;
+
+    const file = this.blobToFile(blob, filename);
+
+    return file;
+
+  }
+
+  async filePicker() {
+
+    let fileX;
+
+    await this.chooser.getFile()
+      .then(async file => {
+
+        fileX = {
+          name: file.name,
+          file: await this.saveFile(file),
+          format: file.mediaType.split(',')[1],
+          webPath: file.uri,
+        }
+
+      })
+      .catch((error: any) => {
+        console.error(error);
+      });
+
+
+    return fileX;
+
+  }
+
+
   // Helper function
   convertBlobToBase64 = (blob: Blob) => new Promise((resolve, reject) => {
     const reader = new FileReader;
@@ -205,6 +343,28 @@ export class HelperService {
     reader.readAsDataURL(blob);
   });
 
+  b64toBlob(b64Data, contentType) {
+    contentType = contentType || '';
+    var sliceSize = 512;
+    var byteCharacters = atob(b64Data);
+    var byteArrays = [];
+
+    for (var offset = 0; offset < byteCharacters.length; offset += sliceSize) {
+      var slice = byteCharacters.slice(offset, offset + sliceSize);
+
+      var byteNumbers = new Array(slice.length);
+      for (var i = 0; i < slice.length; i++) {
+        byteNumbers[i] = slice.charCodeAt(i);
+      }
+
+      var byteArray = new Uint8Array(byteNumbers);
+
+      byteArrays.push(byteArray);
+    }
+
+    var blob = new Blob(byteArrays, { type: contentType });
+    return blob;
+  }
   async loadFiles() {
     this.images = [];
 
@@ -287,16 +447,26 @@ export class HelperService {
     })
   }
 
+  public blobToFile = (theBlob: Blob, fileName: string): File => {
+    var b: any = theBlob;
+    //A Blob() is almost a File() - it's just missing the two properties below which we will add
+    b.lastModifiedDate = new Date();
+    b.name = fileName;
+
+    //Cast to a File() type
+    return <File>theBlob;
+  }
+
   async uploadToFirebase(file, reg_no): Promise<any> {
 
     return new Promise(async (resolve, reject) => {
 
       console.log('uploading...');
 
-      const filename = new Date().getTime() + '_' + reg_no;
+      const filename = file.name;
 
       // Storage path
-      const fileStoragePath = `inspections/${new Date().getTime()}_${reg_no}`;
+      const fileStoragePath = `inspections/${new Date().getTime()}_${filename}`;
 
       // Image reference
       const imageRef = this.afStorage.ref(fileStoragePath);
@@ -322,6 +492,96 @@ export class HelperService {
       ).toPromise();
     });
 
+  }
+
+  async uploadFileToFirebase(file, reg_no): Promise<any> {
+
+    return new Promise(async (resolve, reject) => {
+
+      console.log('uploading...');
+
+      const filename = file.name;
+
+      // Storage path
+      const fileStoragePath = 'inspections/' + filename;
+
+      // Image reference
+      const imageRef = this.afStorage.ref(fileStoragePath);
+
+      // File upload task
+      let fileUploadTask = this.afStorage.upload(fileStoragePath, file);
+      // Show uploading progress
+      let percentageVal = fileUploadTask.percentageChanges();
+
+      await fileUploadTask.snapshotChanges().pipe(
+        finalize(async () => {
+          console.log('finish fileUploadTask');
+
+          await imageRef.getDownloadURL().subscribe(downloadURL => {
+
+            resolve({
+              name: filename,
+              url: downloadURL,
+            });
+
+          });
+        })
+      ).toPromise();
+    });
+
+  }
+
+  imagePreview(src, isBrowser = true) {
+
+    if (isBrowser) {
+      Browser.open({
+        url: src,
+        toolbarColor: '#29135f',
+        presentationStyle: 'popover'
+      });
+    } else {
+
+      var options = {
+        share: true, // default is false
+        closeButton: true, // default is true
+        copyToReference: false, // default is false
+        headers: '',  // If this is not provided, an exception will be triggered
+        piccasoOptions: {} // If this is not provided, an exception will be triggered
+      };
+
+      // console.log('decodeURIComponent(src)', (this.file.applicationDirectory + src));
+      this.photoViewer.show((src), 'Inspection', options);
+
+    }
+
+  }
+
+  async downloadPDF(url) {
+
+    console.log(Capacitor.getPlatform(), url);
+
+    if (Capacitor.getPlatform() === 'web') {
+      window.open(url);
+    } else {
+
+      this.previewAnyFile.previewPath(url).subscribe(
+        doc => {
+
+        }, error => {
+          console.log(error);
+        }
+      )
+
+    }
+
+  }
+
+  async checkStaff(event = null, policy_id = null) {
+
+    let { value }: any = await Storage.get({ key: 'staff' });
+    let staff = value;
+
+    return JSON.parse(staff);
   }
 
 }

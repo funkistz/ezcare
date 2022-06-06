@@ -21,7 +21,7 @@
           {{ workshop.desc }}
         </p>
         <p>
-          {{ workshop.state }}
+          {{ workshop.state | uppercase }}
         </p>
         <p>
           <ion-badge *ngIf="!workshop.is_active || workshop.is_active == '0'" color="warning">Inactive</ion-badge>

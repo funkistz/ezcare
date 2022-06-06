@@ -10,7 +10,11 @@ const routes: Routes = [
   },
   {
     path: 'add',
-    loadChildren: () => import('./add/add.module').then( m => m.AddPageModule)
+    loadChildren: () => import('./add/add.module').then(m => m.AddPageModule)
+  },
+  {
+    path: 'addSponsorship',
+    loadChildren: () => import('../sponsorship/add/add.module').then(m => m.AddPageModule)
   }
 ];
 
@@ -18,4 +22,4 @@ const routes: Routes = [
   imports: [RouterModule.forChild(routes)],
   exports: [RouterModule],
 })
-export class EndorsementPageRoutingModule {}
+export class EndorsementPageRoutingModule { }

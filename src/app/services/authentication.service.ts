@@ -212,6 +212,13 @@ export class AuthenticationService {
 
   }
 
+  updateClaimAttachments(claim_id, data, type) {
+
+    this.resetHeader();
+    return this.http.post(this.url + 'claim/' + type, data, this.header);
+
+  }
+
   uploadImage(image) {
 
     this.resetHeader();
@@ -277,6 +284,16 @@ export class AuthenticationService {
     this.header.params = params;
 
     return this.http.get(this.url + 'policy/reportYearly', this.header);
+
+  }
+
+  getManagerReports(user_id, year, month): Observable<any> {
+
+    this.resetHeader();
+    let params = new HttpParams().set('user_id', user_id).set('year', year).set('month', month);
+    this.header.params = params;
+
+    return this.http.get(this.url + 'policy/reportManager', this.header);
 
   }
 

@@ -2,6 +2,7 @@ import { Component } from '@angular/core';
 import { AuthenticationService } from '../services/authentication.service';
 import { Storage } from '@capacitor/storage';
 import { Router, NavigationExtras } from '@angular/router';
+import * as moment from 'moment';
 
 @Component({
   selector: 'app-tab2',
@@ -58,8 +59,7 @@ export class Tab2Page {
 
         if (data && data.data) {
 
-          console.log(data);
-
+          console.log('servicess', data);
 
           if (event) {
             event.target.complete();
@@ -67,6 +67,17 @@ export class Tab2Page {
 
           this.services = data.data;
           this.cService = this.services[this.services.length - 1];
+
+          this.services.forEach(service => {
+
+            if (service.next_due_date_atf) {
+              service.next_due_date_atf = moment(service.next_due_date_atf, 'YYYY-MM-DD').toDate();
+            } else if (service.next_due_date) {
+              service.next_due_date = moment(service.next_due_date, 'YYYY-MM-DD').toDate();
+            }
+
+
+          });
 
         }
       }, error => {

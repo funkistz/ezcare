@@ -1,8 +1,11 @@
-<ion-header>
-  <ion-toolbar mode="ios" class="ez-toolbar" color="primary">
-    <img src="../../assets/Ezcarehorizontal.png" class="logo" />
+<ion-header class="ion-no-border" style="background-color: white;">
+  <ion-toolbar mode="md" class="ez-toolbar" color="primary">
 
-    <ion-title size="large">
+    <ion-buttons slot="start">
+      <ion-back-button></ion-back-button>
+    </ion-buttons>
+    <ion-title>
+      Workshops
     </ion-title>
 
     <ion-buttons slot="end">
@@ -11,14 +14,14 @@
       </ion-button>
     </ion-buttons>
   </ion-toolbar>
+
+  <ion-searchbar placeholder="Search..." debounce="1000" (ionChange)="searchWorkshops($event)" animated="true"
+    *ngIf="hasPermission" mode="ios">
+  </ion-searchbar>
+
 </ion-header>
 
 <ion-content fullscreen="true" mode="ios">
-
-  <ion-text>
-    <h2 class="ez-title bold">Workshops</h2>
-  </ion-text>
-
 
   <div class="map-wrapper">
     <div id="map_center">
@@ -27,12 +30,9 @@
     <div #map id="map"></div>
   </div>
 
-  <ion-searchbar placeholder="Search..." debounce="1000" (ionChange)="searchWorkshops($event)" animated="true">
-  </ion-searchbar>
+  <ion-list *ngIf="hasPermission" style="height: 65%; overflow: scroll;">
 
-  <ion-list>
-
-    <ion-item *ngFor="let workshop of workshops">
+    <ion-item *ngFor="let workshop of workshops" (click)="displayWorkshop(workshop)">
       <!-- <ion-avatar slot="start">
         <img src="./avatar-han.png" />
       </ion-avatar> -->
@@ -44,13 +44,25 @@
     </ion-item>
   </ion-list>
 
+  <ion-card *ngIf="!hasPermission">
+    <ion-card-header>
+      <ion-card-title>Location is required</ion-card-title>
+      <ion-card-subtitle>Please enable your location to use this feature</ion-card-subtitle>
+    </ion-card-header>
+
+    <ion-card-content>
+      <ion-button expand="block" (click)="requestPermission()" color="warning">Enable Location</ion-button>
+    </ion-card-content>
+  </ion-card>
+
+
 </ion-content>
 
-<ion-footer collapse="fade" class="ion-no-border">
-  <ion-toolbar style="padding: 10px 30px; ">
-    <ion-button expand="block" shape="round" color="danger" (click)="mobileService()" class="btn-big">
-      <ion-icon name="construct" slot="start"></ion-icon>
-      Mobile Service
-    </ion-button>
-  </ion-toolbar>
+<ion-footer class="ion-no-border">
+
+  <ion-button expand="block" shape="round" color="danger" (click)="mobileService()" style="padding:0 10px">
+    <ion-icon name="construct" slot="start"></ion-icon>
+    Mobile Service
+  </ion-button>
+
 </ion-footer>

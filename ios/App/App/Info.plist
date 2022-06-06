@@ -5,7 +5,7 @@
 	<key>CFBundleDevelopmentRegion</key>
 	<string>en</string>
 	<key>CFBundleDisplayName</key>
-        <string>ezcare</string>
+	<string>Ezcare Warranty</string>
 	<key>CFBundleExecutable</key>
 	<string>$(EXECUTABLE_NAME)</string>
 	<key>CFBundleIdentifier</key>
@@ -17,9 +17,9 @@
 	<key>CFBundlePackageType</key>
 	<string>APPL</string>
 	<key>CFBundleShortVersionString</key>
-	<string>1.0</string>
+	<string>$(MARKETING_VERSION)</string>
 	<key>CFBundleVersion</key>
-	<string>1</string>
+	<string>$(CURRENT_PROJECT_VERSION)</string>
 	<key>LSRequiresIPhoneOS</key>
 	<true/>
 	<key>NSAppTransportSecurity</key>
@@ -27,6 +27,20 @@
 		<key>NSAllowsArbitraryLoads</key>
 		<true/>
 	</dict>
+	<key>NSCameraUsageDescription</key>
+	<string>App require access to your camera to let you capture images to upload for supporting documents in certain form</string>
+	<key>NSLocationAlwaysUsageDescription</key>
+	<string>We use your location to find nearest workshop from your location when you use our search workshop feature</string>
+	<key>NSLocationWhenInUseUsageDescription</key>
+	<string>We use your location to find nearest workshop from your location when you use our search workshop feature</string>
+	<key>NSPhotoLibraryAddUsageDescription</key>
+	<string>App require access to your photo to let you browse your images to upload for supporting documents in certain form</string>
+	<key>NSPhotoLibraryUsageDescription</key>
+	<string>App require access to your photo to let you browse your images to upload for supporting documents in certain form</string>
+	<key>UIBackgroundModes</key>
+	<array>
+		<string>remote-notification</string>
+	</array>
 	<key>UILaunchStoryboardName</key>
 	<string>LaunchScreen</string>
 	<key>UIMainStoryboardFile</key>
@@ -50,11 +64,5 @@
 	</array>
 	<key>UIViewControllerBasedStatusBarAppearance</key>
 	<true/>
-	<key>NSCameraUsageDescription</key>
-	<string>To capture images</string>
-	<key>NSPhotoLibraryAddUsageDescription</key>
-	<string>To add images</string>
-	<key>NSPhotoLibraryUsageDescription</key>
-	<string>To store images</string>
 </dict>
 </plist>
