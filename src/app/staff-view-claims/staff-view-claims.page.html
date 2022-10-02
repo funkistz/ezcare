@@ -3,14 +3,15 @@
     <ion-buttons slot="start">
       <ion-back-button></ion-back-button>
     </ion-buttons>
-    <ion-buttons slot="end" *ngIf="claim && claim.status == 'pending' && staff && (staff.user_role == 5)">
+    <ion-buttons slot="end"
+      *ngIf="claim && claim.status == 'pending' && staff && (staff.user_role == 5 || staff.user_role == 6 || staff.user_role == 1)">
       <ion-button (click)="edit(claim.policy.cust_vehicleregno)">Edit</ion-button>
     </ion-buttons>
     <ion-title>
       View Claim
     </ion-title>
     <ion-buttons slot="primary">
-      <ion-button *ngIf="staff && staff.user_role == 1" (click)="deleteClaim()">
+      <ion-button *ngIf="staff && (staff.user_role == 1 || staff.user_role == 6)" (click)="deleteClaim()">
         Delete
       </ion-button>
     </ion-buttons>

@@ -3,7 +3,7 @@ import { FormGroup, FormBuilder, Validators } from "@angular/forms";
 import { DatePipe } from '@angular/common'
 import { AuthenticationService } from '../services/authentication.service';
 import { ActivatedRoute, Router } from '@angular/router';
-import { Platform, LoadingController, ToastController, ActionSheetController } from '@ionic/angular';
+import { Platform, LoadingController, ToastController, ActionSheetController, ModalController } from '@ionic/angular';
 import { NavController } from '@ionic/angular';
 import { Camera, CameraResultType, CameraSource, Photo } from '@capacitor/camera';
 import { Filesystem, Directory } from '@capacitor/filesystem';
@@ -17,7 +17,7 @@ import { Observable } from 'rxjs';
 import { finalize, tap } from 'rxjs/operators';
 import { AlertController } from '@ionic/angular';
 import { Chooser } from '@awesome-cordova-plugins/chooser/ngx';
-
+import { ClaimImportsPage } from '../components/claim-imports/claim-imports.page';
 @Component({
   selector: 'app-staff-add-claims',
   templateUrl: './staff-add-claims.page.html',
@@ -54,6 +54,7 @@ export class StaffAddClaimsPage implements OnInit {
   UploadedImageURL: Observable<string>;
 
   isLoading = false;
+  canDelete = false;
 
   constructor(
     public formBuilder: FormBuilder,
@@ -71,6 +72,7 @@ export class StaffAddClaimsPage implements OnInit {
     public alertController: AlertController,
     private chooser: Chooser,
     private firestore: AngularFirestore,
+    private modalCtrl: ModalController,
   ) { }
 
   ngOnInit() {
@@ -167,7 +169,7 @@ export class StaffAddClaimsPage implements OnInit {
               this.ionicForm.controls["claim_type_id"].setValue(Number(this.claim.claim_type_id));
             }
             if (this.claim && this.claim.claim_date) {
-              let date = moment(this.claim.claim_date).format('DD-MM-YYYY');
+              let date = moment(this.claim.claim_date).format('YYYY-MM-DD');
               console.log('date', date);
               this.ionicForm.controls["claim_date"].setValue(date);
             }
@@ -181,6 +183,11 @@ export class StaffAddClaimsPage implements OnInit {
               this.ionicForm.controls["marketing_officer"].setValue(this.claim.marketing_officer);
             }
           }
+
+          if (this.staff.user_role == 1 || this.staff.user_role == 5 || this.staff.user_role == 6 || this.claim.created_by == this.staff.user_id) {
+            this.canDelete = true;
+          }
+
           console.log('claims', this.claim);
           console.log('claim_type_id', this.claim.claim_type_id);
         }
@@ -192,6 +199,61 @@ export class StaffAddClaimsPage implements OnInit {
           event.target.complete();
         }
       });
+  }
+
+  async removeImageOri(attachment_id, type) {
+
+    const alert = await this.alertController.create({
+      header: 'Are you sure want to delete image!',
+      buttons: [
+        {
+          text: 'Cancel',
+          role: 'cancel',
+          handler: (blah) => {
+            console.log('Confirm Cancel: blah');
+          }
+        }, {
+          text: 'Confirm',
+          handler: () => {
+
+            this.removeImageFirebase(attachment_id, type);
+          }
+        }
+      ]
+    });
+
+    alert.present();
+
+  }
+
+  async removeImageFirebase(attachment_id, type) {
+
+    console.log(attachment_id, type);
+
+    let data: any = {};
+
+    if (type == 'report') {
+      data.report_attachment_id = attachment_id;
+    } else if (type == 'quotation') {
+      data.quotation_attachment_id = attachment_id;
+    }
+
+    this.loading = true;
+
+    this.authService.removeClaimAttachment(this.claim.id, data).subscribe(
+      result => {
+
+        this.helper.dissmissLoading();
+        this.helper.presentToast('Image delete successfully');
+        this.searchCar();
+        console.log(result);
+
+      }, error => {
+        console.log(error);
+        this.helper.dissmissLoading();
+        this.helper.presentToast(error.error.message);
+      });
+
   }
 
   async selectImageSource(type) {
@@ -376,6 +438,24 @@ export class StaffAddClaimsPage implements OnInit {
 
         this.firestore.collection('/claims/').add(data).then(() => {
           console.log('success');
+
+          let tempData: any = {};
+
+          tempData.customer_id = data.customer_id;
+          tempData.data = data;
+          tempData.date = new Date();
+          tempData.status = 'quotation';
+          tempData.claim_id = data.data.id;
+          tempData.marketing_officer = this.claim.marketing_officer.id;
+
+          this.firestore.collection('/claim_status_update/').add(tempData).then(() => {
+            console.log('success');
+          }).catch(error => {
+            console.log(error);
+          });
+
+
+
         }).catch(error => {
           console.log('success');
         });
@@ -482,6 +562,20 @@ export class StaffAddClaimsPage implements OnInit {
       this.claimLetterImages.splice(index, 1);
     }
 
+  }
+
+  async displayImportImage(): Promise<void> {
+
+    const workshopModal = await this.modalCtrl.create({
+      component: ClaimImportsPage,
+      componentProps: { claim: this.claim },
+      mode: 'ios',
+      showBackdrop: false,
+      swipeToClose: true,
+      breakpoints: [1],
+      initialBreakpoint: 1,
+    });
+    return await workshopModal.present();
   }
 
 }

@@ -63,6 +63,10 @@ export class ViewPage implements OnInit {
               this.isEndorsementApprover = parseInt(this.user.is_endorsement_approver);
             }
 
+            if (this.user.user_active) {
+              this.isActive = parseInt(this.user.user_active);
+            }
+
             this.users.push(this.user);
           }
 

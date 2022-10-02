@@ -100,6 +100,35 @@ const routes: Routes = [
             path: 'add-logs',
             loadChildren: () => import('../staff-add-logs/staff-add-logs.module').then(m => m.StaffAddLogsPageModule)
           },
+          {
+            path: 'add-schedule',
+            loadChildren: () => import('../staff-add-schedule/staff-add-schedule.module').then(m => m.StaffAddSchedulePageModule)
+          },
+        ]
+      },
+      {
+        path: 'staff-inspection',
+        children: [
+          {
+            path: '',
+            loadChildren: () => import('../staff-inspection/staff-inspection.module').then(m => m.StaffInspectionPageModule),
+          },
+          {
+            path: 'view-logs',
+            loadChildren: () => import('../staff-view-logs/staff-view-logs.module').then(m => m.StaffViewLogsPageModule)
+          },
+          {
+            path: 'add-logs',
+            loadChildren: () => import('../staff-add-logs/staff-add-logs.module').then(m => m.StaffAddLogsPageModule)
+          },
+          {
+            path: 'add-schedule',
+            loadChildren: () => import('../staff-add-schedule/staff-add-schedule.module').then(m => m.StaffAddSchedulePageModule)
+          },
+          {
+            path: 'add-non-inspect',
+            loadChildren: () => import('../add-non-inspect/add-non-inspect.module').then(m => m.AddNonInspectPageModule)
+          },
         ]
       },
       {

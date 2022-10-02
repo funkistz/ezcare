@@ -5,7 +5,7 @@
     </ion-title>
   </ion-toolbar>
 
-  <ion-searchbar mode="ios" (ionInput)="searching($event)" debounce="100" placeholder="Search by dealer or MO">
+  <ion-searchbar mode="ios" (ionInput)="searching($event)" debounce="100" placeholder="Search by Dealer, MO or Chassis">
   </ion-searchbar>
 
   <ion-segment (ionChange)="segmentChanged($event)" mode="md" [value]="segment" scrollable>
@@ -26,50 +26,163 @@
 
 <ion-content>
 
-  <h6 *ngIf="loaded && inspections && inspections.length == 0" class="ion-text-center">
-    No inspection available
-  </h6>
+  <ng-container *ngIf="segment == 'mine' || segment == 'all'">
+    <ion-grid *ngIf="(staff && staff.user_branch == 8)">
+      <ion-row>
+        <ion-col size="5">
+          <h4 style="margin: 20px 15px 0 10px;">Filter by</h4>
+        </ion-col>
+        <ion-col size="7">
+          <ion-card mode="ios" style="margin: 10px 10px 0 0;" *ngIf="staff && staff.user_branch == 8">
+            <ion-select interface="action-sheet" placeholder="Select Branch" [(ngModel)]="branch"
+              (ionChange)="changeBranch($event)">
+              <ion-select-option *ngFor="let branch of helper.branches" [value]="branch.id">
+                {{ branch.branch }}
+              </ion-select-option>
+            </ion-select>
+          </ion-card>
+        </ion-col>
+      </ion-row>
+    </ion-grid>
 
-  <ion-accordion-group [value]="groupInspections[0].name" class="ion-margin-bottom"
-    *ngIf="groupInspections && groupInspections[0] && groupInspections[0].data && groupInspections[0].data.length > 0">
+    <h6 *ngIf="loaded && inspections && inspections.length == 0" class="ion-text-center">
+      No inspection available
+    </h6>
 
-    <ion-accordion [value]="groupInspection.name" *ngFor="let groupInspection of groupInspections">
-      <ion-item slot="header">
-        <ion-label>{{ groupInspection.name }}</ion-label>
-      </ion-item>
+    <ion-accordion-group [value]="groupInspections[0].name" class="ion-margin-bottom"
+      *ngIf="groupInspections && groupInspections[0] && groupInspections[0].data && groupInspections[0].data.length > 0">
 
-      <ion-list slot="content">
-        <ion-item *ngFor="let inspection of groupInspection.data" (click)="viewLog(inspection.id)">
-          <!-- <ion-thumbnail slot="start" *ngIf="inspection.images[0]">
-            <img [src]="inspection.images[0].image_thumb_link">
-          </ion-thumbnail> -->
-          <ion-label>
-            <h2>
-              {{ inspection.dealer }}
-              <ion-badge color="warning" *ngIf="inspection.status == 'pending'" style="float: right;">Pending
-              </ion-badge>
-              <ion-badge color="danger" *ngIf="inspection.status == 'rejected'" style="float: right;">Rejected
-              </ion-badge>
-              <ion-badge color="success" *ngIf="inspection.status == 'proceed'" style="float: right;">Proceed
-              </ion-badge>
-            </h2>
-            <p *ngIf="inspection.marketing_officer">MO: {{ inspection.marketing_officer.name }}</p>
-            <p *ngIf="inspection.marketing_officer">Created by: {{ inspection.created_by_name }}</p>
-            <p *ngIf="!inspection.reminder_date">{{ inspection.date.toDate() | date: 'dd/MM/YYYY' }}</p>
-            <ion-chip *ngIf="inspection.reminder_date" color="danger">
-              <ion-label>Inspection Time: {{ inspection.reminder_date.toDate() | date: 'dd/MM/YYYY
-                h:mm a'
-                }}</ion-label>
-            </ion-chip>
-          </ion-label>
+      <ion-accordion [value]="groupInspection.name" *ngFor="let groupInspection of groupInspections">
+        <ion-item slot="header">
+          <ion-label>{{ groupInspection.name }}</ion-label>
         </ion-item>
-      </ion-list>
-    </ion-accordion>
 
-  </ion-accordion-group>
+        <ion-list slot="content">
+          <ion-item *ngFor="let inspection of groupInspection.data" (click)="viewLog(inspection.id)">
+            <!-- <ion-thumbnail slot="start" *ngIf="inspection.images[0]">
+              <img [src]="inspection.images[0].image_thumb_link">
+            </ion-thumbnail> -->
+            <ion-label>
+              <h2>
+                <span *ngIf="inspection.dealer && inspection.dealer.name">
+                  {{ inspection.dealer.name }}
+                </span>
+                <span *ngIf="inspection.dealer && !inspection.dealer.name">
+                  {{ inspection.dealer }}
+                </span>
+                <span *ngIf="!inspection.dealer && !inspection.dealer.name">
+                  Policy no: {{ inspection.policy_no }}
+                </span>
+                <ion-badge color="warning" *ngIf="inspection.status == 'pending'" style="float: right;">Pending
+                </ion-badge>
+                <ion-badge color="danger" *ngIf="inspection.status == 'rejected'" style="float: right;">Rejected
+                </ion-badge>
+                <ion-badge color="success" *ngIf="inspection.status == 'proceed'" style="float: right;">Proceed
+                </ion-badge>
+              </h2>
+              <p *ngIf="inspection.marketing_officer">MO: {{ inspection.marketing_officer.name }}</p>
+              <p *ngIf="inspection.marketing_officer">Created by: {{ inspection.created_by_name }}</p>
+              <p style="display: flex; justify-content: space-between; color: #000000;">
+                <span *ngIf="inspection.chassis">
+                  {{ inspection.chassis }}
+                </span>
+                <span *ngIf="!inspection.reminder_date">
+                  {{ inspection.date.toDate() | date: 'dd/MM/YYYY' }}
+                </span>
+              </p>
+              <ion-chip *ngIf="inspection.reminder_date" color="danger">
+                <ion-label>Inspection Time: {{ inspection.reminder_date.toDate() | date: 'dd/MM/YYYY h:mm a' }}
+                </ion-label>
+              </ion-chip>
+            </ion-label>
+          </ion-item>
+        </ion-list>
+      </ion-accordion>
 
-  <ion-fab vertical="bottom" horizontal="end" slot="fixed">
+    </ion-accordion-group>
+  </ng-container>
+
+  <ng-container *ngIf="segment == 'schedule' || segment == 'history'">
+
+    <ion-grid>
+      <ion-row>
+        <ion-col size="5">
+          <h4 style="margin: 20px 15px 0 10px;">Filter by</h4>
+        </ion-col>
+        <ion-col size="7">
+          <ion-card mode="ios" style="margin: 10px 10px 0 0;">
+            <ion-input placeholder="" [(ngModel)]="dayFilter" (ionChange)="filterByDay()" type="date" class="ez-date">
+            </ion-input>
+          </ion-card>
+          <ion-card mode="ios" style="margin: 10px 10px 0 0;" *ngIf="staff && staff.user_branch == 8">
+            <ion-select interface="action-sheet" placeholder="Select Branch" [(ngModel)]="branch"
+              (ionChange)="changeBranch($event)">
+              <ion-select-option *ngFor="let branch of helper.branches" [value]="branch.id">
+                {{ branch.branch }}
+              </ion-select-option>
+            </ion-select>
+          </ion-card>
+        </ion-col>
+      </ion-row>
+    </ion-grid>
+
+    <h6 *ngIf="loaded && scheduleInspections && scheduleInspections.length == 0" class="ion-text-center">
+      No schedule inspection available
+    </h6>
+
+    <ion-accordion-group [value]="groupScheduleInspections[0].name" class="ion-margin-bottom"
+      *ngIf="groupScheduleInspections && groupScheduleInspections[0] && groupScheduleInspections[0].data && groupScheduleInspections[0].data.length > 0">
+
+      <ion-accordion [value]="groupInspection.name" *ngFor="let groupInspection of groupScheduleInspections">
+        <ion-item slot="header">
+          <ion-label>{{ groupInspection.name }}</ion-label>
+        </ion-item>
+
+        <ion-list slot="content">
+          <ion-item *ngFor="let inspection of groupInspection.data" (click)="viewScheduleLog(inspection.id)">
+            <!-- <ion-thumbnail slot="start" *ngIf="inspection.images[0]">
+              <img [src]="inspection.images[0].image_thumb_link">
+            </ion-thumbnail> -->
+            <ion-label>
+              <h2>
+                <span *ngIf="inspection.dealer.name">
+                  {{ inspection.dealer.name }}
+                </span>
+                <span *ngIf="!inspection.dealer.name">
+                  {{ inspection.dealer }}
+                </span>
+              </h2>
+              <p *ngIf="inspection.marketing_officer">MO: {{ inspection.marketing_officer.name }}</p>
+              <p *ngIf="inspection.marketing_officer">Created by: {{ inspection.created_by_name }}</p>
+              <p style="display: flex; justify-content: space-between; color: #000000;">
+                <span *ngIf="inspection.chassis">
+                  {{ inspection.chassis }}
+                </span>
+                <span *ngIf="!inspection.reminder_date">
+                  {{ inspection.date.toDate() | date: 'dd/MM/YYYY' }}
+                </span>
+              </p>
+              <ion-chip *ngIf="inspection.reminder_date" color="danger">
+                <ion-label>Inspection Time: {{ inspection.reminder_date.toDate() | date: 'dd/MM/YYYY h:mm a' }}
+                </ion-label>
+              </ion-chip>
+            </ion-label>
+          </ion-item>
+        </ion-list>
+      </ion-accordion>
+
+    </ion-accordion-group>
+
+  </ng-container>
+
+  <ion-fab vertical="bottom" horizontal="end" slot="fixed" *ngIf="segment == 'mine' || segment == 'all'">
     <ion-fab-button color="success" (click)="addLog()">
+      <ion-icon name="add-outline"></ion-icon>
+    </ion-fab-button>
+  </ion-fab>
+
+  <ion-fab vertical="bottom" horizontal="end" slot="fixed" *ngIf="segment == 'schedule' || segment == 'history'">
+    <ion-fab-button color="warning" (click)="addScheduleLog()">
       <ion-icon name="add-outline"></ion-icon>
     </ion-fab-button>
   </ion-fab>

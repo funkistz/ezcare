@@ -75,6 +75,7 @@ export class StaffServicesPage implements OnInit {
 
     this.isSearching = true;
     this.services = null;
+    this.groupServices = null;
     let staff_id;
 
     console.log('search', search);

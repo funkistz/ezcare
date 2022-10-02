@@ -15,6 +15,8 @@ export class Tab2Page {
   cPolicy;
   policies;
   services;
+  engineServices = [];
+  atfServices = [];
   cService;
   isLoading = false;
 
@@ -68,12 +70,25 @@ export class Tab2Page {
           this.services = data.data;
           this.cService = this.services[this.services.length - 1];
 
+          this.engineServices = [];
+          this.atfServices = [];
+
           this.services.forEach(service => {
 
             if (service.next_due_date_atf) {
               service.next_due_date_atf = moment(service.next_due_date_atf, 'YYYY-MM-DD').toDate();
             } else if (service.next_due_date) {
               service.next_due_date = moment(service.next_due_date, 'YYYY-MM-DD').toDate();
+            }
+
+            if (service.service_type_id == 1) {
+
+              this.engineServices.push(service);
+
+            } else if (service.service_type_id == 2) {
+
+              this.atfServices.push(service);
+
             }
 
 

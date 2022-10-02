@@ -20,27 +20,29 @@ export class StaffClaimsPage implements OnInit {
   isSearched = false;
   isSearching = false;
   groupServices = [];
+  branch;
 
   constructor(
     private authService: AuthenticationService,
     private router: Router,
-    private helper: HelperService,
+    public helper: HelperService,
     private route: ActivatedRoute,
   ) { }
 
   ngOnInit() {
     this.checkUser();
+    this.helper.getStaffs();
   }
 
   ionViewDidEnter() {
     this.route.queryParams.subscribe(params => {
       if (params) {
-        this.checkUser(params.refresh);
+        this.checkUser(params.refresh, false);
       }
     });
   }
 
-  async checkUser(refresh = false) {
+  async checkUser(refresh = false, firsttime = true) {
 
     this.user = null;
     this.staff = null;
@@ -50,7 +52,10 @@ export class StaffClaimsPage implements OnInit {
 
     if (staff) {
       this.staff = JSON.parse(staff);
-      // console.log('staff', this.staff);
+
+      if (firsttime) {
+        this.branch = Number(this.staff.user_branch);
+      }
 
       if (refresh) {
         this.getClaims('');
@@ -74,6 +79,12 @@ export class StaffClaimsPage implements OnInit {
 
   }
 
+  changeBranch(event) {
+
+    this.getClaims('');
+
+  }
+
   async getClaims(search, event = null) {
 
     this.isSearching = true;
@@ -90,7 +101,7 @@ export class StaffClaimsPage implements OnInit {
       staff_id = 0;
     }
 
-    this.authService.searchClaims(search, staff_id).subscribe(
+    this.authService.searchClaims(search, staff_id, false, this.branch).subscribe(
       data => {
 
         this.isSearching = false;

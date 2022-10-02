@@ -155,6 +155,14 @@
         </ion-row>
         <ion-row>
           <ion-col size="6">
+            <span class="bold">Vehicle Year:</span>
+          </ion-col>
+          <ion-col size="6">
+            {{ cPolicy.cust_vehicleyear }}
+          </ion-col>
+        </ion-row>
+        <ion-row>
+          <ion-col size="6">
             <span class="bold">Reg No:</span>
           </ion-col>
           <ion-col size="6" *ngIf="cPolicy">
@@ -196,25 +204,27 @@
           </ion-label>
         </ion-list-header>
 
-        <ion-item class="ez-item" *ngFor="let service of services" (click)="viewService(service.id)">
+        <ion-item class="ez-item" *ngFor="let service of engineServices; let i = index"
+          (click)="viewService(service.id)">
           <ion-thumbnail slot="start" class="ez-square-badge">
-            <ion-badge color="warning" *ngIf="service.service_type_id == 1">
+            <ion-badge color="warning">
               Engine<br>Oil
-            </ion-badge>
-            <ion-badge color="success" *ngIf="service.service_type_id == 2">
-              ATF<br>Oil
-            </ion-badge>
-            <ion-badge color="danger" *ngIf="service.service_type_id == 3" style="font-size: 12px;">
-              Engine + <br>ATF Oil
             </ion-badge>
           </ion-thumbnail>
 
-
           <ion-label>
 
-            <div *ngIf="service.service_type_id == 1 || service.service_type_id == 3">
-              <h3 *ngIf="service.engine_oil_type_id == 1">Next Service (Semi):</h3>
-              <h3 *ngIf="service.engine_oil_type_id == 2">Next Service (Fully):</h3>
+            <div>
+              <h3 *ngIf="service.engine_oil_type_id == 1">
+                <span *ngIf="i != 0">Previous</span>
+                <span *ngIf="i == 0">Next</span>
+                Service (Semi):
+              </h3>
+              <h3 *ngIf="service.engine_oil_type_id == 2">
+                <span *ngIf="i != 0">Previous</span>
+                <span *ngIf="i == 0">Next</span>
+                Service (Fully):
+              </h3>
               <ion-badge color="light">
                 {{ service.next_due_mileage }} KM
               </ion-badge><br>
@@ -223,8 +233,34 @@
               </ion-badge>
             </div>
 
-            <div *ngIf="service.service_type_id == 2 || service.service_type_id == 3">
-              <h3>Next Service (ATF):</h3>
+          </ion-label>
+        </ion-item>
+
+        <ion-item *ngIf="!isLoading && engineServices && engineServices.length == 0">
+          No service record
+        </ion-item>
+
+        <ion-list-header>
+          <ion-label>
+            <h2>ATF Oil</h2>
+          </ion-label>
+        </ion-list-header>
+
+        <ion-item class="ez-item" *ngFor="let service of atfServices; let i = index" (click)="viewService(service.id)">
+          <ion-thumbnail slot="start" class="ez-square-badge">
+            <ion-badge color="success">
+              ATF<br>Oil
+            </ion-badge>
+          </ion-thumbnail>
+
+          <ion-label>
+
+            <div>
+              <h3>
+                <span *ngIf="i != 0">Previous</span>
+                <span *ngIf="i == 0">Next</span>
+                Service (ATF):
+              </h3>
               <ion-badge color="light">
                 {{ service.next_due_mileage_atf }} KM
               </ion-badge><br>
@@ -235,12 +271,9 @@
 
           </ion-label>
 
-          <!-- <ion-note slot="end">
-            {{ service.invoice_date | date : "d/MM/y" }}
-          </ion-note> -->
         </ion-item>
 
-        <ion-item *ngIf="!isLoading && services && services.length == 0">
+        <ion-item *ngIf="!isLoading && atfServices && atfServices.length == 0">
           No service record
         </ion-item>
 

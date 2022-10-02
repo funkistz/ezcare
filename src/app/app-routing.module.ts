@@ -98,6 +98,22 @@ const routes: Routes = [
     path: 'endorsement',
     loadChildren: () => import('./endorsement/endorsement.module').then( m => m.EndorsementPageModule)
   },
+  {
+    path: 'claim-imports',
+    loadChildren: () => import('./components/claim-imports/claim-imports.module').then( m => m.ClaimImportsPageModule)
+  },
+  {
+    path: 'staff-add-schedule',
+    loadChildren: () => import('./staff-add-schedule/staff-add-schedule.module').then( m => m.StaffAddSchedulePageModule)
+  },
+  {
+    path: 'staff-inspection',
+    loadChildren: () => import('./staff-inspection/staff-inspection.module').then( m => m.StaffInspectionPageModule)
+  },
+  {
+    path: 'add-non-inspect',
+    loadChildren: () => import('./add-non-inspect/add-non-inspect.module').then( m => m.AddNonInspectPageModule)
+  },
 ];
 @NgModule({
   imports: [

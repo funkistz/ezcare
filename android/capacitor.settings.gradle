@@ -49,3 +49,6 @@ project(':capacitor-file-picker').projectDir = new File('../node_modules/capacit
 
 include ':capacitor-native-biometric'
 project(':capacitor-native-biometric').projectDir = new File('../node_modules/capacitor-native-biometric/android')
+
+include ':capacitor-plugin-permissions'
+project(':capacitor-plugin-permissions').projectDir = new File('../node_modules/capacitor-plugin-permissions/android')

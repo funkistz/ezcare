@@ -22,11 +22,12 @@ export class PolicyPage implements OnInit {
   staff;
   month;
   year;
+  dealer;
 
   constructor(
     private authService: AuthenticationService,
     private route: ActivatedRoute, private router: Router,
-    private helper: HelperService,
+    public helper: HelperService,
   ) { }
 
   ngOnInit() {
@@ -97,6 +98,8 @@ export class PolicyPage implements OnInit {
     });
 
     rt.unsubscribe();
+
+    this.helper.getStaffs();
   }
 
   changeStatus(event) {
@@ -156,6 +159,10 @@ export class PolicyPage implements OnInit {
 
     if (search) {
       data.search = search;
+    }
+
+    if (this.dealer) {
+      data.dealer = this.dealer.id;
     }
 
     data = JSON.stringify(data);

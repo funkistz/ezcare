@@ -14,6 +14,13 @@
   <ion-spinner name="dots" *ngIf="!loaded" style="width: 100%; margin-top: 20px; font-size: 20px;"></ion-spinner>
 
   <ion-grid *ngIf="policy">
+    <ion-row *ngIf="policy.cust_cancel == 1">
+      <ion-col class="font-bold" style="text-align: center;">
+        <h3 style="color: red;">
+          Cancelled
+        </h3>
+      </ion-col>
+    </ion-row>
     <ion-row>
       <ion-col class="font-bold">Name:</ion-col>
       <ion-col>
@@ -42,6 +49,12 @@
       <ion-col class="font-bold">Vehicle:</ion-col>
       <ion-col>
         {{ policy.cust_vehicledesc }}
+      </ion-col>
+    </ion-row>
+    <ion-row>
+      <ion-col class="font-bold">Vehicle Year:</ion-col>
+      <ion-col>
+        {{ policy.cust_vehicleyear }}
       </ion-col>
     </ion-row>
     <ion-row>
@@ -87,7 +100,7 @@
     <ion-row>
       <ion-col class="font-bold">Is Paid:</ion-col>
       <ion-col>
-        {{ policy.cust_paid? 'Yes':'No' }}
+        {{ (policy.cust_paid == 1)? 'Yes':'No' }}
       </ion-col>
     </ion-row>
     <ion-row>

@@ -45,6 +45,7 @@ export class AddPage implements OnInit {
 
   remarks;
   warrantyPlans;
+  dealers = [];
 
   constructor(
     public formBuilder: FormBuilder,
@@ -101,12 +102,18 @@ export class AddPage implements OnInit {
 
       this.inspection = data;
       if (data) {
-        this.ionicForm.controls['amount'].setValue(data.reg_no);
-        this.ionicForm.controls['dealer'].setValue(data.dealer);
+        this.ionicForm.controls['amount'].setValue('RM ' + data.amount);
+
+        if (data.dealer && data.dealer.name) {
+          this.ionicForm.controls['dealer'].setValue(data.dealer.name);
+        } else if (data.dealer) {
+          this.ionicForm.controls['dealer'].setValue(data.dealer);
+        }
         this.ionicForm.controls['marketing_officer'].setValue(data.warranty_plan);
         this.ionicForm.controls['reasons'].setValue(data.reasons);
       }
 
+      console.log(data);
       this.loading = false;
     });
   }
@@ -121,8 +128,31 @@ export class AddPage implements OnInit {
 
         if (data && data.data) {
 
-          this.staffs = data.data;
+          // this.staffs = data.data;
+          this.staffs = [];
+          data.data.forEach(staff => {
+
+            this.staffs.push({
+              id: staff.id,
+              name: staff.name,
+            });
+
+          });
+
+          console.log(this.staffs);
+
+
           this.warrantyPlans = data.warranty_plan;
+
+          this.dealers = [];
+          data.dealers.forEach(dealer => {
+
+            this.dealers.push({
+              id: dealer.id,
+              name: dealer.name,
+            });
+
+          });
         }
       }, error => {
         this.helper.dissmissLoading();

@@ -12,7 +12,7 @@ import { AngularFirestore, AngularFirestoreCollection } from '@angular/fire/comp
 import { Observable } from 'rxjs';
 import { finalize, tap } from 'rxjs/operators';
 import { decode } from "base64-arraybuffer";
-
+import { HelperService } from '../services/helper.service';
 @Component({
   selector: 'app-add-service',
   templateUrl: './add-service.page.html',
@@ -20,6 +20,11 @@ import { decode } from "base64-arraybuffer";
 })
 export class AddServicePage implements OnInit {
 
+  numbering = [
+    '1st',
+    '2nd',
+    '3rd'
+  ];
   loading;
   ionicForm: FormGroup;
   defaultDate = new Date().toLocaleDateString();
@@ -32,9 +37,9 @@ export class AddServicePage implements OnInit {
   reminderImages = [];
   receiptImages = [];
   mileageImages = [];
-  reminderImagesUrl;
-  receiptImagesUrl;
-  mileageImagesUrl;
+  reminderImagesUrl = [];
+  receiptImagesUrl = [];
+  mileageImagesUrl = [];
 
   // File upload task 
   fileUploadTask: AngularFireUploadTask;
@@ -60,6 +65,7 @@ export class AddServicePage implements OnInit {
     public alertController: AlertController,
     private afStorage: AngularFireStorage,
     private firestore: AngularFirestore,
+    public helper: HelperService,
   ) { }
 
   ngOnInit() {
@@ -76,7 +82,7 @@ export class AddServicePage implements OnInit {
 
     this.ionicForm = this.formBuilder.group({
       service_type_id: ['', [Validators.required]],
-      engine_oil_type_id: ['', []],
+      engine_oil_type_id: ['', [Validators.required]],
       invoice_no: ['', []],
       invoice_date: [currentDate, [Validators.required]],
       current_mileage: ['', [Validators.required]],
@@ -104,6 +110,14 @@ export class AddServicePage implements OnInit {
 
   serviceTypeChange(event) {
     this.serviceType = event.detail.value;
+
+    if (this.serviceType == 1) {
+      this.ionicForm.get('engine_oil_type_id').setValidators([Validators.required]);
+    } else {
+      this.ionicForm.get('engine_oil_type_id').setValidators([]);
+    }
+
+    this.ionicForm.get('engine_oil_type_id').updateValueAndValidity();
   }
 
   engineOilTypeChange(event) {
@@ -150,6 +164,31 @@ export class AddServicePage implements OnInit {
 
   }
 
+  async confirmSubmitForm() {
+
+    const alert = await this.alertController.create({
+      header: 'Are you sure want to submit.',
+      buttons: [
+        {
+          text: 'Cancel',
+          role: 'cancel',
+          handler: (blah) => {
+            console.log('Confirm Cancel: blah');
+          }
+        }, {
+          text: 'Confirm',
+          handler: () => {
+
+            this.submitForm();
+          }
+        }
+      ]
+    });
+
+    alert.present();
+
+  }
+
   async submitForm() {
     console.log(this.ionicForm.value);
     this.isSubmitted = true;
@@ -158,7 +197,10 @@ export class AddServicePage implements OnInit {
       return false;
     } else {
 
-      this.presentLoading();
+      let loader = this.loading = await this.loadingController.create({
+        message: 'Please wait...',
+      });
+      await this.loading.present();
 
       let data: any = {};
       data = this.ionicForm.value;
@@ -167,30 +209,84 @@ export class AddServicePage implements OnInit {
       data.next_due_date = this.datepipe.transform(data.next_due_date, 'yyyy-MM-dd');
       data.next_due_date_atf = this.datepipe.transform(data.next_due_date_atf, 'yyyy-MM-dd');
 
-      for (const reportImage of this.reminderImages) {
-        let upload = await this.uploadToFirebase(reportImage.file, data.reg_no, 'report');
+      let index = 1;
+      for (const inspectImage of this.reminderImages) {
+
+        if (index < 4) {
+          loader.message = 'Uploading ' + this.numbering[index - 1] + ' reminder image ';
+        } else {
+          loader.message = 'Uploading ' + index + 'th reminder image ';
+        }
+
+        let upload = await this.helper.uploadToFirebase(inspectImage.file, data.reg_no);
         console.log('finish... report', upload.url);
         this.reminderImagesUrl.push({
-          name: upload.filename,
+          name: upload.name,
           image_link: upload.url,
         });
+        index++;
       }
-      for (const reportImage of this.receiptImages) {
-        let upload = await this.uploadToFirebase(reportImage.file, data.reg_no, 'report');
+
+      index = 1;
+      for (const inspectImage of this.receiptImages) {
+
+        if (index < 4) {
+          loader.message = 'Uploading ' + this.numbering[index - 1] + ' receipt image ';
+        } else {
+          loader.message = 'Uploading ' + index + 'th receipt image ';
+        }
+
+        let upload = await this.helper.uploadToFirebase(inspectImage.file, data.reg_no);
         console.log('finish... report', upload.url);
         this.receiptImagesUrl.push({
-          name: upload.filename,
+          name: upload.name,
           image_link: upload.url,
         });
+        index++;
       }
-      for (const reportImage of this.mileageImages) {
-        let upload = await this.uploadToFirebase(reportImage.file, data.reg_no, 'report');
+
+      index = 1;
+      for (const inspectImage of this.mileageImages) {
+
+        if (index < 4) {
+          loader.message = 'Uploading ' + this.numbering[index - 1] + ' mileage image ';
+        } else {
+          loader.message = 'Uploading ' + index + 'th mileage image ';
+        }
+
+        let upload = await this.helper.uploadToFirebase(inspectImage.file, data.reg_no);
         console.log('finish... report', upload.url);
         this.mileageImagesUrl.push({
-          name: upload.filename,
+          name: upload.name,
           image_link: upload.url,
         });
+        index++;
       }
+
+      // for (const reportImage of this.reminderImages) {
+      //   let upload = await this.uploadToFirebase(reportImage.file, data.reg_no, 'report');
+      //   console.log('finish... report', upload.url);
+      //   this.reminderImagesUrl.push({
+      //     name: upload.filename,
+      //     image_link: upload.url,
+      //   });
+      // }
+      // for (const reportImage of this.receiptImages) {
+      //   let upload = await this.uploadToFirebase(reportImage.file, data.reg_no, 'report');
+      //   console.log('finish... report', upload.url);
+      //   this.receiptImagesUrl.push({
+      //     name: upload.filename,
+      //     image_link: upload.url,
+      //   });
+      // }
+      // for (const reportImage of this.mileageImages) {
+      //   let upload = await this.uploadToFirebase(reportImage.file, data.reg_no, 'report');
+      //   console.log('finish... report', upload.url);
+      //   this.mileageImagesUrl.push({
+      //     name: upload.filename,
+      //     image_link: upload.url,
+      //   });
+      // }
 
       data.reminderImages = this.reminderImagesUrl;
       data.receiptImages = this.receiptImagesUrl;
@@ -273,14 +369,14 @@ export class AddServicePage implements OnInit {
         text: 'Take Photo',
         icon: 'camera',
         handler: () => {
-          this.addImage(CameraSource.Camera, type);
+          this.takePicture(type);
         }
       },
       {
         text: 'Choose From Photos',
         icon: 'image',
         handler: () => {
-          this.addImage(CameraSource.Photos, type);
+          this.pickImage(type);
         }
       }
     ];
@@ -302,6 +398,82 @@ export class AddServicePage implements OnInit {
       buttons
     });
     await actionSheet.present();
+  }
+
+  async pickImage(type) {
+
+    let images = await this.helper.imagePicker();
+    console.log('pickImage', images);
+
+    images.forEach(image => {
+
+      if (type == 'reminder') {
+
+        this.reminderImages.push({
+          id: Date.now(),
+          file: image.file.original,
+          file_thumbnail: image.file.thumbnail,
+          url: image.webPath,
+          format: image.format
+        });
+
+      } else if (type == 'receipt') {
+
+        this.receiptImages.push({
+          id: Date.now(),
+          file: image.file.original,
+          file_thumbnail: image.file.thumbnail,
+          url: image.webPath,
+          format: image.format
+        });
+
+      } else if (type == 'mileage') {
+
+        this.mileageImages.push({
+          id: Date.now(),
+          file: image.file.original,
+          file_thumbnail: image.file.thumbnail,
+          url: image.webPath,
+          format: image.format
+        });
+
+      }
+
+    });
+  }
+
+  async takePicture(type) {
+    let image = await this.helper.camera();
+    console.log('takePicture', image);
+
+    if (type == 'reminder') {
+      this.reminderImages.push({
+        id: Date.now(),
+        file: image.file.original,
+        file_thumbnail: image.file.thumbnail,
+        url: image.webPath,
+        format: image.format
+      });
+
+    } else if (type == 'receipt') {
+      this.receiptImages.push({
+        id: Date.now(),
+        file: image.file.original,
+        file_thumbnail: image.file.thumbnail,
+        url: image.webPath,
+        format: image.format
+      });
+    } else if (type == 'mileage') {
+      this.mileageImages.push({
+        id: Date.now(),
+        file: image.file.original,
+        file_thumbnail: image.file.thumbnail,
+        url: image.webPath,
+        format: image.format
+      });
+
+    }
+
   }
 
   async addImage(source: CameraSource, type) {
@@ -444,6 +616,18 @@ export class AddServicePage implements OnInit {
       // this.helper.presentToast(error);
 
     });
+
+  }
+
+  removeImage(index, type) {
+
+    if (type == 'reminder') {
+      this.reminderImages.splice(index, 1);
+    } else if (type == 'receipt') {
+      this.receiptImages.splice(index, 1);
+    } else if (type == 'mileage') {
+      this.mileageImages.splice(index, 1);
+    }
 
   }
 

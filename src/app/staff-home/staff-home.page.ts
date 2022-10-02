@@ -8,6 +8,7 @@ import { Chart, registerables } from 'chart.js';
 Chart.register(...registerables);
 import { AngularFirestore } from '@angular/fire/compat/firestore';
 import * as moment from 'moment';
+import { HelperService } from '../services/helper.service';
 
 @Component({
   selector: 'app-staff-home',
@@ -56,17 +57,24 @@ export class StaffHomePage {
 
   managerReportYear;
   managerReportMonth;
+  managerReportSponsorhipDealer;
+  managerReportSponsorhipYear;
+  managerReportSponsorhipDealerName;
+  managerReportSponsorhipUnit;
+  managerReportSponsorhipTotal;
 
   constructor(
     private authService: AuthenticationService,
     private callNumber: CallNumber,
     private router: Router,
     private firestore: AngularFirestore,
+    public helper: HelperService,
   ) {
+
+    this.helper.getStaffs();
   }
 
   ionViewDidEnter() {
-    console.log('enter staff');
     this.checkUser();
     this.getBanners();
   }
@@ -75,7 +83,6 @@ export class StaffHomePage {
     // this.barChartMethod();
     this.getInspections();
     this.getYears();
-    this.getStaff();
   }
 
   getYears() {
@@ -86,6 +93,9 @@ export class StaffHomePage {
     this.months2 = [];
     this.managerReportYear = new Date().getFullYear();
     this.managerReportMonth = moment().format('MMM');
+
+    this.managerReportSponsorhipYear = new Date().getFullYear();
+    // this.managerReportSponsorhipDealer = this.helper.dealers[0];
 
     let months = moment.monthsShort();
 
@@ -105,7 +115,6 @@ export class StaffHomePage {
     }
 
     this.years.reverse();
-    console.log('years', this.years);
   }
 
   async checkUser(event = null, policy_id = null) {
@@ -118,16 +127,19 @@ export class StaffHomePage {
 
     if (staff) {
       this.staff = JSON.parse(staff);
+      console.log('get staff', this.staff);
+
+      this.getStaff();
 
       if (!this.userReport) {
         this.userReport = this.staff.staff_id;
       }
 
-      console.log('staff', this.staff);
       this.getReport(event, this.userReport, moment().month(this.reportMonth2).format("M"));
       this.getReportYearly(event, this.userReport, this.reportYear, this.reportMonth);
+      this.getSponsorshipReport(event, this.userReport, this.managerReportSponsorhipYear, this.managerReportSponsorhipDealer);
 
-      if (this.staff.is_manager != 0) {
+      if (this.staff.is_manager && this.staff.is_manager != 0) {
         this.getManagerReport(event, this.userReport, this.managerReportYear, this.managerReportMonth);
       }
     }
@@ -538,7 +550,7 @@ export class StaffHomePage {
           event.target.complete();
         }
 
-        console.log('reportsYearly', data);
+        // console.log('reportsYearly', data);
       }, error => {
         console.log(error);
 
@@ -577,7 +589,7 @@ export class StaffHomePage {
           event.target.complete();
         }
 
-        console.log('reportsManager', data);
+        // console.log('reportsManager', data);
       }, error => {
         console.log(error);
 
@@ -585,6 +597,67 @@ export class StaffHomePage {
           event.target.complete();
         }
       });
+
+  }
+
+  changeReportManagerSponsorship(event) {
+
+    this.managerReportSponsorhipUnit = null;
+    this.managerReportSponsorhipTotal = null;
+    // this.helper.sponsorshipDealer = 
+    console.log('event', event);
+    this.managerReportSponsorhipDealer = event.value;
+
+    this.helper.changeSponsorshipDealer(this.managerReportSponsorhipDealer.id);
+
+    // console.log('dealer', this.managerReportSponsorhipDealer);
+    // console.log('year', this.managerReportSponsorhipYear);
+
+    this.getSponsorshipReport(null, this.userReport, this.managerReportSponsorhipYear, this.managerReportSponsorhipDealer);
+
+  }
+
+  async getSponsorshipReport(event, id, year = null, dealer) {
+
+    if (!this.managerReportSponsorhipYear) {
+      this.managerReportSponsorhipYear = moment().year();
+    }
+
+    if (!this.managerReportSponsorhipDealer) {
+      return;
+      // this.managerReportSponsorhipDealer = this.helper.sponsorshipDealer;
+    }
+
+    if (!id) {
+      id = this.userReport;
+    }
+
+    console.log('where', this.managerReportSponsorhipDealer.id);
+    await this.firestore.collection('sponsorship', ref => ref.where('dealer.id', '==', this.managerReportSponsorhipDealer.id)).valueChanges().subscribe((data: any) => {
+
+      this.managerReportSponsorhipUnit = 0;
+      this.managerReportSponsorhipTotal = 0;
+      data.forEach(sponsorship => {
+
+        let date: any = new Date(sponsorship.date.toDate());
+        date = date.getFullYear();
+        console.log('dealer', sponsorship.dealer);
+        console.log('date', date + ' - ' + this.managerReportSponsorhipYear);
+
+        if (date == this.managerReportSponsorhipYear) {
+
+          this.managerReportSponsorhipUnit++;
+          this.managerReportSponsorhipTotal += sponsorship.amount;
+
+        }
+
+      });
+
+      console.log('sponsorships', data);
+      console.log('managerReportSponsorhipUnit', this.managerReportSponsorhipUnit);
+      console.log('managerReportSponsorhipTotal', this.managerReportSponsorhipTotal);
+
+    });
 
   }
 
@@ -602,7 +675,8 @@ export class StaffHomePage {
         };
       });
 
-      console.log('inspectionsTemp', inspectionsTemp);
+      // console.log('staff', this.staff);
+      // console.log('inspectionsTemp', inspectionsTemp);
 
       this.inspectionReports.pending = 0;
       this.inspectionReports.approved = 0;
@@ -618,11 +692,21 @@ export class StaffHomePage {
           } else if (inspect.status == 'rejected') {
             this.inspectionReports.rejected++;
           }
+        } else if (this.staff.user_role == 1 || this.staff.user_role == 6) {
+
+          if (inspect.status == 'pending') {
+            this.inspectionReports.pending++;
+          } else if (inspect.status == 'proceed') {
+            this.inspectionReports.approved++;
+          } else if (inspect.status == 'rejected') {
+            this.inspectionReports.rejected++;
+          }
+
         }
 
       });
 
-      console.log('inspectionReports', this.inspectionReports);
+      // console.log('inspectionReports', this.inspectionReports);
 
 
 
@@ -650,19 +734,22 @@ export class StaffHomePage {
 
   getStaff() {
 
-    console.log('getStaff');
-
     this.authService.getStaffs().subscribe(
       (data: any) => {
 
-        console.log('getStaff');
-
         if (data && data.data) {
-          console.log(data);
           this.staffs = data.data;
+          console.log('xxxx', this.staffs);
+          console.log('zzzz', this.staff.user_branch);
+
+          if (this.staff.user_role == 16) {
+            this.staffs = this.staffs.filter(staff => {
+              return staff.user && staff.user.user_branch == this.staff.user_branch;
+            })
+          }
+
         }
 
-        console.log('staffs', data);
       }, error => {
         console.log('error', error);
       });
@@ -690,7 +777,6 @@ export class StaffHomePage {
           this.banners = data.data;
         }
 
-        console.log('banners', data);
       }, error => {
         console.log('error', error);
       });

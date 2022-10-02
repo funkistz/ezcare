@@ -129,7 +129,7 @@ export class AuthenticationService {
   getClaims(policy_id, staff_id = false): Observable<any> {
 
     this.resetHeader();
-    let params = new HttpParams().set('policy_id', policy_id).set('staff_id', staff_id);
+    let params = new HttpParams().set('policy_id', policy_id).set('staff_id', staff_id).set('withPayment', true);
     this.header.params = params;
 
     return this.http.get(this.url + 'claim', this.header);
@@ -156,13 +156,13 @@ export class AuthenticationService {
 
   }
 
-  searchClaims(search, staff_id = false, exact = false): Observable<any> {
+  searchClaims(search, staff_id = false, exact = false, branch = false): Observable<any> {
 
     this.resetHeader();
-    let params = new HttpParams().set('search', search).set('staff_id', staff_id).set('exact', exact);
+    let params = new HttpParams().set('search', search).set('staff_id', staff_id).set('exact', exact).set('branch', branch);
 
     if (!exact) {
-      params = new HttpParams().set('search', search).set('staff_id', staff_id);
+      params = new HttpParams().set('search', search).set('staff_id', staff_id).set('branch', branch);
     }
 
     this.header.params = params;
@@ -175,6 +175,16 @@ export class AuthenticationService {
 
     this.resetHeader();
     let params = new HttpParams().set('reg_no', reg_no);
+    this.header.params = params;
+
+    return this.http.get(this.url + 'claim/find', this.header);
+
+  }
+
+  findClaimByPolicyNo(policy_no): Observable<any> {
+
+    this.resetHeader();
+    let params = new HttpParams().set('policy_no', policy_no);
     this.header.params = params;
 
     return this.http.get(this.url + 'claim/find', this.header);
@@ -209,6 +219,13 @@ export class AuthenticationService {
 
     this.resetHeader();
     return this.http.post(this.url + 'claim/' + type, data, this.header);
+
+  }
+
+  removeClaimAttachment(claim_id, data) {
+
+    this.resetHeader();
+    return this.http.post(this.url + 'claim/deleteAttachment', data, this.header);
 
   }
 

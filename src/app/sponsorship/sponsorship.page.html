@@ -47,7 +47,7 @@
           </ion-thumbnail>
           <ion-label>
             <h2>
-              {{ inspection.dealer }}
+              {{ inspection.dealer.name }}
               <ion-badge color="warning" *ngIf="inspection.status == 'pending'" style="float: right;">Pending
               </ion-badge>
               <ion-badge color="danger" *ngIf="inspection.status == 'rejected'" style="float: right;">Rejected

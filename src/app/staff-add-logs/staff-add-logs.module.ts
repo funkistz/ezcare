@@ -7,6 +7,7 @@ import { IonicModule } from '@ionic/angular';
 import { StaffAddLogsPageRoutingModule } from './staff-add-logs-routing.module';
 
 import { StaffAddLogsPage } from './staff-add-logs.page';
+import { IonicSelectableModule } from 'ionic-selectable';
 
 @NgModule({
   imports: [
@@ -14,7 +15,8 @@ import { StaffAddLogsPage } from './staff-add-logs.page';
     FormsModule,
     ReactiveFormsModule,
     IonicModule,
-    StaffAddLogsPageRoutingModule
+    StaffAddLogsPageRoutingModule,
+    IonicSelectableModule
   ],
   declarations: [StaffAddLogsPage]
 })

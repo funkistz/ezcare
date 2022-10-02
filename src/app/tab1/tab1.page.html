@@ -244,11 +244,13 @@
 
       <div class="listWrapper">
 
-        <ion-grid
-          *ngIf="cService && (cService.service_type_id == 1 || cService.service_type_id == 3) && cService.engine_oil_type_id == 1">
+        <ion-grid *ngIf="cService">
           <ion-row>
             <ion-col size="12">
-              <span class="bold" style="color: #4fb31d;">Engine Oil (Semi)</span>
+              <span class="bold" style="color: #4fb31d;" *ngIf="cService.engine_oil_type_id == 1">Engine Oil
+                (Semi)</span>
+              <span class="bold" style="color: #4fb31d;" *ngIf="cService.engine_oil_type_id == 2">Engine Oil
+                (Fully)</span>
             </ion-col>
           </ion-row>
           <ion-row>
@@ -274,37 +276,7 @@
           </ion-row>
         </ion-grid>
 
-        <ion-grid
-          *ngIf="cService && (cService.service_type_id == 1 || cService.service_type_id == 3) && cService.engine_oil_type_id == 2">
-          <ion-row>
-            <ion-col size="12">
-              <span class="bold" style="color: #4fb31d;">Engine Oil (Fully)</span>
-            </ion-col>
-          </ion-row>
-          <ion-row>
-            <ion-col size="6">
-              <span class="bold">Next Mileage:</span>
-            </ion-col>
-            <ion-col size="6">
-              {{ cService.next_due_mileage }} KM
-            </ion-col>
-          </ion-row>
-          <ion-row>
-            <ion-col size="6">
-              <span class="bold">Next Due:</span>
-            </ion-col>
-            <ion-col size="6">
-              {{ cService.next_due_date | date : "d MMMM, y" }}
-            </ion-col>
-          </ion-row>
-          <ion-row>
-            <ion-col size="12">
-              <span class="bold" style="color: #c73126;">(Whichever come first)</span>
-            </ion-col>
-          </ion-row>
-        </ion-grid>
-
-        <ion-grid *ngIf="cService && (cService.service_type_id == 2 || cService.service_type_id == 3)">
+        <ion-grid *ngIf="cAtfService">
           <ion-row>
             <ion-col size="12">
               <span class="bold" style="color: #4fb31d;">ATF Oil</span>
@@ -315,7 +287,7 @@
               <span class="bold">Next Mileage:</span>
             </ion-col>
             <ion-col size="6">
-              {{ cService.next_due_mileage_atf }} KM
+              {{ cAtfService.next_due_mileage_atf }} KM
             </ion-col>
           </ion-row>
           <ion-row>
@@ -323,7 +295,7 @@
               <span class="bold">Next Due:</span>
             </ion-col>
             <ion-col size="6">
-              {{ cService.next_due_date_atf | date : "d/MM/y" }}
+              {{ cAtfService.next_due_date_atf | date : "d MMMM, y" }}
             </ion-col>
           </ion-row>
           <ion-row>
@@ -446,6 +418,24 @@
           <ion-row>
             <ion-col size="6" *ngIf="cPolicy.plan && cPolicy.warranty_plan">
               <span class="bold" style="color: blue;" (click)="helper.downloadPDF(cPolicy.warranty_plan.file)">Click
+                here to
+                view</span>
+            </ion-col>
+            <!-- <ion-col size="6" *ngIf="cPolicy">
+              {{ cPolicy.plan.plan_desc }}
+            </ion-col> -->
+          </ion-row>
+          <ion-row *ngIf="cPolicy.hybrid_plan">
+            <ion-col size="6">
+              <span class="bold">Plan Name:</span>
+            </ion-col>
+            <ion-col size="6" *ngIf="cPolicy.plan">
+              Hybrid
+            </ion-col>
+          </ion-row>
+          <ion-row *ngIf="cPolicy.hybrid_plan">
+            <ion-col size="6">
+              <span class="bold" style="color: blue;" (click)="helper.downloadPDF(cPolicy.hybrid_plan)">Click
                 here to
                 view</span>
             </ion-col>

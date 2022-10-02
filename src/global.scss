@@ -259,6 +259,18 @@
     --padding-end: 12px !important;
     border-radius: 8px;
   }
+
+  ionic-selectable {
+    margin-top: -2px;
+    background-color: #ededed;
+    opacity: 1 !important;
+    --padding-top: 15px !important;
+    --padding-bottom: 15px !important;
+    --padding-start: 12px !important;
+    --padding-end: 12px !important;
+    border-radius: 8px;
+    padding: 15px;
+  }
 }
 
 .ez-input.item-has-value,
@@ -303,11 +315,13 @@
 
 .chip-close {
   position: absolute;
-  top: 5px;
-  right: 5px;
+  top: 10px;
+  right: 10px;
   height: 30px;
   width: 30px;
   padding: 5px;
+  background-color: white;
+  opacity: 0.5;
 
   ion-icon {
     margin: 0;
@@ -383,4 +397,18 @@ ion-toolbar {
   border-radius: 10px;
   word-break: break-all;
     white-space: pre-wrap;
+}
+
+.ez-mobile-service-list{
+
+  ion-label{
+    text-overflow: unset !important;
+    white-space: normal !important;
+  }
+
+}
+
+.ez-date input{
+  padding-right: 10px !important;
+  --padding-start: 10px !important;
 }

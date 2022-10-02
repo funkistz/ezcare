@@ -25,6 +25,8 @@ import { Chooser } from '@awesome-cordova-plugins/chooser/ngx';
 import { PreviewAnyFile } from '@awesome-cordova-plugins/preview-any-file/ngx';
 import { InAppBrowser } from '@awesome-cordova-plugins/in-app-browser/ngx';
 import { LaunchNavigator, LaunchNavigatorOptions } from '@awesome-cordova-plugins/launch-navigator/ngx';
+import { IonicSelectableModule } from 'ionic-selectable';
+import { CommonModule } from "@angular/common";
 
 @NgModule({
   declarations: [
@@ -39,6 +41,8 @@ import { LaunchNavigator, LaunchNavigatorOptions } from '@awesome-cordova-plugin
     AngularFireModule.initializeApp(environment.firebaseConfig),
     AngularFirestoreModule,
     AngularFireStorageModule,
+    IonicSelectableModule,
+    CommonModule
   ],
   providers: [
     DatePipe,

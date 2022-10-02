@@ -19,6 +19,7 @@ import { PhotoViewer } from '@awesome-cordova-plugins/photo-viewer/ngx';
 })
 export class AddPage implements OnInit {
 
+  JSON = JSON;
   numbering = [
     '1st',
     '2nd',
@@ -45,6 +46,7 @@ export class AddPage implements OnInit {
 
   remarks;
   warrantyPlans;
+  dealers = [];
 
   constructor(
     public formBuilder: FormBuilder,
@@ -108,7 +110,14 @@ export class AddPage implements OnInit {
       if (data) {
         this.ionicForm.controls['vehicle_model'].setValue(data.vehicle_model);
         this.ionicForm.controls['reg_no'].setValue(data.reg_no);
-        this.ionicForm.controls['dealer'].setValue(data.dealer);
+        // this.ionicForm.controls['dealer'].setValue(data.dealer.name);
+
+        if (data.dealer && data.dealer.name) {
+          this.ionicForm.controls['dealer'].setValue(data.dealer.name);
+        } else if (data.dealer) {
+          this.ionicForm.controls['dealer'].setValue(data.dealer);
+        }
+
         this.ionicForm.controls['warranty_plan'].setValue(data.warranty_plan);
 
         if (data.activated_date) {
@@ -131,11 +140,24 @@ export class AddPage implements OnInit {
     this.authService.getStaffs().subscribe(
       (data: any) => {
         this.helper.dissmissLoading();
+        console.log(data);
 
         if (data && data.data) {
 
           this.staffs = data.data;
           this.warrantyPlans = data.warranty_plan;
+
+          // this.dealers = data.dealers;
+
+          this.dealers = [];
+          data.dealers.forEach(dealer => {
+
+            this.dealers.push({
+              id: dealer.id,
+              name: dealer.name,
+            });
+
+          });
         }
       }, error => {
         this.helper.dissmissLoading();

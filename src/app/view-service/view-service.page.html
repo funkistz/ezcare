@@ -238,7 +238,7 @@
         <ion-row>
           <ng-container *ngIf="service">
             <ng-container *ngFor="let image of service.service_attachments">
-              <ion-col size="6" *ngIf="image.type == 'reminder'" (click)="imagePreview(image.link)">
+              <ion-col size="6" *ngIf="image.type == 'reminder'" (click)="helper.imagePreview(image.link)">
                 <ion-img style="border:1px solid; margin: 5px;" role="button" class="image" [src]="image.link"
                   *ngIf="image.link"></ion-img>
               </ion-col>
@@ -268,7 +268,7 @@
         <ion-row>
           <ng-container *ngIf="service">
             <ng-container *ngFor="let image of service.service_attachments">
-              <ion-col size="6" *ngIf="image.type == 'receipt'" (click)="imagePreview(image.link)">
+              <ion-col size="6" *ngIf="image.type == 'receipt'" (click)="helper.imagePreview(image.link)">
                 <ion-img style="border:1px solid; margin: 5px;" role="button" class="image" [src]="image.link"
                   *ngIf="image.link"></ion-img>
               </ion-col>
@@ -298,7 +298,7 @@
         <ion-row>
           <ng-container *ngIf="service">
             <ng-container *ngFor="let image of service.service_attachments">
-              <ion-col size="6" *ngIf="image.type == 'mileage'" (click)="imagePreview(image.link)">
+              <ion-col size="6" *ngIf="image.type == 'mileage'" (click)="helper.imagePreview(image.link)">
                 <ion-img style="border:1px solid; margin: 5px;" role="button" class="image" [src]="image.link"
                   *ngIf="image.link"></ion-img>
               </ion-col>

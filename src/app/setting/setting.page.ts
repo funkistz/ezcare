@@ -135,4 +135,8 @@ export class SettingPage implements OnInit {
 
   }
 
+  goPage(link) {
+    this.router.navigate(['/admin/' + link]);
+  }
+
 }

@@ -74,10 +74,10 @@
 
           <ion-item fill="outline" mode="md" class="ez-material-input">
             <ion-label position="default">
-              Claim Type:
+              Claim Type:*
             </ion-label>
             <ion-select placeholder="Select One" formControlName="claim_type_id" interface="action-sheet" mode="ios"
-              [disabled]="claim ? true : false" [value]="claim? claim.claim_type_id:''">
+              [value]="claim? claim.claim_type_id:''">
               <!-- <ion-select-option value="">
                 Please select
               </ion-select-option> -->
@@ -94,17 +94,17 @@
           </ion-item> -->
 
           <ion-item fill="outline" mode="md" class="ez-material-input">
-            <ion-label position="default">Claim Date: </ion-label>
+            <ion-label position="default">Claim Date:* </ion-label>
             <!-- <ion-datetime placeholder="" formControlName="claim_date" presentation="date"> -->
-            <ion-input placeholder="" formControlName="claim_date" class="ion-text-end" readonly *ngIf="claim">
-            </ion-input>
-            <ion-input placeholder="" formControlName="claim_date" type="date" class="ion-text-end" *ngIf="!claim">
+            <!-- <ion-input placeholder="" formControlName="claim_date" class="ion-text-end" *ngIf="claim">
+            </ion-input> -->
+            <ion-input placeholder="" formControlName="claim_date" type="date" class="ion-text-end">
             </ion-input>
           </ion-item>
 
           <ion-item fill="outline" mode="md" class="ez-material-input">
-            <ion-label position="default">Mileage: </ion-label>
-            <ion-input placeholder="" formControlName="mileage" class="ion-text-end" [readonly]="claim ? true : false">
+            <ion-label position="default">Mileage:* </ion-label>
+            <ion-input placeholder="" formControlName="mileage" class="ion-text-end">
             </ion-input>
             <ion-note slot="end" color="dark">KM</ion-note>
           </ion-item>
@@ -113,12 +113,12 @@
             <ion-radio-group allow-empty-selection style="width: 100%;" formControlName="home_or_workshop">
               <ion-item lines="none">
                 <ion-label>Home</ion-label>
-                <ion-radio slot="end" value="home" [disabled]="claim ? true : false"></ion-radio>
+                <ion-radio slot="end" value="home"></ion-radio>
               </ion-item>
 
               <ion-item lines="none">
                 <ion-label>Workshop</ion-label>
-                <ion-radio slot="end" value="workshop" [disabled]="claim ? true : false"></ion-radio>
+                <ion-radio slot="end" value="workshop"></ion-radio>
               </ion-item>
             </ion-radio-group>
           </ion-item>
@@ -126,7 +126,7 @@
           <ion-item fill="outline" mode="md" class="ez-material-input"
             *ngIf="this.ionicForm.value.home_or_workshop == 'workshop'">
             <ion-label position="floating">Workshop Name: </ion-label>
-            <ion-input placeholder="" formControlName="workshop_name" [readonly]="claim ? true : false">
+            <ion-input placeholder="" formControlName="workshop_name">
             </ion-input>
           </ion-item>
 
@@ -134,7 +134,7 @@
             <ion-label position="floating">
               Marketing Officer:
             </ion-label>
-            <ion-select placeholder="Select One" formControlName="marketing_officer" interface="action-sheet" value=""
+            <!-- <ion-select placeholder="Select One" formControlName="marketing_officer" interface="action-sheet" value=""
               mode="ios" [disabled]="claim ? true : false">
               <ion-select-option value="">
                 Please select
@@ -142,7 +142,14 @@
               <ion-select-option [value]="staff.id" *ngFor="let staff of ezcareStaff">
                 {{ staff? staff.name: '' }}
               </ion-select-option>
-            </ion-select>
+            </ion-select> -->
+
+            <ionic-selectable [items]="ezcareStaff" itemValueField="id" itemTextField="name" [canSearch]="true"
+              formControlName="marketing_officer" [hasVirtualScroll]="true">
+              <ng-template ionicSelectableItemTemplate let-port="item" let-isPortSelected="isItemSelected">
+                {{ port.name }}
+              </ng-template>
+            </ionic-selectable>
           </ion-item>
 
           <ion-item fill="outline" mode="md" class="ez-material-input" *ngIf="claim">
@@ -153,10 +160,16 @@
           </ion-item>
 
           <!-- <input type="file" #fileInput (change)="uploadFile($event)" hidden="true" accept="image/*" /> -->
+
           <ion-button class="ez-icon-btn" expand="block" shape="round" (click)="selectImageSource('report')"
             color="warning">
             <ion-icon slot="start" name="images-outline" class="ez-icon-btn-left"></ion-icon>
             <span>Add Diagnose Report</span>
+          </ion-button>
+
+          <ion-button class="ez-icon-btn" expand="block" shape="round" (click)="displayImportImage()" color="success">
+            <ion-icon slot="start" name="cloud-download-outline" class="ez-icon-btn-left"></ion-icon>
+            <span>Import from Inspection</span>
           </ion-button>
 
           <ion-grid>
@@ -169,6 +182,9 @@
                   <div *ngIf="image.remarks == 'file'" (click)="helper.downloadPDF(image.image_link)" class="file-box">
                     {{ image.name }}
                   </div>
+                  <ion-chip class="chip-close" (click)="removeImageOri(image.id, 'report')" *ngIf="canDelete">
+                    <ion-icon name="close"></ion-icon>
+                  </ion-chip>
                 </ion-col>
               </ng-container>
 
@@ -202,6 +218,9 @@
                   <div *ngIf="image.remarks == 'file'" (click)="helper.downloadPDF(image.image_link)" class="file-box">
                     {{ image.name }}
                   </div>
+                  <ion-chip class="chip-close" (click)="removeImageOri(image.id, 'quotation')" *ngIf="canDelete">
+                    <ion-icon name="close"></ion-icon>
+                  </ion-chip>
                 </ion-col>
               </ng-container>
 
@@ -275,13 +294,10 @@
       Submit Claim
     </ion-button>
 
-    <ion-button expand="block" (click)="updateClaim()"
-      *ngIf="claim && (reportImages.length > 0 || quotationImages.length > 0 || claimLetterImages.length > 0)">
+    <ion-button expand="block" (click)="updateClaim()" *ngIf="claim && ionicForm.valid">
       Update Claim
     </ion-button>
-    <ion-button expand="block"
-      *ngIf="claim && (reportImages.length == 0 && quotationImages.length == 0 && claimLetterImages.length == 0)"
-      disabled>
+    <ion-button expand="block" *ngIf="claim && !ionicForm.valid" disabled>
       Update Claim
     </ion-button>
   </ion-toolbar>

@@ -81,6 +81,17 @@
           <ion-input placeholder="" type="date" class="ion-text-end" [(ngModel)]="end_date">
           </ion-input>
         </ion-item>
+        <ion-item fill="outline" mode="md" class="ez-material-input">
+          <ion-label position="floating">Dealer: </ion-label>
+          <!-- <ion-input placeholder="" type="date" class="ion-text-end" [(ngModel)]="end_date">
+          </ion-input> -->
+          <ionic-selectable [items]="helper.dealers" itemValueField="id" itemTextField="name" [canSearch]="true"
+            [canClear]="true" [(ngModel)]="dealer" [hasVirtualScroll]="true">
+            <ng-template ionicSelectableItemTemplate let-port="item" let-isPortSelected="isItemSelected">
+              {{ port.name }}
+            </ng-template>
+          </ionic-selectable>
+        </ion-item>
       </ion-col>
     </ion-row>
     <ion-row>

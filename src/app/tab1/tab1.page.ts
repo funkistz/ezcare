@@ -24,7 +24,10 @@ export class Tab1Page {
   cPolicy;
   policies;
   services;
+  engineServices = [];
+  atfServices = [];
   cService;
+  cAtfService;
   tempService;
   slideOpts = {
     initialSlide: 0,
@@ -91,6 +94,9 @@ export class Tab1Page {
 
   async getServices(policy_id, event) {
 
+    this.engineServices = [];
+    this.atfServices = [];
+
     this.authService.getServices(policy_id).subscribe(
       data => {
 
@@ -100,6 +106,16 @@ export class Tab1Page {
             service.next_due_date_atf = moment(service.next_due_date_atf, 'YYYY-MM-DD').toDate();
           } else if (service.next_due_date) {
             service.next_due_date = moment(service.next_due_date, 'YYYY-MM-DD').toDate();
+          }
+
+          if (service.service_type_id == 1) {
+
+            this.engineServices.push(service);
+
+          } else if (service.service_type_id == 2) {
+
+            this.atfServices.push(service);
+
           }
 
         });
@@ -132,7 +148,18 @@ export class Tab1Page {
             let services = data.data;
             this.cService = services[services.length - 1];
 
+            services.forEach(service => {
+
+              if (service.service_type_id == 1) {
+                this.cService = service;
+              } else if (service.service_type_id == 2) {
+                this.cAtfService = service;
+              }
+
+            });
+
             console.log('this.cService', this.cService);
+            console.log('this.cAtfService', this.cAtfService);
 
             // let dateActivated = new Date(this.cService.invoice_date);
             let dateActivated = moment(this.cService.invoice_date, 'YYYY-MM-DD').toDate();

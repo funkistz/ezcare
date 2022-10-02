@@ -50,6 +50,9 @@
           </ion-label>
           <ion-select value="brown" okText="Okay" cancelText="Dismiss" interface="action-sheet"
             placeholder="Please choose" (ionChange)="changeUserId($event);" [(value)]="user_id">
+            <ion-select-option value="0">
+              Unassigned
+            </ion-select-option>
             <ion-select-option [value]="user.user_id" *ngFor="let user of users">
               {{ user.user_fullname }}
             </ion-select-option>

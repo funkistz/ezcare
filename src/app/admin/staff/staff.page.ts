@@ -34,8 +34,9 @@ export class StaffPage implements OnInit {
 
 
         if (data && data.data) {
-          console.log(data);
+          console.log('staffs', data);
           this.staffs = data.data;
+          // this.staffs.user_active = Number(this.staffs.user_active);
         }
 
         console.log('data', data);

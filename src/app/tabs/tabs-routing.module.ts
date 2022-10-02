@@ -99,6 +99,10 @@ const routes: Routes = [
             path: 'add-logs',
             loadChildren: () => import('../staff-add-logs/staff-add-logs.module').then(m => m.StaffAddLogsPageModule)
           },
+          {
+            path: 'add-schedule',
+            loadChildren: () => import('../staff-add-schedule/staff-add-schedule.module').then(m => m.StaffAddSchedulePageModule)
+          },
         ]
       },
     ]

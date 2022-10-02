@@ -14,7 +14,7 @@
   <div mode="ios" class="ez-form">
     <ion-card-content>
 
-      <form [formGroup]="ionicForm" (ngSubmit)="submitForm()" novalidate>
+      <form [formGroup]="ionicForm" (ngSubmit)="confirmSubmitForm()" novalidate>
 
         <ion-list>
 
@@ -134,9 +134,12 @@
                 </ion-col>
               </ng-container> -->
 
-              <ion-col size="6" *ngFor="let image of reminderImages">
-                <ion-img style="border:1px solid; margin: 5px;" role="button" class="image" [src]="image.base64"
-                  *ngIf="image.base64"></ion-img>
+              <ion-col size="6" *ngFor="let image of reminderImages; index as i">
+                <ion-img style="border:1px solid; margin: 5px;" role="button" class="image" [src]="image.url"
+                  *ngIf="image.url"></ion-img>
+                <ion-chip class="chip-close" (click)="removeImage(i, 'reminder')">
+                  <ion-icon name="close"></ion-icon>
+                </ion-chip>
               </ion-col>
             </ion-row>
           </ion-grid>
@@ -156,9 +159,12 @@
                 </ion-col>
               </ng-container> -->
 
-              <ion-col size="6" *ngFor="let image of receiptImages">
-                <ion-img style="border:1px solid; margin: 5px;" role="button" class="image" [src]="image.base64"
-                  *ngIf="image.base64"></ion-img>
+              <ion-col size="6" *ngFor="let image of receiptImages; index as i">
+                <ion-img style="border:1px solid; margin: 5px;" role="button" class="image" [src]="image.url"
+                  *ngIf="image.url"></ion-img>
+                <ion-chip class="chip-close" (click)="removeImage(i, 'receipt')">
+                  <ion-icon name="close"></ion-icon>
+                </ion-chip>
               </ion-col>
             </ion-row>
           </ion-grid>
@@ -178,9 +184,12 @@
                 </ion-col>
               </ng-container> -->
 
-              <ion-col size="6" *ngFor="let image of mileageImages">
-                <ion-img style="border:1px solid; margin: 5px;" role="button" class="image" [src]="image.base64"
-                  *ngIf="image.base64"></ion-img>
+              <ion-col size="6" *ngFor="let image of mileageImages; index as i">
+                <ion-img style="border:1px solid; margin: 5px;" role="button" class="image" [src]="image.url"
+                  *ngIf="image.url"></ion-img>
+                <ion-chip class="chip-close" (click)="removeImage(i, 'mileage')">
+                  <ion-icon name="close"></ion-icon>
+                </ion-chip>
               </ion-col>
             </ion-row>
           </ion-grid>

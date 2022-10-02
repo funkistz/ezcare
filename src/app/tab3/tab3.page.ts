@@ -58,6 +58,7 @@ export class Tab3Page {
           this.services = data.data;
           this.claim_payments = data.claim_payments;
           console.log('claim', this.services);
+          console.log('claim_payments', this.claim_payments);
           this.cService = this.services[this.services.length - 1];
         }
       }, error => {

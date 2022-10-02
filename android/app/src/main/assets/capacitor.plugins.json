@@ -62,5 +62,9 @@
 	{
 		"pkg": "capacitor-native-biometric",
 		"classpath": "com.epicshaggy.biometric.NativeBiometric"
+	},
+	{
+		"pkg": "capacitor-plugin-permissions",
+		"classpath": "com.diiiary.plugin.permissions.Permissions"
 	}
 ]

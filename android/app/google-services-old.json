@@ -1,0 +1,70 @@
+{
+  "project_info": {
+    "project_number": "1041714496006",
+    "project_id": "ezcare-1580b",
+    "storage_bucket": "ezcare-1580b.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:1041714496006:android:e754bef0335e95e1f8b987",
+        "android_client_info": {
+          "package_name": "io.ezcare.ezcare"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "1041714496006-0glsoqpe1tgcupuf4hdsofvb2u8dhk7m.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "io.ezcare.ezcare",
+            "certificate_hash": "89b217190f9f20bd2e2d0c2ed9e6fd2483fbfed6"
+          }
+        },
+        {
+          "client_id": "1041714496006-96t2msbjceedi7c604n4gqskf16iouac.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "io.ezcare.ezcare",
+            "certificate_hash": "edc6729ec22389061a3039f53c221e377d2a79c1"
+          }
+        },
+        {
+          "client_id": "1041714496006-u1o46522nf38ebj4j3pgudf5addhnnj8.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "io.ezcare.ezcare",
+            "certificate_hash": "8e276efbc8fbd4dd66ef3b3f336cd05313fdff66"
+          }
+        },
+        {
+          "client_id": "1041714496006-j2l8deuvim6du8bqkvhnlqmpg33i0ohq.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAaVFxheRW2hjV8gU8WH7rKc5yVPvmXSl4"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "1041714496006-j2l8deuvim6du8bqkvhnlqmpg33i0ohq.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "1041714496006-fe9lrdejia9i3039rcrf8n492ula69q4.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "io.ezcare.ezcare"
+              }
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

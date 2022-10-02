@@ -1,0 +1,507 @@
+<ion-header>
+  <ion-toolbar mode="md" color="primary">
+    <ion-buttons slot="start">
+      <ion-back-button></ion-back-button>
+    </ion-buttons>
+    <ion-title *ngIf="!inspection_id">
+      Add New Non Inspection
+    </ion-title>
+    <ion-title *ngIf="inspection_id">
+      <span *ngIf="!editable">Non Inspection</span>
+      <span *ngIf="editable">Update Non Inspection</span>
+    </ion-title>
+    <ion-buttons slot="primary" *ngIf="!editable">
+      <ion-button
+        *ngIf="inspection && (inspection.status == 'booked' || inspection.status == 'pending') && (staff.staff_id == inspection.marketing_officer.id || staff.user_id == inspection.created_by || staff.user_role == 6)"
+        (click)="updateInspection()">
+        Update
+      </ion-button>
+      <ion-button *ngIf="(staff.user_role == 1 || staff.user_role == 6) && inspection_id" (click)="deleteInspection()">
+        Delete
+      </ion-button>
+    </ion-buttons>
+    <ion-buttons slot="primary" *ngIf="editable">
+      <ion-button (click)="cancelUpdateInspection()">
+        Cancel
+      </ion-button>
+    </ion-buttons>
+  </ion-toolbar>
+</ion-header>
+
+<ion-backdrop class="ez-backdrop" *ngIf="loading"></ion-backdrop>
+
+<ion-content>
+
+  <ion-img [src]="resizedBase64" *ngIf="resizedBase64"></ion-img>
+
+  <div mode="ios" class="ez-form">
+    <ion-card-content>
+
+      <form [formGroup]="ionicForm" novalidate>
+
+        <ion-list style="margin-bottom: 10px;">
+
+          <ion-grid *ngIf="inspection_id && inspection">
+            <ion-row>
+              <ion-col size="6" style="height: 140px;" *ngFor="let image of inspection.images; index as i;">
+                <ion-img
+                  style="height: 100%; object-fit: cover; border-radius: 8px; overflow: hidden; border: 2px solid;"
+                  role="button" class="image" [src]="image.image_thumb_link" *ngIf="image.image_thumb_link"
+                  (click)="helper.imagePreview(image.image_link)">
+                </ion-img>
+                <ion-chip class="chip-close" (click)="removeImageOri(i)" *ngIf="editable">
+                  <ion-icon name="close"></ion-icon>
+                </ion-chip>
+              </ion-col>
+            </ion-row>
+          </ion-grid>
+
+          <ion-grid *ngIf="!inspection_id || editable">
+            <ion-row>
+              <ion-col size="6" style="height: 140px;" *ngFor="let image of inspectImages; index as i;">
+                <ion-img
+                  style="height: 100%; object-fit: cover; border-radius: 8px; overflow: hidden; border: 2px solid;"
+                  role="button" class="image" [src]="image.url" *ngIf="image.url"
+                  (click)="helper.imagePreview(image.url)">
+                </ion-img>
+                <ion-chip class="chip-close" (click)="removeImage(i)">
+                  <ion-icon name="close"></ion-icon>
+                </ion-chip>
+              </ion-col>
+              <ion-col size="6" style="height: 140px;">
+                <ion-card style="margin: 0; border: 2px solid; height: 100%;" (click)="selectImageSource()">
+                  <ion-icon name="image-outline" style="font-size: 40px; margin: 15px 15px 0 15px; color: black;">
+                  </ion-icon>
+                  <ion-card-header>
+                    <ion-card-title style="font-size: 18px;">Add Image</ion-card-title>
+                  </ion-card-header>
+                </ion-card>
+              </ion-col>
+            </ion-row>
+          </ion-grid>
+
+          <ng-container *ngIf="!inspection_id || editable">
+
+            <ion-item lines="none" class="ez-input">
+              <ion-label position="floating">
+                Inspection type*
+              </ion-label>
+              <ion-select placeholder="Select One" formControlName="inspection_type" interface="action-sheet" value=""
+                (ionChange)="inspectionTypeChange($event)">
+                <ion-select-option value="">
+                  Please select
+                </ion-select-option>
+                <ion-select-option [value]="inspection_type.name"
+                  *ngFor="let inspection_type of helper.inspection_types">
+                  {{ inspection_type.name }}
+                </ion-select-option>
+              </ion-select>
+            </ion-item>
+
+            <ion-item lines="none" class="ez-input">
+              <ion-label position="floating">
+                Branch*
+              </ion-label>
+              <!-- <ion-input placeholder="" formControlName="dealer"></ion-input> -->
+              <ionic-selectable [items]="helper.branches" itemValueField="id" itemTextField="branch" [canSearch]="true"
+                formControlName="branch" [hasVirtualScroll]="true">
+                <ng-template ionicSelectableItemTemplate let-port="item" let-isPortSelected="isItemSelected">
+                  {{ port.branch }}
+                </ng-template>
+              </ionic-selectable>
+            </ion-item>
+
+            <ion-item lines="none" class="ez-input" *ngIf="!claimCase">
+              <ion-label position="floating">
+                Dealer*
+              </ion-label>
+              <ionic-selectable [items]="helper.dealers" itemValueField="id" itemTextField="name" [canSearch]="true"
+                formControlName="dealer" [hasVirtualScroll]="true">
+                <ng-template ionicSelectableItemTemplate let-port="item" let-isPortSelected="isItemSelected">
+                  {{ port.name }}
+                </ng-template>
+              </ionic-selectable>
+            </ion-item>
+
+            <ion-item lines="none" class="ez-input" *ngIf="claimCase">
+              <ion-label position="floating">
+                Policy No*
+              </ion-label>
+              <ion-input placeholder="" formControlName="policy_no" (ionChange)="checkPolicyNoEvent($event)"
+                oninput="this.value = this.value.toUpperCase()">
+              </ion-input>
+              <ion-input formControlName="policy_found" type="hidden">
+              </ion-input>
+              <ion-text class="ion-padding" *ngIf="loadingPolicy">
+                Loading...
+              </ion-text>
+              <ion-text class="ion-padding" *ngIf="ionicForm.value.policy_no != '' && !loadingPolicy && !policy">
+                No policy found
+              </ion-text>
+            </ion-item>
+
+            <div *ngIf="policy" class="ion-padding">
+
+              <ion-text>
+                Name: {{ policy.cust_name  }}
+              </ion-text>
+              <br>
+              <ion-text>
+                Phone: {{ policy.cust_phone1  }}
+              </ion-text>
+              <br>
+              <ion-text>
+                Vehicle: {{ policy.cust_vehicledesc  }}
+              </ion-text>
+              <br>
+              <ion-text>
+                Registration Number: {{ policy.cust_vehicleregno  }}
+              </ion-text>
+              <br>
+              <ion-text>
+                Chassis No: {{ policy.cust_vehiclechasisno  }}
+              </ion-text>
+              <br>
+              <ion-text>
+                Warranty Plan: {{ policy.warranty_plan? policy.warranty_plan.name: ''  }}
+              </ion-text>
+              <br>
+              <ion-text>
+                Marketing Officer: {{ policy.marketing_officer? policy.marketing_officer.name: ''  }}
+              </ion-text>
+
+            </div>
+
+            <ion-item lines="none" class="ez-input">
+              <ion-label position="floating">
+                Marketing Officer*
+              </ion-label>
+
+              <ionic-selectable [items]="helper.staffs" itemValueField="id" itemTextField="name" [canSearch]="true"
+                formControlName="marketing_officer" [hasVirtualScroll]="true">
+                <ng-template ionicSelectableItemTemplate let-port="item" let-isPortSelected="isItemSelected">
+                  {{ port.name }}
+                </ng-template>
+              </ionic-selectable>
+            </ion-item>
+
+            <ion-item lines="none" class="ez-input" *ngIf="!claimCase">
+              <ion-label position="floating">
+                Warranty Plan*
+              </ion-label>
+              <!-- <ion-textarea placeholder="" formControlName="warranty_plan" rows="2"></ion-textarea> -->
+              <ion-select placeholder="Select One" formControlName="warranty_plan" interface="action-sheet" value="">
+                <ion-select-option value="">
+                  Please select
+                </ion-select-option>
+                <ion-select-option [value]="warrantyPlan.name" *ngFor="let warrantyPlan of helper.warrantyPlans">
+                  {{ warrantyPlan.name }}
+                </ion-select-option>
+              </ion-select>
+            </ion-item>
+
+            <ion-item lines="none" class="ez-input" *ngIf="!claimCase">
+              <ion-label position="floating">
+                Period*
+              </ion-label>
+              <!-- <ion-textarea placeholder="" formControlName="warranty_plan" rows="2"></ion-textarea> -->
+              <ion-select placeholder="Select One" formControlName="period" interface="action-sheet" value="">
+                <ion-select-option value="">
+                  Please select
+                </ion-select-option>
+                <ion-select-option [value]="period.name" *ngFor="let period of helper.periods">
+                  {{ period.name }}
+                </ion-select-option>
+              </ion-select>
+            </ion-item>
+
+            <ion-item lines="none" class="ez-input" *ngIf="!claimCase">
+              <ion-label position="floating">
+                Promo*
+              </ion-label>
+              <!-- <ion-textarea placeholder="" formControlName="warranty_plan" rows="2"></ion-textarea> -->
+              <ion-select placeholder="Select One" formControlName="promo" interface="action-sheet" value="">
+                <ion-select-option value="">
+                  Please select
+                </ion-select-option>
+                <ion-select-option [value]="promo.name" *ngFor="let promo of helper.promos">
+                  {{ promo.name }}
+                </ion-select-option>
+              </ion-select>
+            </ion-item>
+
+            <ion-item lines="none" class="ez-input" *ngIf="!claimCase">
+              <ion-label position="floating">
+                Vehicle*
+              </ion-label>
+              <ion-input placeholder="" formControlName="vehicle"></ion-input>
+            </ion-item>
+
+            <ion-item lines="none" class="ez-input" *ngIf="!claimCase">
+              <ion-label position="floating">
+                Chassis
+              </ion-label>
+              <ion-input placeholder="" formControlName="chassis"></ion-input>
+            </ion-item>
+
+            <ion-item lines="none" class="ez-input">
+              <ion-label position="floating">
+                Mileage (KM)
+              </ion-label>
+              <ion-input type="number" placeholder="" formControlName="mileage"></ion-input>
+            </ion-item>
+
+            <ion-item lines="none" class="ez-input">
+              <ion-label position="floating">
+                Remarks
+              </ion-label>
+              <ion-textarea placeholder="" formControlName="remarks" rows="4"></ion-textarea>
+            </ion-item>
+
+          </ng-container>
+
+          <ng-container *ngIf="inspection_id && !editable">
+
+            <ion-item lines="none" class="ez-input">
+              <ion-label position="floating">
+                Inspection Type
+              </ion-label>
+              <ion-input placeholder="" formControlName="inspection_type" readonly></ion-input>
+            </ion-item>
+
+            <ion-item lines="none" class="ez-input">
+              <ion-label position="floating">
+                Branch
+              </ion-label>
+              <ion-input placeholder="" formControlName="branch" readonly></ion-input>
+            </ion-item>
+
+            <ion-item lines="none" class="ez-input" *ngIf="!claimCase">
+              <ion-label position="floating">
+                Dealer
+              </ion-label>
+              <ion-input placeholder="" formControlName="dealer" readonly></ion-input>
+            </ion-item>
+
+            <ion-item lines="none" class="ez-input" *ngIf="claimCase">
+              <ion-label position="floating">
+                Policy No
+              </ion-label>
+              <ion-input placeholder="" formControlName="policy_no" readonly></ion-input>
+            </ion-item>
+
+            <div *ngIf="policy" class="ion-padding">
+
+              <ion-text>
+                Name: {{ policy.cust_name  }}
+              </ion-text>
+              <br>
+              <ion-text>
+                Phone: {{ policy.cust_phone1  }}
+              </ion-text>
+              <br>
+              <ion-text>
+                Vehicle: {{ policy.cust_vehicledesc  }}
+              </ion-text>
+              <br>
+              <ion-text>
+                Registration Number: {{ policy.cust_vehicleregno  }}
+              </ion-text>
+              <br>
+              <ion-text>
+                Chassis No: {{ policy.cust_vehiclechasisno  }}
+              </ion-text>
+              <br>
+              <ion-text>
+                Warranty Plan: {{ policy.warranty_plan? policy.warranty_plan.name: ''  }}
+              </ion-text>
+              <br>
+              <ion-text>
+                Marketing Officer: {{ policy.marketing_officer? policy.marketing_officer.name: ''  }}
+              </ion-text>
+
+            </div>
+
+            <ion-item lines="none" class="ez-input">
+              <ion-label position="floating">
+                Marketing Officer
+              </ion-label>
+              <ion-input placeholder="" formControlName="marketing_officer" readonly></ion-input>
+            </ion-item>
+
+            <!-- <ion-item lines="none" class="ez-input" style="pointer-events: none;">
+              <ion-label position="floating">
+                Marketing Officer
+              </ion-label>
+              <ion-select placeholder="Select One" formControlName="marketing_officer" interface="action-sheet" value=""
+                readonly="true">
+                <ion-select-option value="">
+                  Please select
+                </ion-select-option>
+                <ion-select-option [value]="staff.id" *ngFor="let staff of staffs">
+                  {{ staff.name }}
+                </ion-select-option>
+              </ion-select>
+            </ion-item> -->
+
+            <ion-item lines="none" class="ez-input" *ngIf="!claimCase">
+              <ion-label position="floating">
+                Warranty Plan
+              </ion-label>
+              <ion-textarea placeholder="" formControlName="warranty_plan" rows="2" readonly></ion-textarea>
+            </ion-item>
+
+            <ion-item lines="none" class="ez-input" *ngIf="!claimCase">
+              <ion-label position="floating">
+                Period
+              </ion-label>
+              <ion-input placeholder="" formControlName="period" readonly></ion-input>
+            </ion-item>
+
+            <ion-item lines="none" class="ez-input" *ngIf="!claimCase">
+              <ion-label position="floating">
+                Promo
+              </ion-label>
+              <ion-input placeholder="" formControlName="promo" readonly></ion-input>
+            </ion-item>
+
+            <ion-item lines="none" class="ez-input" *ngIf="!claimCase">
+              <ion-label position="floating">
+                Vehicle
+              </ion-label>
+              <ion-input placeholder="" formControlName="vehicle" readonly></ion-input>
+            </ion-item>
+
+            <ion-item lines="none" class="ez-input" *ngIf="!claimCase">
+              <ion-label position="floating">
+                Chassis
+              </ion-label>
+              <ion-input placeholder="" formControlName="chassis" readonly></ion-input>
+            </ion-item>
+
+            <ion-item lines="none" class="ez-input">
+              <ion-label position="floating">
+                Mileage (KM)
+              </ion-label>
+              <ion-input placeholder="" formControlName="mileage" readonly></ion-input>
+            </ion-item>
+
+            <ion-item lines="none" class="ez-input">
+              <ion-label position="floating">
+                Remarks
+              </ion-label>
+              <ion-textarea placeholder="" formControlName="remarks" rows="4" readonly></ion-textarea>
+            </ion-item>
+
+            <ion-item lines="none" class="ez-input">
+              <ion-label position="floating">
+                Created By
+              </ion-label>
+              <ion-input placeholder="" [value]="inspection.created_by_name" readonly *ngIf="inspection"></ion-input>
+            </ion-item>
+
+            <ion-item lines="none" class="ez-input">
+              <ion-label position="floating">
+                Created At
+              </ion-label>
+              <ion-input placeholder="" [value]="inspection.date.toDate() | date:'yyyy-MM-dd'" readonly
+                *ngIf="inspection && inspection.date"></ion-input>
+            </ion-item>
+
+            <ion-item lines="none" class="ez-input" *ngIf="inspection">
+              <ion-label position="floating">
+                Status
+              </ion-label>
+              <ion-input placeholder="" [value]="inspection.status | titlecase" readonly></ion-input>
+              <ion-text *ngIf="inspection && inspection.status_changed_by && inspection.status_changed_by.name"
+                color="success">
+                Status Updated By: {{ inspection.status_changed_by.name }}
+                <span *ngIf="inspection.status_changed_by.date">
+                  {{ inspection.status_changed_by.date.toDate() | date:'yyyy-MM-dd' }}
+                </span>
+              </ion-text>
+            </ion-item>
+
+            <ion-item lines="none" class="ez-input" *ngIf="inspection">
+              <ion-label position="floating">
+                Status Remarks
+              </ion-label>
+              <ion-textarea placeholder="" [value]="inspection.status_remarks" rows="4" readonly></ion-textarea>
+            </ion-item>
+
+          </ng-container>
+
+        </ion-list>
+      </form>
+    </ion-card-content>
+  </div>
+
+</ion-content>
+
+<ion-footer class="ion-no-border">
+
+  <div
+    *ngIf="!editable && inspection && (!inspection.status || inspection.status == 'pending')  && (staff.user_role == 1 || staff.user_role == 5 || staff.user_role == 6)">
+    <ion-card-content style="padding-top: 0;">
+      <ion-grid>
+        <ion-row>
+          <ion-col size="12">
+            <ion-item fill="outline" mode="md" class="ez-material-input" style="margin: 20px 0 0 0;">
+              <ion-label position="floating">Remarks</ion-label>
+              <ion-textarea [(ngModel)]="remarks"></ion-textarea>
+            </ion-item>
+          </ion-col>
+        </ion-row>
+        <ion-row>
+          <ion-col size="6">
+            <ion-button expand="block" color="success" (click)="action('proceed')">
+              <ion-icon slot="start" name="checkmark-outline"></ion-icon>
+              Proceed
+            </ion-button>
+          </ion-col>
+          <ion-col size="6">
+            <ion-button expand="block" color="danger" (click)="action('rejected')">
+              <ion-icon slot="start" name="close-outline"></ion-icon>
+              Reject
+            </ion-button>
+          </ion-col>
+        </ion-row>
+      </ion-grid>
+
+    </ion-card-content>
+
+  </div>
+
+  <ion-toolbar *ngIf="!inspection && !editable" style="padding: 5px 10px;">
+    <ion-button expand="full" (click)="addInspection()" *ngIf="!loading && ionicForm.valid && !inspection_id">
+      Submit Inspection
+    </ion-button>
+    <ion-button expand="full" *ngIf="!loading && !inspection_id && (!ionicForm.valid)" disabled>
+      Submit Inspection
+    </ion-button>
+    <ion-button fill="clear" color="dark ion-text-capitalize" *ngIf="loading" expand="full">
+      {{ loadingText }} <ion-spinner name="dots" color="dark"></ion-spinner>
+    </ion-button>
+  </ion-toolbar>
+
+  <!-- <ion-toolbar *ngIf="!inspection && ionicForm.value.reminder_date && !editable" style="padding: 5px 10px;">
+    <ion-button expand="full" (click)="addInspection()" *ngIf="!loading && !inspection_id">
+      Submit Inspection
+    </ion-button>
+    <ion-button fill="clear" color="dark ion-text-capitalize" *ngIf="loading" expand="full">
+      {{ loadingText }} <ion-spinner name="dots" color="dark"></ion-spinner>
+    </ion-button>
+  </ion-toolbar> -->
+
+  <ion-toolbar *ngIf="editable" style="padding: 5px 10px;">
+    <ion-button expand="full" (click)="addInspection(true)" *ngIf="!loading && (ionicForm.valid)">
+      Update Inspection
+    </ion-button>
+    <ion-button expand="full" *ngIf="!loading && (!ionicForm.valid)" disabled>
+      Update Inspection
+    </ion-button>
+    <ion-button fill="clear" color="dark ion-text-capitalize" *ngIf="loading" expand="full">
+      {{ loadingText }} <ion-spinner name="dots" color="dark"></ion-spinner>
+    </ion-button>
+  </ion-toolbar>
+</ion-footer>

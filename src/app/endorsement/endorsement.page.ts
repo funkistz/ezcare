@@ -108,9 +108,16 @@ export class EndorsementPage implements OnInit {
 
       if (this.searchEndorsement) {
 
-        if (inspection.dealer) {
+        if (inspection.dealer && inspection.dealer.name) {
+
+          return inspection.dealer.name.toLowerCase().includes(this.searchEndorsement) ||
+            inspection.reg_no.toLowerCase().includes(this.searchEndorsement);
+
+        } else if (inspection.dealer) {
+
           return inspection.dealer.toLowerCase().includes(this.searchEndorsement) ||
             inspection.reg_no.toLowerCase().includes(this.searchEndorsement);
+
         } else {
           return false;
         }
@@ -177,7 +184,17 @@ export class EndorsementPage implements OnInit {
 
       if (this.searchSponsorship) {
 
-        if (inspection.dealer) {
+        if (inspection.dealer && inspection.dealer.name) {
+
+          let reg_no_rule = false;
+
+          if (inspection.reg_no) {
+            reg_no_rule = inspection.reg_no.toLowerCase().includes(this.searchSponsorship)
+          }
+
+          return inspection.dealer.name.toLowerCase().includes(this.searchSponsorship) || reg_no_rule;
+
+        } else if (inspection.dealer) {
 
           let reg_no_rule = false;
 
@@ -186,6 +203,7 @@ export class EndorsementPage implements OnInit {
           }
 
           return inspection.dealer.toLowerCase().includes(this.searchSponsorship) || reg_no_rule;
+
         } else {
           return false;
         }

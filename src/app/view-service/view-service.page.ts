@@ -3,6 +3,7 @@ import { AuthenticationService } from '../services/authentication.service';
 import { Storage } from '@capacitor/storage';
 import { Router, NavigationExtras, ActivatedRoute } from '@angular/router';
 import { PhotoViewer } from '@awesome-cordova-plugins/photo-viewer/ngx';
+import { HelperService } from '../services/helper.service';
 
 @Component({
   selector: 'app-view-service',
@@ -18,6 +19,7 @@ export class ViewServicePage implements OnInit {
     private authService: AuthenticationService,
     private route: ActivatedRoute, private router: Router,
     private photoViewer: PhotoViewer,
+    public helper: HelperService,
   ) { }
 
   ngOnInit() {

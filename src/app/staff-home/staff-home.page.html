@@ -40,7 +40,7 @@
 
 
   <!-- start manager report -->
-  <div *ngIf="staff && staff.is_manager != 0">
+  <div *ngIf="staff && staff.is_manager && staff.is_manager != 0">
 
     <ion-grid>
       <ion-row>
@@ -202,6 +202,79 @@
           </ion-card>
         </ion-col>
       </ion-row>
+      <ion-row>
+        <ion-col size="12">
+          <h4 style="margin: 20px 15px 0 10px;">Sponsorship</h4>
+        </ion-col>
+        <ion-col size="6">
+          <ion-card mode="ios" style="margin: 10px 0 0 0;">
+            <!-- <ion-select mode="ios" style="width: 100%;" interface="action-sheet"
+              [(ngModel)]="managerReportSponsorhipDealer" (ionChange)="changeReportManagerSponsorship()">
+              <ion-select-option *ngFor="let dealer of helper.dealers" [value]="dealer.id">
+                {{ dealer.name }}
+              </ion-select-option>
+            </ion-select> -->
+            <ionic-selectable style="padding-left: 20px;" [items]="helper.dealers" itemValueField="id"
+              itemTextField="name" [canSearch]="true" [hasVirtualScroll]="true"
+              (onChange)="changeReportManagerSponsorship($event)" placeholder="Please Select">
+              <ng-template ionicSelectableItemTemplate let-port="item" let-isPortSelected="isItemSelected">
+                {{ port.name }}
+              </ng-template>
+            </ionic-selectable>
+          </ion-card>
+        </ion-col>
+        <ion-col size="6">
+          <ion-card mode="ios" style="margin: 10px 10px 0 0;">
+            <ion-select mode="ios" style="width: 100%;" interface="action-sheet"
+              [(ngModel)]="managerReportSponsorhipYear" (ionChange)="changeReportManagerSponsorship($event)">
+              <ion-select-option *ngFor="let year of years" [value]="year">
+                {{ year }}
+              </ion-select-option>
+            </ion-select>
+          </ion-card>
+        </ion-col>
+      </ion-row>
+      <ion-row>
+        <h5 style="margin: 10px 15px 0 15px;" *ngIf="helper.sponsorshipDealer">
+          {{ helper.sponsorshipDealer.name }}
+        </h5>
+      </ion-row>
+      <ion-row>
+        <ion-col>
+          <ion-card mode="ios" style="margin: 0 5px 0 6px;" color="primary"
+            (click)="goPolicyPage(userReport, 'paid', {month:reportMonth2})">
+            <ion-card-header>
+              <ion-card-subtitle>Sponsorship unit</ion-card-subtitle>
+              <ion-card-title *ngIf="managerReportSponsorhipUnit" style="font-size: 22px;">
+                {{ managerReportSponsorhipUnit }}
+              </ion-card-title>
+              <ion-card-title *ngIf="!reports">
+                <ion-skeleton-text animated class="ez-skeleton-big"></ion-skeleton-text>
+              </ion-card-title>
+              <ion-card-title *ngIf="!managerReportSponsorhipUnit">
+                0
+              </ion-card-title>
+            </ion-card-header>
+          </ion-card>
+        </ion-col>
+        <ion-col>
+          <ion-card mode="ios" style="margin: 0 6px 0 5px;" color="purple"
+            (click)="goPolicyPage(userReport, 'paid', {month:reportMonth2})">
+            <ion-card-header>
+              <ion-card-subtitle>Sponsorship total</ion-card-subtitle>
+              <ion-card-title *ngIf="managerReportSponsorhipTotal" style="font-size: 22px; white-space: nowrap;">
+                RM {{ managerReportSponsorhipTotal | number : '1.0-0' }}
+              </ion-card-title>
+              <ion-card-title *ngIf="!reports">
+                <ion-skeleton-text animated class="ez-skeleton-big"></ion-skeleton-text>
+              </ion-card-title>
+              <ion-card-title *ngIf="!managerReportSponsorhipTotal">
+                0
+              </ion-card-title>
+            </ion-card-header>
+          </ion-card>
+        </ion-col>
+      </ion-row>
     </ion-grid>
 
   </div>
@@ -210,7 +283,7 @@
   <!-- end manage report -->
 
 
-  <ion-card mode="ios" *ngIf="staff && staff.is_manager != 0">
+  <ion-card mode="ios" *ngIf="staff && ((staff.is_manager &&staff.is_manager != 0) || staff.user_role == 16)">
     <ion-grid class="ion-padding-bottom">
       <ion-row class="ion-padding-horizontal">
         <ion-text color="dark">
@@ -527,7 +600,7 @@
                     </ion-badge>
                   </ion-col>
                 </ion-row>
-                <ion-row>
+                <!-- <ion-row>
                   <ion-col size="8">
 
                   </ion-col>
@@ -545,7 +618,7 @@
                     <ion-badge color="danger">
                     </ion-badge>
                   </ion-col>
-                </ion-row>
+                </ion-row> -->
               </div>
             </ion-col>
           </ion-row>

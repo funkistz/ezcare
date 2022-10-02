@@ -15,13 +15,15 @@ export class ViewPage implements OnInit {
 
   id;
   warranty: any = {};
+  file_name;
   file_link;
+  file;
 
   constructor(
     private authService: AuthenticationService,
     private route: ActivatedRoute, private router: Router,
     private chooser: Chooser,
-    private helper: HelperService,
+    public helper: HelperService,
   ) { }
 
   ngOnInit() {
@@ -81,15 +83,16 @@ export class ViewPage implements OnInit {
 
   }
 
-  update() {
-
-    console.log(this.file_link);
-
-    let data: any = {
-      file_link: this.file_link
-    };
+  async update() {
 
     this.helper.presentLoading();
+
+    let upload = await this.helper.uploadToFirebase(this.file.file, this.file.name);
+    console.log('finish... report', upload.url);
+
+    let data: any = {
+      file_link: upload.url
+    };
 
     this.authService.updateWarrantyPlan(this.id, data).subscribe(
       (data: any) => {
@@ -107,6 +110,26 @@ export class ViewPage implements OnInit {
 
       });
 
+  }
+
+  async filePicker() {
+
+    let file = await this.helper.filePicker();
+
+    if (file) {
+      let data = {
+        id: Date.now(),
+        file: file.file,
+        type: 'file',
+        name: file.name
+      }
+
+      this.file = data;
+      this.file_name = data.name;
+
+    }
+
+    return;
   }
 
 }

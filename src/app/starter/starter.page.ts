@@ -10,7 +10,6 @@ import {
 import { AngularFirestore } from '@angular/fire/compat/firestore';
 import { HelperService } from '../services/helper.service';
 import { Platform } from '@ionic/angular';
-
 @Component({
   selector: 'app-starter',
   templateUrl: './starter.page.html',
@@ -47,10 +46,14 @@ export class StarterPage implements OnInit {
       if (result.receive === 'granted') {
         // Register with Apple / Google to receive push via APNS/FCM
         console.log('register notification');
+        // this.helper.presentToast('register notification');
+
         PushNotifications.register();
       } else {
         // Show some error
         console.log('not register notification');
+        // this.helper.presentToast('not register notification');
+
       }
     });
 
@@ -58,6 +61,7 @@ export class StarterPage implements OnInit {
     PushNotifications.addListener('registration',
       (token: Token) => {
         console.log('Push registration success, token: ' + token.value);
+        // this.helper.presentToast('Push registration success, token: ' + token.value);
 
         this.registerToken(token);
 
@@ -68,6 +72,8 @@ export class StarterPage implements OnInit {
     PushNotifications.addListener('registrationError',
       (error: any) => {
         console.log('Error on registration: ' + JSON.stringify(error));
+        // this.helper.presentToast('Error on registration: ' + JSON.stringify(error));
+
       }
     );
 

@@ -564,7 +564,14 @@ export class StaffViewClaimsPage implements OnInit {
       data2 => {
 
         let tempData: any = {};
-        tempData.customer_id = data2.customer_id;
+        if (this.claim.policy && this.claim.policy.cust_ic) {
+
+          let ic = this.claim.policy.cust_ic.replace('-', '');
+          tempData.customer_id = ic;
+
+        }
+        tempData.data = data;
+        tempData.date = data.date;
         tempData.status = data.status;
         tempData.claim_id = data.claim_id;
         tempData.marketing_officer = this.claim.marketing_officer.id;

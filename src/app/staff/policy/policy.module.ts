@@ -7,14 +7,16 @@ import { IonicModule } from '@ionic/angular';
 import { PolicyPageRoutingModule } from './policy-routing.module';
 
 import { PolicyPage } from './policy.page';
+import { IonicSelectableModule } from 'ionic-selectable';
 
 @NgModule({
   imports: [
     CommonModule,
     FormsModule,
     IonicModule,
-    PolicyPageRoutingModule
+    PolicyPageRoutingModule,
+    IonicSelectableModule
   ],
   declarations: [PolicyPage]
 })
-export class PolicyPageModule {}
+export class PolicyPageModule { }

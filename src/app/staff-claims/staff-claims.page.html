@@ -3,6 +3,11 @@
     <ion-title>
       Claims
     </ion-title>
+    <ion-button *ngIf="staff && (staff.user_role == 5 || staff.user_role == 6)" (click)="addClaim()" color="success"
+      slot="end" style="padding-right:5px;">
+      <ion-icon slot="start" name="add-outline"></ion-icon>
+      Add Claim
+    </ion-button>
   </ion-toolbar>
 
   <ion-searchbar mode="ios" placeholder="Enter Policy No or Reg No" [(ngModel)]="searchText" debounce="100"
@@ -21,6 +26,24 @@
 </ion-header>
 
 <ion-content>
+
+  <ion-grid *ngIf="(staff && staff.user_branch == 8)">
+    <ion-row>
+      <ion-col size="5">
+        <h4 style="margin: 20px 15px 0 10px;">Filter by</h4>
+      </ion-col>
+      <ion-col size="7">
+        <ion-card mode="ios" style="margin: 10px 10px 0 0;">
+          <ion-select interface="action-sheet" placeholder="Select Branch" [(ngModel)]="branch"
+            (ionChange)="changeBranch($event)">
+            <ion-select-option *ngFor="let branch of helper.branches" [value]="branch.id">
+              {{ branch.branch }}
+            </ion-select-option>
+          </ion-select>
+        </ion-card>
+      </ion-col>
+    </ion-row>
+  </ion-grid>
 
   <ion-accordion-group mode="ios" style="margin-top: 15px;" [value]="groupServices[0].name"
     *ngIf="groupServices && groupServices[0] && groupServices[0].data && groupServices[0].data.length > 0">
@@ -134,7 +157,8 @@
 
   <!-- {{ staff? staff.user_role:'' }} -->
 
-  <ion-fab vertical="bottom" horizontal="end" slot="fixed" *ngIf="staff && staff.user_role == 5">
+  <ion-fab vertical="bottom" horizontal="end" slot="fixed"
+    *ngIf="staff && (staff.user_role == 5 || staff.user_role == 6)">
     <ion-fab-button color="success" (click)="addClaim()">
       <ion-icon name="add-outline"></ion-icon>
     </ion-fab-button>

@@ -34,6 +34,7 @@ export class ViewPage implements OnInit {
     "sabah",
     "putrajaya"
   ];
+  isActive: any = false;
 
   constructor(
     private authService: AuthenticationService,
@@ -58,6 +59,7 @@ export class ViewPage implements OnInit {
       city: ['', [Validators.required]],
       state: ['', [Validators.required]],
       postcode: ['', [Validators.required]],
+      is_active: ['', []],
     });
 
     this.route.queryParams.subscribe(params => {
@@ -95,6 +97,7 @@ export class ViewPage implements OnInit {
           this.ionicForm.controls['city'].setValue(this.workshop.city);
           this.ionicForm.controls['state'].setValue(this.workshop.state);
           this.ionicForm.controls['postcode'].setValue(this.workshop.postcode);
+          this.ionicForm.controls['is_active'].setValue(Number(this.workshop.is_active));
         }
 
         this.helper.dissmissLoading();

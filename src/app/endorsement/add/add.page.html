@@ -10,7 +10,7 @@
       View Endorsement
     </ion-title>
     <ion-buttons slot="primary">
-      <ion-button *ngIf="staff.user_role == 1" (click)="deleteInspection()">
+      <ion-button *ngIf="(staff.user_role == 1 || staff.user_role == 6)" (click)="deleteInspection()">
         Delete
       </ion-button>
     </ion-buttons>
@@ -77,7 +77,13 @@
               <ion-label position="floating">
                 Dealer*
               </ion-label>
-              <ion-input placeholder="" formControlName="dealer"></ion-input>
+              <!-- <ion-input placeholder="" formControlName="dealer"></ion-input> -->
+              <ionic-selectable [items]="dealers" itemValueField="id" itemTextField="name" [canSearch]="true"
+                [hasVirtualScroll]="true" formControlName="dealer">
+                <ng-template ionicSelectableItemTemplate let-port="item" let-isPortSelected="isItemSelected">
+                  {{ port.name }}
+                </ng-template>
+              </ionic-selectable>
             </ion-item>
 
             <ion-item lines="none" class="ez-input">

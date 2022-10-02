@@ -49,6 +49,15 @@ export class StaffAddLogsPage implements OnInit {
   promos;
   inspection_types;
   editable = false;
+  claimCase = false;
+  dealers = [];
+  dealer;
+
+  inspectionsTemp;
+  timevalid = true;
+
+  loadingPolicy = false;
+  policy;
 
   constructor(
     public formBuilder: FormBuilder,
@@ -69,18 +78,21 @@ export class StaffAddLogsPage implements OnInit {
     this.ionicForm = this.formBuilder.group({
       reminder_date: ['', []],
       dealer: ['', [Validators.required]],
-      vehicle: ['', []],
-      mileage: ['', []],
+      branch: ['', [Validators.required]],
       inspection_type: ['', [Validators.required]],
       warranty_plan: ['', [Validators.required]],
-      chassis: ['', []],
       remarks: ['', []],
       marketing_officer: ['', [Validators.required]],
       date: ['', []],
-      person_in_charge: ['', []],
+      person_in_charge: ['', [Validators.required]],
       period: ['', [Validators.required]],
-      promo: ['', []],
-    })
+      promo: ['', [Validators.required]],
+      policy_no: ['', []],
+      vehicle: ['', []],
+      chassis: ['', []],
+      mileage: ['', [Validators.required]],
+      policy_found: ['', []],
+    });
 
     this.getStaff();
     this.helper.getStaffs();
@@ -100,9 +112,34 @@ export class StaffAddLogsPage implements OnInit {
 
       } else {
         // this.getStaffs();
+        this.getTasks();
       }
     });
 
+  }
+
+  getTasks() {
+
+    // this.helper.presentLoading();
+
+    return this.firestore.collection('inspections', ref => ref.where('status', '==', 'booked').orderBy('date', 'desc')).snapshotChanges().subscribe((res) => {
+
+      this.helper.dissmissLoading();
+
+      this.inspectionsTemp = res.map((t) => {
+
+        return {
+          id: t.payload.doc.id,
+          ...t.payload.doc.data() as any
+        };
+      });
+
+      console.log('inspectionsTemp', this.inspectionsTemp);
+
+    }, err => {
+      this.helper.dissmissLoading();
+      console.log('inspections err', err);
+    });
   }
 
   async getStaff() {
@@ -121,31 +158,115 @@ export class StaffAddLogsPage implements OnInit {
 
       this.inspection = data;
       if (data) {
-        this.ionicForm.controls['dealer'].setValue(data.dealer);
+
+        if (data.dealer && data.dealer.name) {
+          this.ionicForm.controls['dealer'].setValue(data.dealer.name);
+        } else if (data.dealer) {
+          this.ionicForm.controls['dealer'].setValue(data.dealer);
+        }
+        this.ionicForm.controls['branch'].setValue(data.branch ? data.branch.branch : '');
         this.ionicForm.controls['vehicle'].setValue(data.vehicle);
         this.ionicForm.controls['mileage'].setValue(data.mileage);
         this.ionicForm.controls['warranty_plan'].setValue(data.warranty_plan);
         this.ionicForm.controls['chassis'].setValue(data.chassis);
         this.ionicForm.controls['remarks'].setValue(data.remarks);
-        this.ionicForm.controls['person_in_charge'].setValue(data.person_in_charge);
         this.ionicForm.controls['period'].setValue(data.period);
         this.ionicForm.controls['promo'].setValue(data.promo);
         this.ionicForm.controls['inspection_type'].setValue(data.inspection_type);
 
-        this.ionicForm.controls['marketing_officer'].setValue(data.marketing_officer.id);
+        this.ionicForm.controls['marketing_officer'].setValue(data.marketing_officer ? data.marketing_officer.name : '');
+        this.ionicForm.controls['person_in_charge'].setValue(data.person_in_charge ? data.person_in_charge.name : '');
+
+        if (data.policy_no) {
+          this.ionicForm.controls['policy_no'].setValue(data.policy_no);
+          this.checkPolicyNo(data.policy_no);
+        }
+
+        if (data.inspection_type == "Claim Case") {
+          this.inspectionTypeChange(null, true);
+        } else {
+          this.inspectionTypeChange(null, false);
+        }
+
+        // this.ionicForm.controls['reminder_date'].setValue(data.reminder_date);
 
       }
 
       this.loading = false;
 
-      if (data.status == 'booked' && (this.staff.staff_id == data.marketing_officer.id || this.staff.user_id == data.created_by)) {
-        this.editable = true;
+      if ((data.status == 'booked' || data.status == 'pending') && (this.staff.staff_id == data.marketing_officer.id || this.staff.user_id == data.created_by || this.staff.user_role == 6)) {
+        // this.editable = true;
         // this.inspection_id = null;
       }
 
       console.log(this.inspection);
+      this.getTasks();
+
       // console.log('data.marketing_officer', data.marketing_officer);
     });
+  }
+
+  updateInspection() {
+    this.editable = true;
+    this.ionicForm.controls['dealer'].setValue(this.inspection.dealer);
+    this.ionicForm.controls['marketing_officer'].setValue(this.inspection.marketing_officer);
+    this.ionicForm.controls['person_in_charge'].setValue(this.inspection.person_in_charge);
+    this.ionicForm.controls['branch'].setValue(this.inspection.branch ? this.inspection.branch : '');
+
+  }
+
+  cancelUpdateInspection() {
+    this.editable = false;
+    this.ionicForm.controls['dealer'].setValue(this.inspection.dealer.name);
+    this.ionicForm.controls['marketing_officer'].setValue(this.inspection.marketing_officer.id);
+
+    if (this.inspection.dealer.name) {
+      this.ionicForm.controls['dealer'].setValue(this.inspection.dealer.name);
+    } else {
+      this.ionicForm.controls['dealer'].setValue(this.inspection.dealer);
+    }
+  }
+
+  inspectionTypeChange(event, isClaim = false) {
+    // console.log('inspectionTypeChange', event.detail.value);
+
+    if (event && event.detail && event.detail.value == 'Claim Case') {
+      isClaim = true;
+    }
+
+    if (isClaim) {
+      console.log('is Claim Case');
+      this.claimCase = true;
+      this.ionicForm.get('warranty_plan').setValidators([]);
+      this.ionicForm.get('period').setValidators([]);
+      this.ionicForm.get('policy_no').setValidators([Validators.required]);
+      this.ionicForm.get('vehicle').setValidators([]);
+      this.ionicForm.get('chassis').setValidators([]);
+      this.ionicForm.get('dealer').setValidators([]);
+      this.ionicForm.get('policy_found').setValidators([Validators.required]);
+      this.ionicForm.get('promo').setValidators([]);
+    } else {
+
+      this.claimCase = false;
+      this.ionicForm.get('warranty_plan').setValidators([Validators.required]);
+      this.ionicForm.get('period').setValidators([Validators.required]);
+      this.ionicForm.get('policy_no').setValidators([]);
+      this.ionicForm.get('vehicle').setValidators([Validators.required]);
+      this.ionicForm.get('chassis').setValidators([Validators.required]);
+      this.ionicForm.get('dealer').setValidators([Validators.required]);
+      this.ionicForm.get('policy_found').setValidators([]);
+      this.ionicForm.get('promo').setValidators([Validators.required]);
+    }
+
+    this.ionicForm.get('warranty_plan').updateValueAndValidity();
+    this.ionicForm.get('period').updateValueAndValidity();
+    this.ionicForm.get('policy_no').updateValueAndValidity();
+    this.ionicForm.get('vehicle').updateValueAndValidity();
+    this.ionicForm.get('chassis').updateValueAndValidity();
+    this.ionicForm.get('dealer').updateValueAndValidity();
+    this.ionicForm.get('policy_found').updateValueAndValidity();
+    this.ionicForm.get('promo').updateValueAndValidity();
+
   }
 
   getStaffs() {
@@ -155,6 +276,7 @@ export class StaffAddLogsPage implements OnInit {
     this.authService.getStaffs().subscribe(
       (data: any) => {
         this.helper.dissmissLoading();
+        console.log('getStaffs', data);
 
         if (data && data.data) {
 
@@ -172,11 +294,55 @@ export class StaffAddLogsPage implements OnInit {
           this.warrantyPlans = data.warranty_plan;
           this.periods = data.periods;
           this.promos = data.promos;
+
+          this.dealers = [];
+          data.dealers.forEach(dealer => {
+
+            this.dealers.push({
+              id: dealer.id,
+              name: dealer.name,
+            });
+
+          });
         }
       }, error => {
         this.helper.dissmissLoading();
         this.helper.presentAlertDetails('Error', 'No staff found.');
         console.log(error);
+      });
+
+  }
+
+  checkPolicyNoEvent(event) {
+    this.checkPolicyNo(event.detail.value);
+  }
+
+  checkPolicyNo(value) {
+
+    this.loadingPolicy = true;
+    this.policy = null;
+    this.ionicForm.controls['policy_found'].setValue(null);
+
+    console.log('event', value);
+    const search = value.toLowerCase();
+
+    let data: any = {
+      search: search,
+      status: 'all',
+    };
+    data = JSON.stringify(data);
+
+    this.authService.findClaimByPolicyNo(search).subscribe(
+      data => {
+        this.loadingPolicy = false;
+
+        if (data && data.policy) {
+          this.policy = data.policy;
+          this.ionicForm.controls['policy_found'].setValue(1);
+          console.log('this.policy', this.policy);
+        }
+      }, error => {
+        this.loadingPolicy = false;
       });
 
   }
@@ -243,14 +409,71 @@ export class StaffAddLogsPage implements OnInit {
 
   }
 
+  async removeImageOri(index) {
+
+    const alert = await this.alertController.create({
+      header: 'Are you sure want to delete image!',
+      buttons: [
+        {
+          text: 'Cancel',
+          role: 'cancel',
+          handler: (blah) => {
+            console.log('Confirm Cancel: blah');
+          }
+        }, {
+          text: 'Confirm',
+          handler: () => {
+
+            this.removeImageFirebase(index);
+          }
+        }
+      ]
+    });
+
+    alert.present();
+
+  }
+
+  async removeImageFirebase(index) {
+
+    this.loading = true;
+    this.loadingText = 'Please wait ';
+
+    let images = this.inspection.images;
+
+    images.splice(index, 1);
+
+    this.firestore.doc<any>('inspections/' + this.inspection_id).update({
+      images: images
+    }).then(() => {
+      console.log('success');
+      this.loading = false;
+      this.loadingText = '';
+      this.helper.presentToast('Image successfully deleted.');
+
+    }).catch(error => {
+
+      this.helper.presentToast('Sorry, there is some error occured.');
+      this.loading = false;
+      this.loadingText = '';
+
+    });
+
+  }
+
   async addInspection(isUpdate = false) {
+
+    if (!this.timevalid) {
+      this.helper.presentAlertDetails('Inspection appointment not valid!', 'Time need to be more than one hour different between other appointment.');
+      return;
+    }
 
     this.loading = true;
     this.loadingText = 'Please wait ';
 
     let data: any = this.ionicForm.value;
 
-    let choosedMO = this.staffs.find(x => x.id == this.ionicForm.value.marketing_officer);
+    let choosedMO = this.helper.staffs.find(x => x.id == this.ionicForm.value.marketing_officer);
 
     if (choosedMO) {
       data.marketing_officer = {
@@ -264,14 +487,6 @@ export class StaffAddLogsPage implements OnInit {
     data.created_by_staff_id = this.staff.staff_id;
     data.created_by_name = this.staff.user_fullname;
 
-    if (data.reminder_date) {
-
-      data.status = 'booked';
-      data.reminder_date = moment(data.reminder_date, 'YYYY-MM-DD H:i').toDate();
-
-    } else {
-      data.status = 'pending';
-    }
 
     let index = 1;
     for (const inspectImage of this.inspectImages) {
@@ -298,6 +513,9 @@ export class StaffAddLogsPage implements OnInit {
     this.loadingText = 'Almost finish ';
 
     if (!isUpdate) {
+
+      data.status = 'pending';
+
       this.firestore.collection('/inspections/').add(data).then(() => {
         console.log('success');
         this.loading = false;
@@ -413,6 +631,36 @@ export class StaffAddLogsPage implements OnInit {
 
   }
 
+  updateInspectionTime() {
+
+    this.loading = true;
+    this.loadingText = 'Please wait ';
+
+    let time = this.ionicForm.value.reminder_date;
+    console.log('reminder_date', this.ionicForm.value.reminder_date);
+
+    time = moment(time, 'YYYY-MM-DD H:mm').toDate();
+    console.log(time);
+
+    this.firestore.doc<any>('inspections/' + this.inspection_id).update({
+      reminder_date: time
+    }).then(() => {
+      console.log('success');
+      this.loading = false;
+      this.loadingText = '';
+      this.helper.presentToast('Inspection successfully updated.');
+      this.navCtrl.back();
+
+    }).catch(error => {
+
+      this.helper.presentToast('Sorry, there is some error occured.');
+      this.loading = false;
+      this.loadingText = '';
+
+    });
+
+  }
+
   async deleteInspection() {
 
     const alert = await this.alertController.create({
@@ -453,5 +701,39 @@ export class StaffAddLogsPage implements OnInit {
     });
 
     await alert.present();
+  }
+
+  test() {
+    let time = this.ionicForm.value.reminder_date;
+    time = moment(time, 'YYYY-MM-DD H:mm').toDate().getTime();
+    let currentdate = new Date().getTime();
+
+    this.timevalid = true;
+
+    for (let inspection of this.inspectionsTemp) {
+
+      if (inspection.reminder_date) {
+        const hour = Math.abs(time - inspection.reminder_date.toDate().getTime()) / 3600000;
+
+        if (hour < 1) {
+          console.log('inspection - ' + hour, inspection.reminder_date.toDate());
+          this.timevalid = false;
+          break;
+        }
+      }
+    }
+
+    // this.inspectionsTemp.forEach(inspection => {
+
+    //   if (inspection.reminder_date) {
+    //     const hour = Math.abs(time - inspection.reminder_date.toDate().getTime()) / 3600000;
+
+    //     if(hour > 1){
+    //       valid = false;
+    //     }
+    //   }
+
+    // });
+    console.log('valid', this.timevalid);
   }
 }

@@ -10,7 +10,7 @@
       View Sponsorship
     </ion-title>
     <ion-buttons slot="primary">
-      <ion-button *ngIf="staff.user_role == 1 && inspection_id" (click)="deleteInspection()">
+      <ion-button *ngIf="(staff.user_role == 1 || staff.user_role == 6) && inspection_id" (click)="deleteInspection()">
         Delete
       </ion-button>
     </ion-buttons>
@@ -64,7 +64,7 @@
               <ion-label position="floating">
                 Marketing Officer*
               </ion-label>
-              <ion-select placeholder="Select One" formControlName="marketing_officer" interface="action-sheet"
+              <!-- <ion-select placeholder="Select One" formControlName="marketing_officer" interface="action-sheet"
                 value="">
                 <ion-select-option value="">
                   Please select
@@ -72,14 +72,27 @@
                 <ion-select-option [value]="staff" *ngFor="let staff of staffs">
                   {{ staff.name }}
                 </ion-select-option>
-              </ion-select>
+              </ion-select> -->
+
+              <ionic-selectable [items]="staffs" itemValueField="id" itemTextField="name" [canSearch]="true"
+                formControlName="marketing_officer" [hasVirtualScroll]="true">
+                <ng-template ionicSelectableItemTemplate let-port="item" let-isPortSelected="isItemSelected">
+                  {{ port.name }}
+                </ng-template>
+              </ionic-selectable>
             </ion-item>
 
             <ion-item lines="none" class="ez-input">
               <ion-label position="floating">
                 Dealer*
               </ion-label>
-              <ion-input placeholder="" formControlName="dealer"></ion-input>
+              <!-- <ion-input placeholder="" formControlName="dealer"></ion-input> -->
+              <ionic-selectable [items]="dealers" itemValueField="id" itemTextField="name" [canSearch]="true"
+                formControlName="dealer" [hasVirtualScroll]="true">
+                <ng-template ionicSelectableItemTemplate let-port="item" let-isPortSelected="isItemSelected">
+                  {{ port.name }}
+                </ng-template>
+              </ionic-selectable>
             </ion-item>
 
             <ion-item lines="none" class="ez-input">
@@ -132,6 +145,13 @@
                 Reasons For Sponsorship
               </ion-label>
               <ion-textarea placeholder="" formControlName="reasons" rows="4" readonly></ion-textarea>
+            </ion-item>
+
+            <ion-item lines="none" class="ez-input">
+              <ion-label position="floating">
+                Amount
+              </ion-label>
+              <ion-input placeholder="" formControlName="amount" readonly></ion-input>
             </ion-item>
 
             <ion-item lines="none" class="ez-input">

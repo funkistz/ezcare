@@ -28,10 +28,14 @@ export class HelperService {
   user;
   staff;
   staffs;
+  staffsReal;
   warrantyPlans;
   promos;
   periods;
   inspection_types;
+  dealers = [];
+  sponsorshipDealer;
+  branches = [];
 
   constructor(
     private alertController: AlertController,
@@ -48,23 +52,69 @@ export class HelperService {
 
   async getStaffs() {
 
-    let { value }: any = await Storage.get({ key: 'staffs' });
+    const staffs: any = await Storage.get({ key: 'staffs' });
 
-    if (value) {
-      this.staffs = JSON.parse(value);
+    if (staffs.value) {
+      this.staffs = JSON.parse(staffs.value);
     }
 
-    let { value2 }: any = await Storage.get({ key: 'warrantyPlans' });
+    const warrantyPlans: any = await Storage.get({ key: 'warrantyPlans' });
 
-    if (value2) {
-      this.warrantyPlans = JSON.parse(value2);
+    if (warrantyPlans.value) {
+      this.warrantyPlans = JSON.parse(warrantyPlans.value);
+    }
+
+    const periods: any = await Storage.get({ key: 'periods' });
+
+    if (periods.value) {
+      this.periods = JSON.parse(periods.value);
+    }
+
+    const promos: any = await Storage.get({ key: 'promos' });
+
+    if (promos.value) {
+      this.promos = JSON.parse(promos.value);
+    }
+
+    const inspection_types: any = await Storage.get({ key: 'inspection_types' });
+
+    if (inspection_types.value) {
+      this.inspection_types = JSON.parse(inspection_types.value);
+      console.log('get inspection_types', this.inspection_types);
+    }
+
+    let dealers: any = await Storage.get({ key: 'dealers' });
+
+    if (dealers.value) {
+      dealers = JSON.parse(dealers.value);
+
+      this.dealers = [];
+      dealers.forEach(dealer => {
+
+        this.dealers.push({
+          id: dealer.id,
+          name: dealer.name,
+        });
+
+      });
+
+      this.sponsorshipDealer = this.dealers[0];
+    }
+
+    const branches: any = await Storage.get({ key: 'branches' });
+
+    if (branches.value) {
+      this.branches = JSON.parse(branches.value);
     }
 
     this.authService.getStaffs().subscribe(
       (data: any) => {
         if (data && data.data) {
 
+          console.log('get staff', data);
+
           this.staffs = [];
+          this.staffsReal = [];
 
           data.data.forEach(staff => {
 
@@ -73,13 +123,15 @@ export class HelperService {
               name: staff.name,
             });
 
+            this.staffsReal.push(staff);
+
           });
 
           Storage.set({
             key: 'staffs',
             value: JSON.stringify(this.staffs)
           });
-          // console.log('this.staffs', this.staffs);
+          // console.log('this.staffsReal', this.staffsReal);
 
           this.warrantyPlans = data.warranty_plan;
 
@@ -110,6 +162,30 @@ export class HelperService {
           });
           // console.log('this.warrantyPlans', this.warrantyPlans);
 
+          this.branches = data.branches;
+
+          Storage.set({
+            key: 'branches',
+            value: JSON.stringify(this.branches)
+          });
+
+          this.dealers = [];
+          data.dealers.forEach(dealer => {
+
+            this.dealers.push({
+              id: dealer.id,
+              name: dealer.name,
+            });
+
+          });
+
+          // console.log('this.dealers', this.dealers);
+          this.sponsorshipDealer = this.dealers[0];
+
+          Storage.set({
+            key: 'dealers',
+            value: JSON.stringify(this.inspection_types)
+          });
         }
       }, error => {
         this.presentAlertDetails('Error', 'No staff found.');
@@ -117,7 +193,21 @@ export class HelperService {
       });
   }
 
+  changeSponsorshipDealer(id) {
 
+    // console.log('changeSponsorshipDealer', id);
+
+    let dealer = this.dealers.filter(function (dealer) {
+      return dealer.id == id;
+    });
+
+    if (dealer) {
+      dealer = dealer[0];
+    }
+
+    this.sponsorshipDealer = dealer;
+
+  }
 
   async presentToast(message) {
     const toast = await this.toastController.create({
@@ -582,6 +672,56 @@ export class HelperService {
     let staff = value;
 
     return JSON.parse(staff);
+  }
+
+  getAllUserIDByBranch(branch) {
+
+    let ids = [];
+    this.staffsReal.forEach(staff => {
+
+      if (branch == 8) {
+        ids.push(staff.id);
+      } else {
+
+        if (staff.user && staff.user.user_branch && staff.user.user_branch == branch) {
+          ids.push(staff.user.user_id);
+        }
+
+      }
+
+    });
+
+    return ids;
+  }
+
+  filterAllStaffIDByBranch(branch) {
+
+    return this.staffs.filter(
+      staff => {
+
+        if (branch == 8) {
+          return true;
+        }
+
+        if (!staff.user) {
+          return false;
+        }
+
+        if (staff.user.user_branch && staff.user.user_branch == branch) {
+          return true;
+        } else {
+          return false;
+        }
+
+      });
+
+  }
+
+  filterStaffByBranch(staffs, branch) {
+
+    return staffs.filter(staff => {
+
+    })
   }
 
 }
