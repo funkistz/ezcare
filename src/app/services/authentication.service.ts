@@ -56,7 +56,7 @@ export class AuthenticationService {
     //   switchMap(token => {
     //     return;
     //     // return from(
-    //     //   Storage.set({ key: TOKEN_KEY, value: token })
+    //     //  Preferences.set({ key: TOKEN_KEY, value: token })
     //     // );
     //   }),
     //   tap(_ => {
@@ -81,10 +81,10 @@ export class AuthenticationService {
 
   }
 
-  getServices(policy_id): Observable<any> {
+  getServices(policy_id, from_home = false): Observable<any> {
 
     this.resetHeader();
-    let params = new HttpParams().set('policy_id', policy_id);
+    let params = new HttpParams().set('policy_id', policy_id).set('from_home', from_home);
     this.header.params = params;
 
     return this.http.get(this.url + 'service', this.header);
@@ -156,13 +156,13 @@ export class AuthenticationService {
 
   }
 
-  searchClaims(search, staff_id = false, exact = false, branch = false): Observable<any> {
+  searchClaims(search, staff_id = false, exact = false, branch = false, date = false): Observable<any> {
 
     this.resetHeader();
-    let params = new HttpParams().set('search', search).set('staff_id', staff_id).set('exact', exact).set('branch', branch);
+    let params = new HttpParams().set('search', search).set('staff_id', staff_id).set('exact', exact).set('branch', branch).set('date', date);
 
     if (!exact) {
-      params = new HttpParams().set('search', search).set('staff_id', staff_id).set('branch', branch);
+      params = new HttpParams().set('search', search).set('staff_id', staff_id).set('branch', branch).set('date', date);
     }
 
     this.header.params = params;
@@ -198,6 +198,13 @@ export class AuthenticationService {
 
   }
 
+  deleteService(service_id): Observable<any> {
+
+    this.resetHeader();
+    return this.http.delete(this.url + 'service/' + service_id, this.header);
+
+  }
+
   addClaim(data): Observable<any> {
 
     // let params = new HttpParams().set('image', data);
@@ -219,6 +226,15 @@ export class AuthenticationService {
 
     this.resetHeader();
     return this.http.post(this.url + 'claim/' + type, data, this.header);
+
+  }
+
+  deleteClaimStatus(claim_status_id) {
+
+    this.resetHeader();
+    let params = new HttpParams().set('claim_status_id', claim_status_id);
+    this.header.params = params;
+    return this.http.post(this.url + 'claim/deleteStatus', { claim_status_id: claim_status_id }, this.header);
 
   }
 
@@ -423,8 +439,104 @@ export class AuthenticationService {
     return this.http.get(this.url + 'policy/searchCustomer', this.header);
   }
 
+  getTotalLeave(staff_id = null, year = null): Observable<any> {
+
+    this.resetHeader();
+    let params = new HttpParams().set('staff_id', staff_id).set('year', year);
+    this.header.params = params;
+
+    return this.http.get(this.url + 'staffs/getStaffLeave', this.header);
+  }
+
+  assignTotalLeave(total = null, year = null): Observable<any> {
+
+    this.resetHeader();
+    let params = new HttpParams().set('total_leave', total).set('year', year);
+    this.header.params = params;
+
+    return this.http.get(this.url + 'staffs/setAllStaffLeave', this.header);
+  }
+
   // logout(): Promise<void> {
   //   this.isAuthenticated.next(false);
-  //   // return Storage.remove({ key: TOKEN_KEY });
+  //   // return Preferences.remove({ key: TOKEN_KEY });
   // }
+
+  getLeaveConfig(): Observable<any> {
+
+    this.resetHeader();
+    return this.http.get(this.url + 'staffLeave/config', this.header);
+  }
+
+  updateLeaveConfig(data): Observable<any> {
+
+    this.resetHeader();
+    return this.http.post(this.url + 'staffLeave/updateConfig', data, this.header);
+  }
+
+  getLeaves(staffId = null): Observable<any> {
+
+    this.resetHeader();
+    const params = new HttpParams().set('staff_id', staffId);
+    this.header.params = params;
+
+    return this.http.get(this.url + 'staffs/getStaffLeaves', this.header);
+  }
+
+  addStaffLeave(data): Observable<any> {
+
+    this.resetHeader();
+    return this.http.post(this.url + 'staffLeave', data, this.header);
+
+  }
+
+  updateStaffLeave(id, data): Observable<any> {
+
+    this.resetHeader();
+    return this.http.put(this.url + 'staffLeave/' + id, data, this.header);
+
+  }
+
+  getLeaveBalance(staffId = null, year = null): Observable<any> {
+
+    this.resetHeader();
+    const params = new HttpParams().set('staff_id', staffId).set('year', year);
+    this.header.params = params;
+
+    return this.http.get(this.url + 'staffs/getStaffLeaveBalance', this.header);
+  }
+
+  getAllTodayStaff(): Observable<any> {
+
+    this.resetHeader();
+    const params = new HttpParams();
+    this.header.params = params;
+
+    return this.http.get(this.url + 'staffLeave/getAllTodayStaff', this.header);
+  }
+
+  getAllLeaves(staff_id = 0): Observable<any> {
+
+    this.resetHeader();
+    const params = new HttpParams().set('staff_id', staff_id);
+    this.header.params = params;
+
+    return this.http.get(this.url + 'staffLeave', this.header);
+  }
+
+  getLeave(leave_id): Observable<any> {
+
+    this.resetHeader();
+    // const params = new HttpParams().set('id', leave_id);
+    // this.header.params = params;
+
+    return this.http.get(this.url + 'staffLeave/' + leave_id, this.header);
+  }
+
+  deleteWorkshop(workshop_id): Observable<any> {
+
+    this.resetHeader();
+    return this.http.delete(this.url + 'workshop/' + workshop_id, this.header);
+
+  }
 }

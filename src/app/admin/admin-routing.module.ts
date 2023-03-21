@@ -35,6 +35,10 @@ const routes: Routes = [
   {
     path: 'mobile-service',
     loadChildren: () => import('./mobile-service/mobile-service.module').then( m => m.MobileServicePageModule)
+  },
+  {
+    path: 'leave',
+    loadChildren: () => import('./leave/leave.module').then( m => m.LeavePageModule)
   }
 ];
 

@@ -1,5 +1,5 @@
 import { Component, ViewChild, ElementRef } from '@angular/core';
-import { Storage } from '@capacitor/storage';
+import { Preferences } from '@capacitor/preferences';
 import { AuthenticationService } from '../services/authentication.service';
 import { Browser } from '@capacitor/browser';
 import { CallNumber } from '@ionic-native/call-number/ngx';
@@ -9,7 +9,6 @@ Chart.register(...registerables);
 import { AngularFirestore } from '@angular/fire/compat/firestore';
 import * as moment from 'moment';
 import { HelperService } from '../services/helper.service';
-
 @Component({
   selector: 'app-staff-home',
   templateUrl: './staff-home.page.html',
@@ -62,6 +61,10 @@ export class StaffHomePage {
   managerReportSponsorhipDealerName;
   managerReportSponsorhipUnit;
   managerReportSponsorhipTotal;
+
+  leaveBalances = [];
+  staffOnLeave = [];
+  pendingLeave = [];
 
   constructor(
     private authService: AuthenticationService,
@@ -122,7 +125,7 @@ export class StaffHomePage {
     this.user = null;
     this.staff = null;
 
-    let { value }: any = await Storage.get({ key: 'staff' });
+    let { value }: any = await Preferences.get({ key: 'staff' });
     let staff = value;
 
     if (staff) {
@@ -138,6 +141,8 @@ export class StaffHomePage {
       this.getReport(event, this.userReport, moment().month(this.reportMonth2).format("M"));
       this.getReportYearly(event, this.userReport, this.reportYear, this.reportMonth);
       this.getSponsorshipReport(event, this.userReport, this.managerReportSponsorhipYear, this.managerReportSponsorhipDealer);
+      this.getLeaveBalance(this.userReport, moment().year());
+      this.getAllStaffOnLeaveToday();
 
       if (this.staff.is_manager && this.staff.is_manager != 0) {
         this.getManagerReport(event, this.userReport, this.managerReportYear, this.managerReportMonth);
@@ -185,6 +190,41 @@ export class StaffHomePage {
         if (event) {
           event.target.complete();
         }
+      });
+
+  }
+
+  getAllStaffOnLeaveToday() {
+
+    this.authService.getAllTodayStaff().subscribe(
+      data => {
+
+        if (data) {
+          console.log('getAllTodayStaff', data);
+          this.staffOnLeave = data.data;
+          this.pendingLeave = data.pendingLeave;
+        }
+      }, error => {
+      });
+
+  }
+
+  getLeaveBalance(id, year) {
+
+    this.authService.getLeaveBalance(id, year).subscribe(
+      data => {
+
+        if (data) {
+
+          this.leaveBalances['al'] = data.data.al_balance;
+          this.leaveBalances['el'] = data.data.al_balance;
+          this.leaveBalances['sl'] = data.data.sl_balance;
+          this.leaveBalances['hl'] = data.data.hl_balance;
+          this.leaveBalances['ml'] = data.data.ml_balance;
+          this.leaveBalances['pl'] = data.data.pl_balance;
+
+        }
+      }, error => {
       });
 
   }
@@ -284,6 +324,16 @@ export class StaffHomePage {
 
   goClaim() {
     this.router.navigate(['/staff-tabs/staffClaims']);
+  }
+
+  goLeave() {
+    let navigationExtras: NavigationExtras = {
+      queryParams: {
+        tab: 'leave'
+      }
+    };
+
+    this.router.navigate(['/staff-tabs/endorsement'], navigationExtras);
   }
 
   barChartMethod(reports) {
@@ -502,6 +552,7 @@ export class StaffHomePage {
       data => {
 
         if (data && data.data) {
+          console.log('reports', this.reports);
           this.reports = data.data;
           // this.barChartMethod(
           //   this.reports.months
@@ -765,7 +816,8 @@ export class StaffHomePage {
 
     this.getReport(null, $event.target.value);
     this.getReportYearly(null, $event.target.value, this.reportYear, this.reportMonth);
-
+    this.getLeaveBalance(this.userReport, moment().year());
+    this.getAllStaffOnLeaveToday();
   }
 
   getBanners() {
@@ -800,7 +852,7 @@ export class StaffHomePage {
   }
 
   goServicePage() {
-    this.router.navigate(['/staff-services']);
+    this.router.navigate(['/staff-tabs/staff-services']);
   }
 
   goPolicyPage(staff_id, type, filter = null) {

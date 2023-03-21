@@ -1,7 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { AuthenticationService } from '../../services/authentication.service';
 import { Router, NavigationExtras } from '@angular/router';
-import { Storage } from '@capacitor/storage';
+import { Preferences } from '@capacitor/preferences';
 import { HelperService } from '../../services/helper.service';
 import { saveAs } from 'file-saver';
 

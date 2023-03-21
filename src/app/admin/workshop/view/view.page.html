@@ -98,9 +98,16 @@
     </ion-list>
 
     <ion-row>
+      <ion-col size="8" style="padding-top: 10px;">Ev Workshop:</ion-col>
+      <ion-col size="4">
+        <ion-toggle mode="ios" [(ngModel)]="isActive" formControlName="is_ev"></ion-toggle>
+      </ion-col>
+    </ion-row>
+
+    <ion-row>
       <ion-col size="8" style="padding-top: 10px;">Is Active:</ion-col>
       <ion-col size="4">
-        <ion-toggle mode="ios" [(ngModel)]="isActive" formControlName="is_active"></ion-toggle>
+        <ion-toggle mode="ios" formControlName="is_active"></ion-toggle>
       </ion-col>
     </ion-row>
 
@@ -109,6 +116,9 @@
     </ion-button>
     <ion-button expand="block" *ngIf="!ionicForm.valid" disabled>
       Submit
+    </ion-button>
+    <ion-button color="danger" expand="block" (click)="delete()">
+      Delete
     </ion-button>
 
   </form>

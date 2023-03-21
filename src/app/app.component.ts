@@ -1,6 +1,6 @@
 import { Component } from '@angular/core';
 import { Router, Event, NavigationStart, NavigationEnd, NavigationError } from '@angular/router';
-import { Storage } from '@capacitor/storage';
+import { Preferences } from '@capacitor/preferences';
 import { AuthenticationService } from './services/authentication.service';
 import { initializeApp } from 'firebase/app';
 import { indexedDBLocalPersistence, initializeAuth } from 'firebase/auth';
@@ -60,11 +60,11 @@ export class AppComponent {
     this.user = null;
     this.staff = null;
 
-    let { value }: any = await Storage.get({ key: 'user' });
+    let { value }: any = await Preferences.get({ key: 'user' });
     let user = value;
 
     if (!user) {
-      let { value }: any = await Storage.get({ key: 'staff' });
+      let { value }: any = await Preferences.get({ key: 'staff' });
       let staff = value;
 
       if (staff) {
@@ -109,7 +109,7 @@ export class AppComponent {
         // console.log('login data', data);
         data.data.last_login = new Date();
 
-        Storage.set({
+        Preferences.set({
           key: 'staff',
           value: JSON.stringify(data.data),
         });
@@ -121,8 +121,8 @@ export class AppComponent {
   }
 
   logout() {
-    Storage.remove({ key: 'user' });
-    Storage.remove({ key: 'staff' });
+    Preferences.remove({ key: 'user' });
+    Preferences.remove({ key: 'staff' });
     this.router.navigate(['/login']);
   }
 

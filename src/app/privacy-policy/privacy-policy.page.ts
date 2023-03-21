@@ -1,5 +1,5 @@
 import { Component, OnInit } from '@angular/core';
-import { Storage } from '@capacitor/storage';
+import { Preferences } from '@capacitor/preferences';
 
 @Component({
   selector: 'app-privacy-policy',
@@ -18,7 +18,7 @@ export class PrivacyPolicyPage implements OnInit {
   }
 
   async getPolicy() {
-    let { value }: any = await Storage.get({ key: 'privacy_policy' });
+    let { value }: any = await Preferences.get({ key: 'privacy_policy' });
     this.policy = value;
 
     console.log(value);

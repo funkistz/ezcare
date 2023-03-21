@@ -4,7 +4,7 @@ import { Router, NavigationExtras } from '@angular/router';
 import { AngularFirestore } from '@angular/fire/compat/firestore';
 import { HelperService } from '../services/helper.service';
 import { PhotoViewer } from '@awesome-cordova-plugins/photo-viewer/ngx';
-import { Storage } from '@capacitor/storage';
+import { Preferences } from '@capacitor/preferences';
 import * as moment from 'moment';
 
 export class TODO {
@@ -64,7 +64,7 @@ export class StaffLogsPage implements OnInit {
     this.user = null;
     this.staff = null;
 
-    let { value }: any = await Storage.get({ key: 'staff' });
+    let { value }: any = await Preferences.get({ key: 'staff' });
     let staff = value;
 
     if (staff) {

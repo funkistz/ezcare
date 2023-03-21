@@ -6,7 +6,7 @@ import { HelperService } from '../services/helper.service';
 import { Platform, LoadingController, ToastController, ActionSheetController, AlertController } from '@ionic/angular';
 import { AngularFireStorage, AngularFireUploadTask } from '@angular/fire/compat/storage';
 import { Observable } from 'rxjs';
-import { Storage } from '@capacitor/storage';
+import { Preferences } from '@capacitor/preferences';
 import { NavController } from '@ionic/angular';
 import { Router, NavigationExtras, ActivatedRoute } from '@angular/router';
 import { PhotoViewer } from '@awesome-cordova-plugins/photo-viewer/ngx';
@@ -143,7 +143,7 @@ export class StaffAddLogsPage implements OnInit {
   }
 
   async getStaff() {
-    let { value }: any = await Storage.get({ key: 'staff' });
+    let { value }: any = await Preferences.get({ key: 'staff' });
     this.staff = JSON.parse(value);
     console.log('staff', this.staff);
   }

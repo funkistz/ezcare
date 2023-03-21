@@ -1,5 +1,5 @@
 import { Component } from '@angular/core';
-import { Storage } from '@capacitor/storage';
+import { Preferences } from '@capacitor/preferences';
 import { Router } from '@angular/router';
 
 @Component({
@@ -29,12 +29,12 @@ export class TabsPage {
 
     // console.log('hello cc');
 
-    let { value }: any = await Storage.get({ key: 'user' });
+    let { value }: any = await Preferences.get({ key: 'user' });
     let user = value;
 
     if (!user) {
 
-      let { value }: any = await Storage.get({ key: 'staff' });
+      let { value }: any = await Preferences.get({ key: 'staff' });
       let staff = value;
 
       if (!staff) {

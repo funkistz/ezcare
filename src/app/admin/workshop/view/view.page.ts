@@ -1,9 +1,11 @@
+/* eslint-disable @typescript-eslint/dot-notation */
+/* eslint-disable @typescript-eslint/naming-convention */
 import { Component, OnInit } from '@angular/core';
 import { AuthenticationService } from '../../../services/authentication.service';
-import { ActivatedRoute, Router } from '@angular/router';
+import { ActivatedRoute, Router, NavigationExtras } from '@angular/router';
 import { FormGroup, FormBuilder, Validators } from "@angular/forms";
 import { HelperService } from '../../../services/helper.service';
-import { NavController } from '@ionic/angular';
+import { NavController, AlertController } from '@ionic/angular';
 
 @Component({
   selector: 'app-view',
@@ -42,6 +44,7 @@ export class ViewPage implements OnInit {
     public formBuilder: FormBuilder,
     private helper: HelperService,
     private navCtrl: NavController,
+    public alertController: AlertController,
   ) { }
 
   ngOnInit() {
@@ -60,6 +63,7 @@ export class ViewPage implements OnInit {
       state: ['', [Validators.required]],
       postcode: ['', [Validators.required]],
       is_active: ['', []],
+      is_ev: [0, []],
     });
 
     this.route.queryParams.subscribe(params => {
@@ -98,6 +102,7 @@ export class ViewPage implements OnInit {
           this.ionicForm.controls['state'].setValue(this.workshop.state);
           this.ionicForm.controls['postcode'].setValue(this.workshop.postcode);
           this.ionicForm.controls['is_active'].setValue(Number(this.workshop.is_active));
+          this.ionicForm.controls['is_ev'].setValue(Number(this.workshop.is_ev));
         }
 
         this.helper.dissmissLoading();
@@ -118,7 +123,7 @@ export class ViewPage implements OnInit {
 
     this.helper.presentLoading();
 
-    let data = this.ionicForm.value;
+    const data = this.ionicForm.value;
     data.country = 'malaysia';
 
 
@@ -154,4 +159,51 @@ export class ViewPage implements OnInit {
 
   }
 
+  async delete() {
+
+    const alert = await this.alertController.create({
+      cssClass: 'my-custom-class',
+      header: 'Are you sure want to delete?',
+      message: 'This action will permanently delete the data.',
+      mode: 'ios',
+      buttons: [{
+        text: 'Cancel',
+        role: 'cancel',
+        cssClass: 'secondary',
+        handler: () => {
+          console.log('Confirm Cancel');
+        }
+      }, {
+        text: 'Okay',
+        handler: () => {
+
+          this.helper.presentLoading();
+
+          this.authService.deleteWorkshop(this.id).subscribe(
+            result => {
+
+              this.helper.dissmissLoading();
+              this.helper.presentToast('Workshop deleted.');
+              let navigationExtras: NavigationExtras = {
+                queryParams: {
+                  refresh: 'yes'
+                }
+              };
+
+              this.router.navigate(['/admin/workshop'], navigationExtras);
+
+            }, error => {
+              console.log(error);
+              this.helper.dissmissLoading();
+              this.helper.presentToast(error.error.message);
+            });
+
+
+        }
+      }
+      ]
+    });
+
+    await alert.present();
+  }
 }

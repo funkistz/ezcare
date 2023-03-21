@@ -16,8 +16,13 @@
   </ion-toolbar>
 
   <ion-searchbar placeholder="Search..." debounce="1000" (ionChange)="searchWorkshops($event)" animated="true"
-    *ngIf="hasPermission" mode="ios">
+    style="padding-bottom: 0;" *ngIf="hasPermission" mode="ios">
   </ion-searchbar>
+
+  <ion-item style="float: right;" lines="none">
+    <ion-label class="ion-no-margin">EV Only</ion-label>
+    <ion-toggle slot="end" (ionChange)="toggleEv($event)" [(ngModel)]="evOnly"></ion-toggle>
+  </ion-item>
 
 </ion-header>
 
@@ -30,7 +35,7 @@
     <div #map id="map"></div>
   </div>
 
-  <ion-list *ngIf="hasPermission" style="height: 65%; overflow: scroll;">
+  <ion-list *ngIf="hasPermission && !isLoading" style="height: 65%; overflow: scroll;">
 
     <ion-item *ngFor="let workshop of workshops" (click)="displayWorkshop(workshop)">
       <!-- <ion-avatar slot="start">
@@ -43,6 +48,9 @@
       </ion-label>
     </ion-item>
   </ion-list>
+  <div *ngIf="isLoading" class="ion-text-center ion-padding">
+    <ion-spinner></ion-spinner>
+  </div>
 
   <ion-card *ngIf="!hasPermission">
     <ion-card-header>

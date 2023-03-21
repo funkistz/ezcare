@@ -19,6 +19,9 @@ export class ViewPage implements OnInit {
   isActive: any = false;
   isManager = 0;
   isEndorsementApprover = 0;
+  isLeaveApprover = 0;
+  isExGratiaApprover = 0;
+  totalLeave = 0;
 
   constructor(
     private authService: AuthenticationService,
@@ -44,7 +47,7 @@ export class ViewPage implements OnInit {
     this.authService.getStaff(id).subscribe(
       (data: any) => {
 
-        if (data && data.data) {
+        if (data && data) {
           // console.log(data);
           this.staff = data.data;
           this.users = data.users;
@@ -63,6 +66,14 @@ export class ViewPage implements OnInit {
               this.isEndorsementApprover = parseInt(this.user.is_endorsement_approver);
             }
 
+            if (this.user.is_leave_approver) {
+              this.isLeaveApprover = parseInt(this.user.is_leave_approver);
+            }
+
+            if (this.user.is_exgratia_approver) {
+              this.isExGratiaApprover = parseInt(this.user.is_exgratia_approver);
+            }
+
             if (this.user.user_active) {
               this.isActive = parseInt(this.user.user_active);
             }
@@ -72,7 +83,11 @@ export class ViewPage implements OnInit {
 
         }
 
-        console.log('this.user', this.user);
+        if (this.staff.current_leave) {
+          this.totalLeave = this.staff.current_leave.total_leave;
+        }
+
+
       }, error => {
         console.log(error);
       });
@@ -93,6 +108,9 @@ export class ViewPage implements OnInit {
       user_active: this.isActive,
       is_manager: this.isManager,
       isEndorsementApprover: this.isEndorsementApprover,
+      is_leave_approver: this.isLeaveApprover,
+      is_exgratia_approver: this.isExGratiaApprover,
+      total_leave: this.totalLeave,
     };
 
     this.helper.presentLoading();

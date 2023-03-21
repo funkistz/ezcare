@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 import { LocalNotifications, PendingResult } from '@capacitor/local-notifications';
 import { AlertController } from '@ionic/angular';
-import { Storage } from '@capacitor/storage';
+import { Preferences } from '@capacitor/preferences';
 
 @Injectable({
   providedIn: 'root'
@@ -30,7 +30,7 @@ export class LocalNotificationService {
 
     for (let index = 0; index < 30; index++) {
 
-      console.log('notification setted at', date);
+      // console.log('notification setted at', date);
 
       await LocalNotifications.schedule({
         notifications: [
@@ -85,7 +85,7 @@ export class LocalNotificationService {
       body: message,
     }
 
-    Storage.set({
+    Preferences.set({
       key: 'reminder_notification',
       value: JSON.stringify(reminder)
     });

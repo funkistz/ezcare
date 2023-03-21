@@ -1,5 +1,5 @@
 import { Component, OnInit } from '@angular/core';
-import { Storage } from '@capacitor/storage';
+import { Preferences } from '@capacitor/preferences';
 import { Router } from '@angular/router';
 import {
   ActionPerformed,
@@ -129,12 +129,12 @@ export class StarterPage implements OnInit {
 
   async checkUser(event = null, policy_id = null) {
 
-    let { value }: any = await Storage.get({ key: 'user' });
+    let { value }: any = await Preferences.get({ key: 'user' });
     this.user = JSON.parse(value);
     console.log('enter user', this.user);
 
     if (!this.user) {
-      let { value }: any = await Storage.get({ key: 'staff' });
+      let { value }: any = await Preferences.get({ key: 'staff' });
       this.staff = JSON.parse(value);
 
       if (this.staff) {

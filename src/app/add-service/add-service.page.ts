@@ -1,3 +1,5 @@
+/* eslint-disable eqeqeq */
+/* eslint-disable @typescript-eslint/naming-convention */
 import { Component, OnInit } from '@angular/core';
 import { Camera, CameraResultType, CameraSource, Photo } from '@capacitor/camera';
 import { FormGroup, FormBuilder, Validators } from "@angular/forms";
@@ -33,6 +35,7 @@ export class AddServicePage implements OnInit {
   engineOilType = null;
   policy_id;
   policy;
+  isEv = false;
 
   reminderImages = [];
   receiptImages = [];
@@ -41,7 +44,7 @@ export class AddServicePage implements OnInit {
   receiptImagesUrl = [];
   mileageImagesUrl = [];
 
-  // File upload task 
+  // File upload task
   fileUploadTask: AngularFireUploadTask;
 
   // Upload progress
@@ -75,10 +78,14 @@ export class AddServicePage implements OnInit {
         this.policy_id = params.policy_id;
         this.policy = JSON.parse(params.policy);
         console.log(this.policy);
+
+        if (this.policy.cust_plan === 'e') {
+          this.isEv = true;
+        }
       }
     });
 
-    let currentDate = this.datepipe.transform(new Date(), 'yyyy-MM-dd');
+    const currentDate = this.datepipe.transform(new Date(), 'yyyy-MM-dd');
 
     this.ionicForm = this.formBuilder.group({
       service_type_id: ['', [Validators.required]],
@@ -94,7 +101,7 @@ export class AddServicePage implements OnInit {
 
       workshop_name: ['', [Validators.required]],
       remarks: ['', []],
-    })
+    });
   }
 
   // getDate(e) {
@@ -111,9 +118,13 @@ export class AddServicePage implements OnInit {
   serviceTypeChange(event) {
     this.serviceType = event.detail.value;
 
+    console.log('this.serviceType', this.serviceType);
+
     if (this.serviceType == 1) {
       this.ionicForm.get('engine_oil_type_id').setValidators([Validators.required]);
-    } else {
+    } else if (this.serviceType == 2) {
+      this.ionicForm.get('engine_oil_type_id').setValidators([]);
+    } else if (this.serviceType == 4) {
       this.ionicForm.get('engine_oil_type_id').setValidators([]);
     }
 
@@ -123,30 +134,42 @@ export class AddServicePage implements OnInit {
   engineOilTypeChange(event) {
     this.engineOilType = event.detail.value;
 
-    let currentMileage = this.ionicForm.get('current_mileage').value;
+    const currentMileage = this.ionicForm.get('current_mileage').value;
     this.changeMileage(currentMileage);
   }
 
   currentMileageChange(event) {
     // console.log(event.detail.value);
-    let currentMileage = parseInt(event.detail.value);
+    const currentMileage = parseInt(event.detail.value, 10);
 
     this.changeMileage(currentMileage);
   }
 
   changeMileage(currentMileage) {
 
+    console.log('changeMileage');
+
     let due_mileage = 0;
     let due_mileage_atf = 0;
-    let date = new Date();
-    let dateAtf = new Date();
+    const date = new Date();
+    const dateAtf = new Date();
 
-    if (this.engineOilType == 1) {
-      due_mileage = currentMileage + 7000;
-      date.setMonth(date.getMonth() + 4);
-    } else if (this.engineOilType == 2) {
+    // if EV
+    if (this.serviceType == 4) {
+
       due_mileage = currentMileage + 10000;
       date.setMonth(date.getMonth() + 6);
+
+    } else {
+
+      if (this.engineOilType == 1) {
+        due_mileage = currentMileage + 7000;
+        date.setMonth(date.getMonth() + 4);
+      } else if (this.engineOilType == 2) {
+        due_mileage = currentMileage + 10000;
+        date.setMonth(date.getMonth() + 6);
+      }
+
     }
 
     due_mileage_atf = currentMileage + 30000;
@@ -156,8 +179,8 @@ export class AddServicePage implements OnInit {
     this.ionicForm.get('next_due_mileage_atf').setValue(due_mileage_atf);
 
 
-    let stringdate = this.datepipe.transform(date, 'yyyy-MM-dd');
-    let stringdateAtf = this.datepipe.transform(dateAtf, 'yyyy-MM-dd');
+    const stringdate = this.datepipe.transform(date, 'yyyy-MM-dd');
+    const stringdateAtf = this.datepipe.transform(dateAtf, 'yyyy-MM-dd');
 
     this.ionicForm.get('next_due_date').setValue(stringdate);
     this.ionicForm.get('next_due_date_atf').setValue(stringdateAtf);
@@ -173,7 +196,7 @@ export class AddServicePage implements OnInit {
           text: 'Cancel',
           role: 'cancel',
           handler: (blah) => {
-            console.log('Confirm Cancel: blah');
+            console.log('Confirm Cancel: blah', this.ionicForm.value);
           }
         }, {
           text: 'Confirm',
@@ -197,7 +220,7 @@ export class AddServicePage implements OnInit {
       return false;
     } else {
 
-      let loader = this.loading = await this.loadingController.create({
+      const loader = this.loading = await this.loadingController.create({
         message: 'Please wait...',
       });
       await this.loading.present();

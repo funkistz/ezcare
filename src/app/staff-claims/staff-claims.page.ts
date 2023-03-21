@@ -1,7 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { AuthenticationService } from '../services/authentication.service';
 import { Router, NavigationExtras, ActivatedRoute } from '@angular/router';
-import { Storage } from '@capacitor/storage';
+import { Preferences } from '@capacitor/preferences';
 import { HelperService } from '../services/helper.service';
 import * as moment from 'moment';
 
@@ -21,6 +21,7 @@ export class StaffClaimsPage implements OnInit {
   isSearching = false;
   groupServices = [];
   branch;
+  year = null;
 
   constructor(
     private authService: AuthenticationService,
@@ -47,7 +48,7 @@ export class StaffClaimsPage implements OnInit {
     this.user = null;
     this.staff = null;
 
-    let { value }: any = await Storage.get({ key: 'staff' });
+    let { value }: any = await Preferences.get({ key: 'staff' });
     let staff = value;
 
     if (staff) {
@@ -57,9 +58,7 @@ export class StaffClaimsPage implements OnInit {
         this.branch = Number(this.staff.user_branch);
       }
 
-      if (refresh) {
-        this.getClaims('');
-      }
+      this.getClaims(this.searchText);
     }
 
   }
@@ -85,6 +84,12 @@ export class StaffClaimsPage implements OnInit {
 
   }
 
+  filterByDate() {
+
+    this.getClaims('');
+
+  }
+
   async getClaims(search, event = null) {
 
     this.isSearching = true;
@@ -101,7 +106,7 @@ export class StaffClaimsPage implements OnInit {
       staff_id = 0;
     }
 
-    this.authService.searchClaims(search, staff_id, false, this.branch).subscribe(
+    this.authService.searchClaims(search, staff_id, false, this.branch, this.year).subscribe(
       data => {
 
         this.isSearching = false;

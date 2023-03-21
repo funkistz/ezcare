@@ -26,7 +26,7 @@ import { PreviewAnyFile } from '@awesome-cordova-plugins/preview-any-file/ngx';
 import { InAppBrowser } from '@awesome-cordova-plugins/in-app-browser/ngx';
 import { LaunchNavigator, LaunchNavigatorOptions } from '@awesome-cordova-plugins/launch-navigator/ngx';
 import { IonicSelectableModule } from 'ionic-selectable';
-import { CommonModule } from "@angular/common";
+import { CommonModule } from '@angular/common';
 
 @NgModule({
   declarations: [

@@ -1,5 +1,5 @@
 import { Component } from '@angular/core';
-import { Storage } from '@capacitor/storage';
+import { Preferences } from '@capacitor/preferences';
 import { AuthenticationService } from '../services/authentication.service';
 import { Router, NavigationExtras } from '@angular/router';
 
@@ -30,7 +30,7 @@ export class Tab3Page {
   }
 
   async checkUser(event = null) {
-    let { value }: any = await Storage.get({ key: 'user' });
+    let { value }: any = await Preferences.get({ key: 'user' });
     // console.log(value);
     value = JSON.parse(value);
     this.user = value;

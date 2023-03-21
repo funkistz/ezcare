@@ -21,6 +21,7 @@
       <ion-label>
         <h2>{{ reminder.title }}</h2>
         <p>{{ reminder.body }}.</p>
+        <p>{{ reminder.date_add }}</p>
       </ion-label>
     </ion-item>
 
@@ -32,6 +33,7 @@
       <ion-label>
         <h2>{{ notification.title }}</h2>
         <p>{{ notification.text }}.</p>
+        <p *ngIf="notification.date_add">{{ notification.date_add.toDate() | date: 'dd/MM/YYYY' }}</p>
       </ion-label>
     </ion-item>
 

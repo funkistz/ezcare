@@ -1,6 +1,6 @@
 import { Component } from '@angular/core';
 import { AuthenticationService } from '../services/authentication.service';
-import { Storage } from '@capacitor/storage';
+import { Preferences } from '@capacitor/preferences';
 import { Router, NavigationExtras } from '@angular/router';
 import * as moment from 'moment';
 
@@ -17,8 +17,10 @@ export class Tab2Page {
   services;
   engineServices = [];
   atfServices = [];
+  evServices = [];
   cService;
   isLoading = false;
+  isEv = false;
 
   constructor(
     private authService: AuthenticationService,
@@ -33,7 +35,7 @@ export class Tab2Page {
   }
 
   async checkUser(event = null, policy_id = null) {
-    let { value }: any = await Storage.get({ key: 'user' });
+    let { value }: any = await Preferences.get({ key: 'user' });
     // console.log(value);
     value = JSON.parse(value);
     this.user = value;
@@ -41,6 +43,10 @@ export class Tab2Page {
 
     if (!policy_id) {
       policy_id = this.user.cust_id;
+    }
+
+    if (this.user.cust_plan === 'e') {
+      this.isEv = true;
     }
 
     this.getPolicies(this.user.cust_ic, event, policy_id);
@@ -72,6 +78,16 @@ export class Tab2Page {
 
           this.engineServices = [];
           this.atfServices = [];
+          this.evServices = [];
+
+
+          this.services = this.services.sort((a: any, b: any) => {
+
+            const adate: any = new Date(b.created_at);
+            const bdate: any = new Date(a.created_at);
+
+            return adate - bdate;
+          });
 
           this.services.forEach(service => {
 
@@ -89,9 +105,12 @@ export class Tab2Page {
 
               this.atfServices.push(service);
 
+            } else if (service.service_type_id == 4) {
+
+              this.evServices.push(service);
+              console.log('pushing ev');
+
             }
-
-
           });
 
         }

@@ -1,16 +1,16 @@
+/* eslint-disable @typescript-eslint/member-ordering */
 import { Injectable } from '@angular/core';
 import { AlertController, LoadingController, ToastController } from '@ionic/angular';
 import { Camera, CameraResultType, Photo, CameraSource } from '@capacitor/camera';
 import { Platform } from '@ionic/angular';
 import { Filesystem, Directory, Encoding } from '@capacitor/filesystem';
-import { decode } from "base64-arraybuffer";
 import * as moment from 'moment';
 import { AngularFireStorage, AngularFireUploadTask } from '@angular/fire/compat/storage';
 import { finalize, tap } from 'rxjs/operators';
 import { PhotoViewer } from '@awesome-cordova-plugins/photo-viewer/ngx';
 import { InAppBrowser } from '@awesome-cordova-plugins/in-app-browser/ngx';
 import { Browser } from '@capacitor/browser';
-import { Storage } from '@capacitor/storage';
+import { Preferences } from '@capacitor/preferences';
 import { AuthenticationService } from '../services/authentication.service';
 import { Capacitor } from '@capacitor/core';
 import { PreviewAnyFile } from '@awesome-cordova-plugins/preview-any-file/ngx';
@@ -52,38 +52,40 @@ export class HelperService {
 
   async getStaffs() {
 
-    const staffs: any = await Storage.get({ key: 'staffs' });
+    const staffs: any = await Preferences.get({ key: 'staffs' });
 
     if (staffs.value) {
       this.staffs = JSON.parse(staffs.value);
     }
 
-    const warrantyPlans: any = await Storage.get({ key: 'warrantyPlans' });
+    console.log('staff', staffs);
+
+    const warrantyPlans: any = await Preferences.get({ key: 'warrantyPlans' });
 
     if (warrantyPlans.value) {
       this.warrantyPlans = JSON.parse(warrantyPlans.value);
     }
 
-    const periods: any = await Storage.get({ key: 'periods' });
+    const periods: any = await Preferences.get({ key: 'periods' });
 
     if (periods.value) {
       this.periods = JSON.parse(periods.value);
     }
 
-    const promos: any = await Storage.get({ key: 'promos' });
+    const promos: any = await Preferences.get({ key: 'promos' });
 
     if (promos.value) {
       this.promos = JSON.parse(promos.value);
     }
 
-    const inspection_types: any = await Storage.get({ key: 'inspection_types' });
+    const inspection_types: any = await Preferences.get({ key: 'inspection_types' });
 
     if (inspection_types.value) {
       this.inspection_types = JSON.parse(inspection_types.value);
       console.log('get inspection_types', this.inspection_types);
     }
 
-    let dealers: any = await Storage.get({ key: 'dealers' });
+    let dealers: any = await Preferences.get({ key: 'dealers' });
 
     if (dealers.value) {
       dealers = JSON.parse(dealers.value);
@@ -101,7 +103,7 @@ export class HelperService {
       this.sponsorshipDealer = this.dealers[0];
     }
 
-    const branches: any = await Storage.get({ key: 'branches' });
+    const branches: any = await Preferences.get({ key: 'branches' });
 
     if (branches.value) {
       this.branches = JSON.parse(branches.value);
@@ -127,7 +129,7 @@ export class HelperService {
 
           });
 
-          Storage.set({
+          Preferences.set({
             key: 'staffs',
             value: JSON.stringify(this.staffs)
           });
@@ -135,28 +137,28 @@ export class HelperService {
 
           this.warrantyPlans = data.warranty_plan;
 
-          Storage.set({
+          Preferences.set({
             key: 'warrantyPlans',
             value: JSON.stringify(this.warrantyPlans)
           });
 
           this.periods = data.periods;
 
-          Storage.set({
+          Preferences.set({
             key: 'periods',
             value: JSON.stringify(this.periods)
           });
 
           this.promos = data.promos;
 
-          Storage.set({
+          Preferences.set({
             key: 'promos',
             value: JSON.stringify(this.promos)
           });
 
           this.inspection_types = data.inspection_types;
 
-          Storage.set({
+          Preferences.set({
             key: 'inspection_types',
             value: JSON.stringify(this.inspection_types)
           });
@@ -164,7 +166,7 @@ export class HelperService {
 
           this.branches = data.branches;
 
-          Storage.set({
+          Preferences.set({
             key: 'branches',
             value: JSON.stringify(this.branches)
           });
@@ -182,7 +184,7 @@ export class HelperService {
           // console.log('this.dealers', this.dealers);
           this.sponsorshipDealer = this.dealers[0];
 
-          Storage.set({
+          Preferences.set({
             key: 'dealers',
             value: JSON.stringify(this.inspection_types)
           });
@@ -483,7 +485,7 @@ export class HelperService {
 
   // Get the actual base64 data of an image
   // base on the name of the file
-  async loadFileData(fileNames: string[]) {
+  async loadFileData(fileNames: any[]) {
     for (let f of fileNames) {
       const filePath = `${IMAGE_DIR}/${f}`;
 
@@ -668,7 +670,7 @@ export class HelperService {
 
   async checkStaff(event = null, policy_id = null) {
 
-    let { value }: any = await Storage.get({ key: 'staff' });
+    let { value }: any = await Preferences.get({ key: 'staff' });
     let staff = value;
 
     return JSON.parse(staff);

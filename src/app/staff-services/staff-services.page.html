@@ -68,6 +68,10 @@
               </ion-badge>
             </div>
 
+            <ion-badge color="success">
+              Created at: {{ service.created_at | date : "d/MM/y h:mma" }}
+            </ion-badge>
+
           </ion-label>
         </ion-item>
       </ion-list>

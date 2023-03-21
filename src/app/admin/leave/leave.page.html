@@ -1,0 +1,53 @@
+<ion-header>
+  <ion-toolbar mode="ios" color="primary">
+    <ion-buttons slot="start">
+      <ion-back-button></ion-back-button>
+    </ion-buttons>
+    <ion-title>
+      Leave config
+    </ion-title>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content class="ion-padding">
+
+  <div class="ion-padding ion-text-center" *ngIf="!total_sl_leave">
+    <ion-spinner></ion-spinner>
+  </div>
+
+  <div *ngIf="total_sl_leave">
+    <ion-item fill="outline" mode="md" class="ez-material-input">
+      <ion-label position="floating">Sick Leave days: </ion-label>
+      <ion-input [(ngModel)]="total_sl_leave">
+      </ion-input>
+    </ion-item>
+    <ion-item fill="outline" mode="md" class="ez-material-input">
+      <ion-label position="floating">Hospitalization Leave days: </ion-label>
+      <ion-input [(ngModel)]="total_hl_leave">
+      </ion-input>
+    </ion-item>
+    <ion-item fill="outline" mode="md" class="ez-material-input">
+      <ion-label position="floating">Maternity Leave days: </ion-label>
+      <ion-input [(ngModel)]="total_ml_leave">
+      </ion-input>
+    </ion-item>
+    <ion-item fill="outline" mode="md" class="ez-material-input">
+      <ion-label position="floating">Paternity Leave days: </ion-label>
+      <ion-input [(ngModel)]="total_pl_leave">
+      </ion-input>
+    </ion-item>
+
+    <ion-row>
+      <ion-col class="ion-no-padding">
+        <ion-button expand="block">Update</ion-button>
+      </ion-col>
+    </ion-row>
+  </div>
+
+  <ion-row>
+    <ion-col size="12" class="ion-no-padding ion-padding-top">
+      <ion-button expand="block" color="danger" (click)="assignYearlyLeave()">Assign Yearly Leave</ion-button>
+    </ion-col>
+  </ion-row>
+
+</ion-content>

@@ -21,9 +21,11 @@
           <ion-text>
             <p style="margin: 0; font-weight: bolder;">Filter by</p>
             <p style="margin: 0;">Status: {{ status | titlecase }}</p>
-            <p style="margin: 0;" *ngIf="statusTemp2 == 'paid' || statusTemp2 == 'all'">Start date: {{ start_date |
+            <p style="margin: 0;" *ngIf="statusTemp2 == 'paid' || statusTemp2 == 'all' || statusTemp2 == 'expired'">
+              Start date: {{ start_date |
               date: 'dd/MM/YYYY' }}</p>
-            <p style="margin: 0;" *ngIf="statusTemp2 == 'paid' || statusTemp2 == 'all'">End date: {{ end_date | date:
+            <p style="margin: 0;" *ngIf="statusTemp2 == 'paid' || statusTemp2 == 'all' || statusTemp2 == 'expired'">End
+              date: {{ end_date | date:
               'dd/MM/YYYY' }}</p>
           </ion-text>
         </ion-col>
@@ -70,13 +72,13 @@
           </ion-select>
         </ion-item>
         <ion-item fill="outline" mode="md" class="ez-material-input"
-          *ngIf="statusTemp2 == 'paid' || statusTemp2 == 'all'">
+          *ngIf="statusTemp2 == 'paid' || statusTemp2 == 'all' || statusTemp2 == 'expired'">
           <ion-label position="floating">Start Date: </ion-label>
           <ion-input placeholder="" type="date" class="ion-text-end" [(ngModel)]="start_date">
           </ion-input>
         </ion-item>
         <ion-item fill="outline" mode="md" class="ez-material-input"
-          *ngIf="statusTemp2 == 'paid' || statusTemp2 == 'all'">
+          *ngIf="statusTemp2 == 'paid' || statusTemp2 == 'all' || statusTemp2 == 'expired'">
           <ion-label position="floating">End Date: </ion-label>
           <ion-input placeholder="" type="date" class="ion-text-end" [(ngModel)]="end_date">
           </ion-input>

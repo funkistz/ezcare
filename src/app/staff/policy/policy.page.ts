@@ -37,6 +37,16 @@ export class PolicyPage implements OnInit {
 
         console.log("params", params);
 
+        this.helper.checkStaff().then((staff: any) => {
+          if (staff) {
+            this.staff = staff;
+            this.staff_id = staff.staff_id;
+            this.getPolicy();
+          }
+        }, error => {
+          console.log('error', error);
+        });
+
         if (params.status) {
           this.status = params.status;
           this.statusTemp = params.status;
@@ -65,11 +75,11 @@ export class PolicyPage implements OnInit {
               this.end_date = moment(strDate, 'D-M-YYYY').endOf('month').toDate();
             } else {
               const strDate = this.year;
-              this.start_date = moment(strDate, 'YYYY').startOf('year').toDate();
-              let temp_start_date = moment(strDate, 'YYYY').startOf('year').toDate();
-              this.end_date = moment(strDate, 'YYYY').endOf('year').toDate();
+              // this.start_date = moment(strDate, 'YYYY').startOf('year').toDate();
+              // let temp_start_date = moment(strDate, 'YYYY').startOf('year').toDate();
+              // this.end_date = moment(strDate, 'YYYY').endOf('year').toDate();
 
-              console.log('temp_start_date', temp_start_date);
+              // console.log('temp_start_date', temp_start_date);
             }
 
             console.log('month', this.month);
@@ -83,16 +93,6 @@ export class PolicyPage implements OnInit {
           this.status = 'complete';
           this.statusTemp = 'complete';
           this.statusTemp2 = 'complete';
-
-          this.helper.checkStaff().then((staff: any) => {
-            if (staff) {
-              this.staff = staff;
-              this.staff_id = staff.staff_id;
-              this.getPolicy();
-            }
-          }, error => {
-            console.log('error', error);
-          });
         }
       }
     });
@@ -107,7 +107,7 @@ export class PolicyPage implements OnInit {
     console.log(event.target.value);
     this.statusTemp2 = event.target.value;
 
-    if (this.status == 'expired' || this.status == 'unpaid') {
+    if (this.status == 'unpaid') {
       this.start_date = null;
       this.end_date = null;
     }
@@ -140,12 +140,15 @@ export class PolicyPage implements OnInit {
     this.loaded = false;
     this.policies = null;
 
-    console.log('getPolicy');
+    console.log('getPolicy', this.staff);
 
     let data: any = {
       status: this.status,
-      staff_id: this.staff_id,
     };
+
+    if (this.staff.user_role != 6) {
+      data.staff_id = this.staff_id;
+    }
 
     if (this.start_date) {
       data.start_date = this.start_date;

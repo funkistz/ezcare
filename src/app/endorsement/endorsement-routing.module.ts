@@ -15,6 +15,14 @@ const routes: Routes = [
   {
     path: 'addSponsorship',
     loadChildren: () => import('../sponsorship/add/add.module').then(m => m.AddPageModule)
+  },
+  {
+    path: 'addLeave',
+    loadChildren: () => import('../add-leave/add-leave.module').then(m => m.AddLeavePageModule)
+  },
+  {
+    path: 'addExgratia',
+    loadChildren: () => import('../add-exgratia/add-exgratia.module').then(m => m.AddExgratiaPageModule)
   }
 ];
 

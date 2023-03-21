@@ -7,7 +7,7 @@ import { Platform, LoadingController, ToastController, ActionSheetController, Mo
 import { NavController } from '@ionic/angular';
 import { Camera, CameraResultType, CameraSource, Photo } from '@capacitor/camera';
 import { Filesystem, Directory } from '@capacitor/filesystem';
-import { Storage } from '@capacitor/storage';
+import { Preferences } from '@capacitor/preferences';
 import { HelperService } from '../services/helper.service';
 import { decode } from "base64-arraybuffer";
 import * as moment from 'moment';
@@ -29,6 +29,7 @@ export class StaffAddClaimsPage implements OnInit {
   claim_types;
   ezcareStaff;
   claim;
+  policy;
   staff;
   loading;
   ionicForm: FormGroup;
@@ -36,6 +37,7 @@ export class StaffAddClaimsPage implements OnInit {
   quotationImages = [];
   claimLetterImages = [];
   reportImagesUrl = [];
+  importreportImages = [];
   quotationImagesUrl = [];
   claimLetterImagesUrl = [];
   // images: ApiImage[] = [];
@@ -123,7 +125,7 @@ export class StaffAddClaimsPage implements OnInit {
   }
 
   async getStaff() {
-    let { value }: any = await Storage.get({ key: 'staff' });
+    let { value }: any = await Preferences.get({ key: 'staff' });
     this.staff = JSON.parse(value);
     console.log(this.staff);
   }
@@ -155,6 +157,7 @@ export class StaffAddClaimsPage implements OnInit {
 
         this.isLoading = false;
         this.policyFound = true;
+        this.policy = data.policy;
 
         if (data && data.data) {
 
@@ -426,7 +429,13 @@ export class StaffAddClaimsPage implements OnInit {
     data.quotations = this.quotationImagesUrl;
     data.claimLetters = this.claimLetterImagesUrl;
 
-    console.log(JSON.stringify(data));
+    //for import images
+    if (this.importreportImages.length > 0) {
+      for (const reportImage of this.importreportImages) {
+        this.reportImagesUrl.push(reportImage);
+      }
+      this.importreportImages = [];
+    }
 
     this.authService.addClaim(data).subscribe(
       result => {
@@ -437,27 +446,38 @@ export class StaffAddClaimsPage implements OnInit {
         data.customer_id = result.customer_id;
 
         this.firestore.collection('/claims/').add(data).then(() => {
-          console.log('success');
+          console.log('result', result);
 
           let tempData: any = {};
 
-          tempData.customer_id = data.customer_id;
-          tempData.data = data;
-          tempData.date = new Date();
-          tempData.status = 'quotation';
-          tempData.claim_id = data.data.id;
-          tempData.marketing_officer = this.claim.marketing_officer.id;
+          if (data.quotations.length > 0) {
 
-          this.firestore.collection('/claim_status_update/').add(tempData).then(() => {
-            console.log('success');
-          }).catch(error => {
-            console.log(error);
-          });
+            console.log('data', data);
 
+            tempData.customer_id = data.customer_id;
+            tempData.data = data;
+            tempData.policy_id = result.data.policy_id;
+            tempData.date = new Date();
+            tempData.status = 'quotation';
+            tempData.claim_id = result.data.id;
+            tempData.marketing_officer = result.data.marketing_officer;
 
+            console.log('tempData', tempData);
+
+            this.firestore.collection('/claim_status_update/').add(tempData).then(() => {
+              console.log('success add quotation status');
+
+              this.reportImagesUrl = [];
+              this.quotationImagesUrl = [];
+              this.claimLetterImagesUrl = [];
+            }).catch(error => {
+              console.log(error);
+            });
+
+          }
 
         }).catch(error => {
-          console.log('success');
+          console.log(error);
         });
 
         setTimeout(() => {
@@ -478,9 +498,8 @@ export class StaffAddClaimsPage implements OnInit {
 
     let data: any = {};
     data = this.ionicForm.value;
-    data.reports = this.reportImagesUrl;
-    data.quotations = this.quotationImagesUrl;
-    data.claimLetters = this.claimLetterImagesUrl;
+
+    console.log('updateClaim', data);
 
     for (const reportImage of this.reportImages) {
       let upload = await this.helper.uploadToFirebase(reportImage.file, data.reg_no);
@@ -512,10 +531,50 @@ export class StaffAddClaimsPage implements OnInit {
       });
     }
 
+    data.reports = this.reportImagesUrl;
+    data.quotations = this.quotationImagesUrl;
+    data.claimLetters = this.claimLetterImagesUrl;
     data.claim_id = this.claim.id;
+    data.policy_id = this.claim.policy_id;
+
+    //for import images
+    if (this.importreportImages.length > 0) {
+      for (const reportImage of this.importreportImages) {
+        this.reportImagesUrl.push(reportImage);
+      }
+      this.importreportImages = [];
+    }
 
     this.authService.updateClaimAttachments(this.claim.id, data, 'storeAttachments').subscribe(
-      result => {
+      (result: any) => {
+
+        let tempData: any = {};
+
+        if (data.quotations.length > 0) {
+
+          tempData.customer_id = result.customer_id;
+          tempData.data = data;
+          tempData.date = new Date();
+          tempData.status = 'quotation';
+          tempData.claim_id = data.claim_id;
+          tempData.marketing_officer = this.claim.marketing_officer.id;
+          tempData.policy_id = data.policy_id;
+
+          console.log('data', data);
+          console.log('updateClaimAttachments', tempData);
+
+          this.firestore.collection('/claim_status_update/').add(tempData).then(() => {
+            console.log('success add quotation status');
+
+            this.reportImagesUrl = [];
+            this.quotationImagesUrl = [];
+            this.claimLetterImagesUrl = [];
+
+          }).catch(error => {
+            console.log(error);
+          });
+
+        }
 
         this.helper.dissmissLoading();
         this.helper.presentToast('Claim update successfully');
@@ -568,14 +627,35 @@ export class StaffAddClaimsPage implements OnInit {
 
     const workshopModal = await this.modalCtrl.create({
       component: ClaimImportsPage,
-      componentProps: { claim: this.claim },
+      componentProps: { policy: this.policy },
       mode: 'ios',
       showBackdrop: false,
       swipeToClose: true,
       breakpoints: [1],
       initialBreakpoint: 1,
     });
+    workshopModal.onDidDismiss().then((data: any) => {
+
+      console.log('data', data);
+      const images = data.data ? data.data.images : null;
+      if (!images) return;
+
+      images.forEach(image => {
+        this.importreportImages.push({
+          name: (Math.random() + 1).toString(36).substring(7),
+          image_link: image,
+          type: 'image'
+        });
+      });
+
+    });
     return await workshopModal.present();
+  }
+
+  removeImportImage(index) {
+
+    this.importreportImages.splice(index, 1);
+
   }
 
 }

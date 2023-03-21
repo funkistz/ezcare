@@ -1,3 +1,8 @@
+/* eslint-disable max-len */
+/* eslint-disable @typescript-eslint/quotes */
+/* eslint-disable prefer-arrow/prefer-arrow-functions */
+/* eslint-disable @typescript-eslint/dot-notation */
+/* eslint-disable @typescript-eslint/prefer-for-of */
 import { Component, OnInit, ViewChild, ElementRef, } from '@angular/core';
 import { Geolocation } from '@ionic-native/geolocation/ngx';
 import { NativeGeocoder, NativeGeocoderResult, NativeGeocoderOptions } from '@ionic-native/native-geocoder/ngx';
@@ -27,6 +32,8 @@ export class WorkshopPage implements OnInit {
   autocomplete: { input: string; };
   markers = [];
   hasPermission = false;
+  evOnly = false;
+  isLoading = false;
 
   constructor(
     private geolocation: Geolocation,
@@ -189,6 +196,13 @@ export class WorkshopPage implements OnInit {
 
         if (data && data.data) {
 
+          data.data = data.data.filter((el) => {
+            if (this.evOnly) {
+              return el.is_ev === '1';
+            }
+            return true;
+          });
+
           this.workshops = data.data;
 
           for (let i = 0; i < data.data.length; i++) {
@@ -210,12 +224,22 @@ export class WorkshopPage implements OnInit {
   }
 
   searchWorkshops(event) {
-    console.log(event.detail.value);
 
-    this.authService.searchWorkshops(event.detail.value).subscribe(
+    this.isLoading = true;
+
+    const search = event ? event.detail.value : '';
+
+    this.authService.searchWorkshops(search).subscribe(
       data => {
 
         if (data && data.data) {
+
+          data.data = data.data.filter((el) => {
+            if (this.evOnly) {
+              return el.is_ev === '1';
+            }
+            return true;
+          });
 
           this.workshops = data.data;
           console.log('workshop', data);
@@ -223,8 +247,11 @@ export class WorkshopPage implements OnInit {
           this.getMarkers();
 
         }
+        this.isLoading = false;
+
       }, error => {
         console.log(error);
+        this.isLoading = false;
       });
   }
 
@@ -270,5 +297,13 @@ export class WorkshopPage implements OnInit {
       initialBreakpoint: 0.6,
     });
     return await workshopModal.present();
+  }
+
+  toggleEv($event) {
+
+    console.log('$event', this.evOnly);
+
+    this.searchWorkshops(null);
+
   }
 }

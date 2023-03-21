@@ -4,7 +4,7 @@ import { Router, NavigationExtras } from '@angular/router';
 import { AngularFirestore } from '@angular/fire/compat/firestore';
 import { HelperService } from '../services/helper.service';
 import { PhotoViewer } from '@awesome-cordova-plugins/photo-viewer/ngx';
-import { Storage } from '@capacitor/storage';
+import { Preferences } from '@capacitor/preferences';
 import * as moment from 'moment';
 import { AlertController } from '@ionic/angular';
 
@@ -64,7 +64,7 @@ export class StaffInspectionPage implements OnInit {
     this.user = null;
     this.staff = null;
 
-    let { value }: any = await Storage.get({ key: 'staff' });
+    let { value }: any = await Preferences.get({ key: 'staff' });
     let staff = value;
 
     if (staff) {
@@ -114,7 +114,7 @@ export class StaffInspectionPage implements OnInit {
 
   getInspection() {
 
-    return this.firestore.collection('inspections', ref => ref.orderBy('date', 'desc')).snapshotChanges().subscribe((res) => {
+    return this.firestore.collection('inspections', ref => ref.orderBy('date', 'asc')).snapshotChanges().subscribe((res) => {
 
       this.inspectionLoaded = true;
 
@@ -237,6 +237,9 @@ export class StaffInspectionPage implements OnInit {
       this.groupInspections[indexGrow].data.push(inspection);
 
     });
+
+    console.log('group inspection', this.groupInspections);
+
   }
 
   getSchedule() {
@@ -403,7 +406,7 @@ export class StaffInspectionPage implements OnInit {
 
   getNonInspection() {
 
-    return this.firestore.collection('non_inspections', ref => ref.orderBy('date', 'desc')).snapshotChanges().subscribe((res) => {
+    return this.firestore.collection('non_inspections', ref => ref.orderBy('date', 'asc')).snapshotChanges().subscribe((res) => {
 
       this.nonInspectionLoaded = true;
 

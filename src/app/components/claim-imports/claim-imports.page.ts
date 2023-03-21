@@ -12,8 +12,13 @@ export class ClaimImportsPage implements OnInit {
 
   inspections;
   images = [];
+  imageLinkPicked = [];
+  imageLinkPickedConfirm = [];
 
-  @Input() public claim;
+  unpickStyle = 'border:1px solid; margin: 5px;';
+  pickedStyle = 'border:6px solid #0096FF; margin: 5px;';
+
+  @Input() public policy;
   constructor(
     private firestore: AngularFirestore,
     private modalCtrl: ModalController,
@@ -22,15 +27,19 @@ export class ClaimImportsPage implements OnInit {
 
   ngOnInit() {
 
-    console.log(this.claim);
+    console.log(this.policy);
 
     this.getInspection();
 
   }
 
+  getImageStyle(image) {
+    return this.imageLinkPicked.includes(image) ? this.pickedStyle : this.unpickStyle;
+  }
+
   async getInspection() {
 
-    await this.firestore.collection('inspections', ref => ref.where('policy_no', '==', this.claim.policy.cust_policyno)).valueChanges().subscribe((data: any) => {
+    await this.firestore.collection('inspections', ref => ref.where('policy_no', '==', this.policy.cust_policyno)).valueChanges().subscribe((data: any) => {
 
       this.inspections = data;
       data.forEach(inspection => {
@@ -51,12 +60,25 @@ export class ClaimImportsPage implements OnInit {
 
   }
 
+  pickImage(image) {
+    console.log(this.imageLinkPicked);
+
+    if (!this.imageLinkPicked.includes(image)) {          //checking weather array contain the id
+      this.imageLinkPicked.push(image);    //adding to array because value doesnt exists
+    } else {
+      this.imageLinkPicked.splice(this.imageLinkPicked.indexOf(image), 1);  //deleting
+    }
+
+  }
+
   dismiss(): void {
     this.modalCtrl.dismiss();
   }
 
   import() {
-
+    this.modalCtrl.dismiss({
+      images: this.imageLinkPicked,
+    });
   }
 
 }

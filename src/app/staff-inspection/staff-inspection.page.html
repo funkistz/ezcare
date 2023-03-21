@@ -169,12 +169,16 @@
                 <span *ngIf="!inspection.dealer.name">
                   {{ inspection.dealer }}
                 </span>
+                <span *ngIf="inspection.inspection_type == 'Claim Case'">
+                  CLAIM CASE: {{ inspection.marketing_officer.name }}
+                </span>
                 <ion-badge color="warning" *ngIf="inspection.status == 'pending'" style="float: right;">Pending
                 </ion-badge>
                 <ion-badge color="success" *ngIf="inspection.status == 'completed'" style="float: right;">Completed
                 </ion-badge>
               </h2>
-              <p *ngIf="inspection.marketing_officer">MO: {{ inspection.marketing_officer.name }}</p>
+              <p *ngIf="inspection.marketing_officer && inspection.dealer != ''">MO:
+                {{ inspection.marketing_officer.name }}</p>
               <p *ngIf="inspection.marketing_officer">Created by: {{ inspection.created_by_name }}</p>
               <p style="display: flex; justify-content: space-between; color: #000000;">
                 <span *ngIf="inspection.chassis">
@@ -230,8 +234,11 @@
                 <span *ngIf="inspection.dealer.name">
                   {{ inspection.dealer.name }}
                 </span>
-                <span *ngIf="!inspection.dealer.name">
+                <span *ngIf="!inspection.dealer.name && inspection.dealer != ''">
                   {{ inspection.dealer }}
+                </span>
+                <span *ngIf="inspection.inspection_type == 'Claim Case'">
+                  CLAIM CASE: {{ inspection.marketing_officer.name }}
                 </span>
                 <ion-badge color="warning" *ngIf="inspection.status == 'pending'" style="float: right;">Pending
                 </ion-badge>
@@ -240,7 +247,8 @@
                 <ion-badge color="success" *ngIf="inspection.status == 'proceed'" style="float: right;">Proceed
                 </ion-badge>
               </h2>
-              <p *ngIf="inspection.marketing_officer">MO: {{ inspection.marketing_officer.name }}</p>
+              <p *ngIf="inspection.marketing_officer && inspection.dealer != ''">MO:
+                {{ inspection.marketing_officer.name }}</p>
               <p *ngIf="inspection.marketing_officer">Created by: {{ inspection.created_by_name }}</p>
               <p style="display: flex; justify-content: space-between; color: #000000;">
                 <span *ngIf="inspection.chassis">

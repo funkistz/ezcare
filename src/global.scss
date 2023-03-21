@@ -192,6 +192,7 @@
     pointer-events: none;
     margin-left: 10px;
     z-index: 999;
+    --padding-bottom: 15px !important;
   }
 }
 
@@ -216,8 +217,14 @@
     transform: translate3d(0, 35px, 0) !important;
   }
 
+  .label-stacked{
+    transform: translate3d(-10px, 0, 0) !important;
+    color: #000000 !important;
+    font-size: 16px !important;
+  }
+
   ion-input {
-    margin-top: -2px;
+    margin-top: 5px;
     background-color: #ededed;
     opacity: 1 !important;
     --padding-top: 15px !important;
@@ -228,7 +235,7 @@
   }
 
   ion-select {
-    margin-top: -2px;
+    margin-top: 5px;
     background-color: #ededed;
     opacity: 1 !important;
     --padding-top: 15px !important;
@@ -239,7 +246,7 @@
   }
 
   ion-textarea {
-    margin-top: -2px;
+    margin-top: 5px;
     background-color: #ededed;
     opacity: 1 !important;
     --padding-top: 15px !important;
@@ -250,7 +257,7 @@
   }
 
   ion-datetime {
-    margin-top: -2px;
+    margin-top: 5px;
     background-color: #ededed;
     opacity: 1 !important;
     --padding-top: 15px !important;
@@ -261,7 +268,7 @@
   }
 
   ionic-selectable {
-    margin-top: -2px;
+    margin-top: 5px;
     background-color: #ededed;
     opacity: 1 !important;
     --padding-top: 15px !important;
@@ -411,4 +418,9 @@ ion-toolbar {
 .ez-date input{
   padding-right: 10px !important;
   --padding-start: 10px !important;
+}
+
+.ez-header-action{
+  text-transform: none;
+  padding-right:5px;
 }

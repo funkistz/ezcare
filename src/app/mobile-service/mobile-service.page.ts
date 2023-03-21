@@ -1,6 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
-import { Storage } from '@capacitor/storage';
+import { Preferences } from '@capacitor/preferences';
 import { AngularFirestore } from '@angular/fire/compat/firestore';
 
 @Component({
@@ -28,7 +28,7 @@ export class MobileServicePage implements OnInit {
 
   async getSettingCache() {
 
-    let { value }: any = await Storage.get({ key: 'mobile_service_settings' });
+    let { value }: any = await Preferences.get({ key: 'mobile_service_settings' });
     this.settings = JSON.parse(value);
     console.log('mobile_service_settings', this.settings);
 
@@ -38,7 +38,7 @@ export class MobileServicePage implements OnInit {
 
         this.settings = singleDoc;
 
-        Storage.set({
+        Preferences.set({
           key: 'mobile_service_settings',
           value: JSON.stringify(this.settings),
         });

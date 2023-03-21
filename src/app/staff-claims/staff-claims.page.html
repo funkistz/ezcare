@@ -41,6 +41,10 @@
             </ion-select-option>
           </ion-select>
         </ion-card>
+        <ion-card mode="ios" style="margin: 10px 10px 0 0;">
+          <ion-input placeholder="Year" [(ngModel)]="year" (ionChange)="filterByDate()" type="month" class="ez-date">
+          </ion-input>
+        </ion-card>
       </ion-col>
     </ion-row>
   </ion-grid>
@@ -157,11 +161,11 @@
 
   <!-- {{ staff? staff.user_role:'' }} -->
 
-  <ion-fab vertical="bottom" horizontal="end" slot="fixed"
+  <!-- <ion-fab vertical="bottom" horizontal="end" slot="fixed"
     *ngIf="staff && (staff.user_role == 5 || staff.user_role == 6)">
     <ion-fab-button color="success" (click)="addClaim()">
       <ion-icon name="add-outline"></ion-icon>
     </ion-fab-button>
-  </ion-fab>
+  </ion-fab> -->
 
 </ion-content>

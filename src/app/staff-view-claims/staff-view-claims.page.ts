@@ -2,7 +2,7 @@ import { Component, OnInit } from '@angular/core';
 
 import { AuthenticationService } from '../services/authentication.service';
 import { Router, NavigationExtras, ActivatedRoute } from '@angular/router';
-import { Storage } from '@capacitor/storage';
+import { Preferences } from '@capacitor/preferences';
 import { AlertController, LoadingController, ToastController, ActionSheetController, NavController } from '@ionic/angular';
 import { PhotoViewer } from '@awesome-cordova-plugins/photo-viewer/ngx';
 import { Camera, CameraResultType, CameraSource, Photo } from '@capacitor/camera';
@@ -96,7 +96,7 @@ export class StaffViewClaimsPage implements OnInit {
   }
 
   async getStaff() {
-    let { value }: any = await Storage.get({ key: 'staff' });
+    let { value }: any = await Preferences.get({ key: 'staff' });
     this.staff = JSON.parse(value);
     console.log('staff', this.staff);
   }
@@ -522,10 +522,20 @@ export class StaffViewClaimsPage implements OnInit {
 
     let data: any = {};
     data.claim_id = this.claim_id;
-    data.remarks = this.input_remarks;
-    data.date = this.input_claim_date;
-    data.status = this.input_status;
-    data.workshop = this.input_workshop;
+
+    if (this.input_remarks) {
+      data.remarks = this.input_remarks;
+    }
+    if (this.input_claim_date) {
+      data.date = this.input_claim_date;
+    }
+    if (this.input_status) {
+      data.status = this.input_status;
+    }
+    if (this.input_workshop) {
+      data.workshop = this.input_workshop;
+    }
+
     data.created_by_staff = this.staff.user_id;
     data.policy_id = this.claim.policy_id;
 
@@ -542,6 +552,21 @@ export class StaffViewClaimsPage implements OnInit {
 
     if (this.input_status == 'void') {
       data.void_type = this.void_type;
+      data.void_text = this.void_reasons.find(x => x.id == data.void_type);
+
+      if (data.void_text) {
+        data.void_text = data.void_text.name;
+      }
+    }
+
+    if (this.claim && this.claim.policy && this.claim.policy.cust_policyno) {
+      data.policy_no = this.claim.policy.cust_policyno;
+    }
+    if (this.claim && this.claim.policy && this.claim.policy.cust_vehicledesc) {
+      data.vehicle = this.claim.policy.cust_vehicledesc;
+    }
+    if (this.claim && this.claim.policy && this.claim.policy.cust_vehicleregno) {
+      data.reg_no = this.claim.policy.cust_vehicleregno;
     }
 
     if (this.statusImages) {
@@ -570,11 +595,15 @@ export class StaffViewClaimsPage implements OnInit {
           tempData.customer_id = ic;
 
         }
+
+        const voi_text = this.void_reasons.find(x => x.id == data.void_type);
+
         tempData.data = data;
         tempData.date = data.date;
         tempData.status = data.status;
         tempData.claim_id = data.claim_id;
         tempData.marketing_officer = this.claim.marketing_officer.id;
+        tempData.policy_id = data.policy_id;
 
         console.log('tempData', tempData);
 
@@ -671,6 +700,48 @@ export class StaffViewClaimsPage implements OnInit {
               console.log(error);
               this.dissmissLoading();
               this.presentToast(error.error.message);
+            });
+
+
+        }
+      }
+      ]
+    });
+
+    await alert.present();
+  }
+
+  async deleteStatus(status_id) {
+
+    const alert = await this.alertController.create({
+      cssClass: 'my-custom-class',
+      header: 'Are you sure want to delete?',
+      message: 'This action will permanently delete the data.',
+      mode: 'ios',
+      buttons: [{
+        text: 'Cancel',
+        role: 'cancel',
+        cssClass: 'secondary',
+        handler: () => {
+          console.log('Confirm Cancel');
+        }
+      }, {
+        text: 'Okay',
+        handler: () => {
+
+          this.helper.presentLoading();
+
+          this.authService.deleteClaimStatus(status_id).subscribe(
+            result => {
+
+              this.helper.dissmissLoading();
+              this.helper.presentToast('Status deleted.');
+              this.getClaim(this.claim_id);
+
+            }, error => {
+              console.log(error);
+              this.helper.dissmissLoading();
+              this.helper.presentToast(error.error.message);
             });
 
 

@@ -1,6 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { Router, NavigationExtras } from '@angular/router';
-import { Storage } from '@capacitor/storage';
+import { Preferences } from '@capacitor/preferences';
 import { Browser } from '@capacitor/browser';
 import { AuthenticationService } from '../services/authentication.service';
 import { HelperService } from '../services/helper.service';
@@ -31,8 +31,8 @@ export class SettingPage implements OnInit {
 
   logout() {
 
-    Storage.remove({ key: 'user' });
-    Storage.remove({ key: 'staff' });
+    Preferences.remove({ key: 'user' });
+    Preferences.remove({ key: 'staff' });
 
     this.router.navigate(['/login']);
   }
@@ -102,7 +102,7 @@ export class SettingPage implements OnInit {
         console.log(singleDoc);
         this.settings = singleDoc;
 
-        Storage.set({
+        Preferences.set({
           key: 'privacy_policy',
           value: this.settings.policy,
         });
@@ -129,7 +129,7 @@ export class SettingPage implements OnInit {
 
   async checkUser() {
 
-    let { value }: any = await Storage.get({ key: 'staff' });
+    let { value }: any = await Preferences.get({ key: 'staff' });
     this.staff = JSON.parse(value);
     console.log('enter staff', this.staff);
 

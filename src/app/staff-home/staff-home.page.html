@@ -278,10 +278,54 @@
     </ion-grid>
 
   </div>
-
-
   <!-- end manage report -->
 
+  <ion-grid
+    *ngIf="staff && ((staff.is_manager && staff.is_manager != 0) || staff.user_role == 6 || staff.user_role == 9) ">
+    <ion-row>
+      <ion-col size="12">
+        <ion-card mode="ios" style="margin: 5px 6px 0 5px;" color="warning" (click)="goLeave()">
+          <ion-row>
+            <ion-col>
+              <ion-card-header>
+                <ion-card-subtitle>Pending Staff Leave</ion-card-subtitle>
+                <ion-card-title>
+                  {{ pendingLeave.length }}
+                </ion-card-title>
+              </ion-card-header>
+            </ion-col>
+            <ion-col size="3">
+              <h1 style="font-size: 50px;">
+                <ion-icon name="bandage-outline"></ion-icon>
+              </h1>
+            </ion-col>
+          </ion-row>
+          <ion-row style="border-top: 1px solid #000;">
+            <ion-col>
+              <ion-card-header style="padding-bottom: 0;">
+                <ion-card-subtitle style="font-size: 20px;">Staff On Leave Today
+                </ion-card-subtitle>
+              </ion-card-header>
+            </ion-col>
+          </ion-row>
+          <ion-row>
+            <ion-col>
+              <ion-list *ngIf="staffOnLeave.length !== 0" color="light" lines="full">
+                <ion-item *ngFor="let staff of staffOnLeave; let i = index" color="warning">
+                  <ion-label>{{ i+1 }}: {{staff.staff.name}}</ion-label>
+                </ion-item>
+              </ion-list>
+              <ion-list *ngIf="staffOnLeave.length === 0">
+                <ion-item color="warning">
+                  <ion-label>No staff on leave today. </ion-label>
+                </ion-item>
+              </ion-list>
+            </ion-col>
+          </ion-row>
+        </ion-card>
+      </ion-col>
+    </ion-row>
+  </ion-grid>
 
   <ion-card mode="ios" *ngIf="staff && ((staff.is_manager &&staff.is_manager != 0) || staff.user_role == 16)">
     <ion-grid class="ion-padding-bottom">
@@ -303,6 +347,60 @@
     </ion-grid>
   </ion-card>
 
+  <ion-grid class="ion-no-padding">
+    <ion-row>
+      <ion-col size="12">
+        <ion-card mode="ios" style="margin-bottom: 0; margin-top: 10px;" (click)="goLog()">
+
+          <ion-row>
+            <ion-col size="7">
+              <ion-icon name="calendar-outline"
+                style="font-size: 40px; margin: 15px 15px 0 15px; color: black; color: #000000;">
+              </ion-icon>
+              <ion-card-header>
+                <ion-card-title style="font-size: 22px;">Leave Balance</ion-card-title>
+              </ion-card-header>
+            </ion-col>
+            <ion-col style="padding:20px;" size="5">
+              <div style="height: 100%; padding-left: 20px; border-left: 1px solid #000000; color: #000000;">
+                <ion-row>
+                  <ion-col size="6">
+                    AL:
+                  </ion-col>
+                  <ion-col size="6">
+                    <ion-badge color="primary">
+                      {{ leaveBalances['al']? leaveBalances['al']:'-' }}
+                    </ion-badge>
+                  </ion-col>
+                </ion-row>
+                <ion-row>
+                  <ion-col size="6">
+                    SL:
+                  </ion-col>
+                  <ion-col size="6">
+                    <ion-badge color="success">
+                      {{ leaveBalances['al']? leaveBalances['sl']:'-' }}
+                    </ion-badge>
+                  </ion-col>
+                </ion-row>
+                <ion-row>
+                  <ion-col size="6">
+                    HL:
+                  </ion-col>
+                  <ion-col size="6">
+                    <ion-badge color="danger">
+                      {{ leaveBalances['al']? leaveBalances['hl']:'-' }}
+                    </ion-badge>
+                  </ion-col>
+                </ion-row>
+              </div>
+            </ion-col>
+          </ion-row>
+
+        </ion-card>
+      </ion-col>
+    </ion-row>
+  </ion-grid>
 
   <ion-grid>
     <ion-row>

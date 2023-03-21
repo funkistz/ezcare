@@ -29,14 +29,14 @@ project(':capacitor-keyboard').projectDir = new File('../node_modules/@capacitor
 include ':capacitor-local-notifications'
 project(':capacitor-local-notifications').projectDir = new File('../node_modules/@capacitor/local-notifications/android')
 
+include ':capacitor-preferences'
+project(':capacitor-preferences').projectDir = new File('../node_modules/@capacitor/preferences/android')
+
 include ':capacitor-push-notifications'
 project(':capacitor-push-notifications').projectDir = new File('../node_modules/@capacitor/push-notifications/android')
 
 include ':capacitor-status-bar'
 project(':capacitor-status-bar').projectDir = new File('../node_modules/@capacitor/status-bar/android')
-
-include ':capacitor-storage'
-project(':capacitor-storage').projectDir = new File('../node_modules/@capacitor/storage/android')
 
 include ':robingenz-capacitor-file-picker'
 project(':robingenz-capacitor-file-picker').projectDir = new File('../node_modules/@robingenz/capacitor-file-picker/android')
@@ -49,6 +49,3 @@ project(':capacitor-file-picker').projectDir = new File('../node_modules/capacit
 
 include ':capacitor-native-biometric'
 project(':capacitor-native-biometric').projectDir = new File('../node_modules/capacitor-native-biometric/android')
-
-include ':capacitor-plugin-permissions'
-project(':capacitor-plugin-permissions').projectDir = new File('../node_modules/capacitor-plugin-permissions/android')

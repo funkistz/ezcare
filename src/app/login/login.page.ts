@@ -4,7 +4,7 @@ import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { AlertController, LoadingController, ToastController } from '@ionic/angular';
 import { AuthenticationService } from '../services/authentication.service';
 import { HelperService } from '../services/helper.service';
-import { Storage } from '@capacitor/storage';
+import { Preferences } from '@capacitor/preferences';
 
 @Component({
   selector: 'app-login',
@@ -57,7 +57,7 @@ export class LoginPage implements OnInit {
         console.log(data);
         this.helper.dissmissLoading();
 
-        Storage.set({
+        Preferences.set({
           key: 'user',
           value: JSON.stringify(data.data),
         });
@@ -88,7 +88,7 @@ export class LoginPage implements OnInit {
 
         data.data.last_login = new Date();
 
-        Storage.set({
+        Preferences.set({
           key: 'staff',
           value: JSON.stringify(data.data),
         });

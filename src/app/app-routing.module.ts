@@ -114,6 +114,14 @@ const routes: Routes = [
     path: 'add-non-inspect',
     loadChildren: () => import('./add-non-inspect/add-non-inspect.module').then( m => m.AddNonInspectPageModule)
   },
+  {
+    path: 'add-leave',
+    loadChildren: () => import('./add-leave/add-leave.module').then( m => m.AddLeavePageModule)
+  },
+  {
+    path: 'add-exgratia',
+    loadChildren: () => import('./add-exgratia/add-exgratia.module').then( m => m.AddExgratiaPageModule)
+  },
 ];
 @NgModule({
   imports: [

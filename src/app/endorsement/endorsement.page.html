@@ -6,14 +6,40 @@
     <ion-title>
       Staff Request
     </ion-title>
+    <ion-button class="ez-header-action" *ngIf="segment == 'endorsement'" (click)="addEndorsement()" color="success"
+      slot="end" size="small">
+      <ion-icon slot="start" name="add-outline"></ion-icon>
+      Add Endorsement
+    </ion-button>
+    <ion-button class="ez-header-action" *ngIf="segment == 'sponsorship'" (click)="addSponsorship()" color="success"
+      slot="end" size="small">
+      <ion-icon slot="start" name="add-outline"></ion-icon>
+      Add Sponsorship
+    </ion-button>
+    <ion-button class="ez-header-action" *ngIf="segment == 'leave'" (click)="addLeave()" color="success" slot="end"
+      size="small">
+      <ion-icon slot="start" name="add-outline"></ion-icon>
+      Apply Leave
+    </ion-button>
+    <ion-button class="ez-header-action" *ngIf="segment == 'exgratia'" (click)="addExgratia()" color="success"
+      slot="end" size="small">
+      <ion-icon slot="start" name="add-outline"></ion-icon>
+      Add Ex Gratia
+    </ion-button>
   </ion-toolbar>
 
   <ion-segment (ionChange)="segmentChanged($event)" mode="md" [value]="segment" scrollable>
     <ion-segment-button value="endorsement">
       <ion-label>Endorsement</ion-label>
     </ion-segment-button>
+    <ion-segment-button value="exgratia">
+      <ion-label>Ex Gratia</ion-label>
+    </ion-segment-button>
     <ion-segment-button value="sponsorship">
       <ion-label>Sponsorship</ion-label>
+    </ion-segment-button>
+    <ion-segment-button value="leave">
+      <ion-label>Leave</ion-label>
     </ion-segment-button>
   </ion-segment>
 
@@ -24,11 +50,19 @@
   <ion-searchbar mode="ios" (ionInput)="searchingSponsorship($event)" debounce="100" placeholder="Search by Dealer"
     *ngIf="segment == 'sponsorship'" [value]="searchSponsorship">
   </ion-searchbar>
+
+  <ion-searchbar mode="ios" (ionInput)="searchingExgratia($event)" debounce="100" placeholder="Search by Dealer"
+    *ngIf="segment == 'exgratia'" [value]="searchExgratia">
+  </ion-searchbar>
 </ion-header>
 
 <ion-content>
 
   <div *ngIf="segment == 'endorsement'">
+
+    <div>
+      <ion-spinner name="dots" *ngIf="!loaded" style="width: 100%;"></ion-spinner>
+    </div>
 
     <h6 *ngIf="loaded && inspections && inspections.length == 0" class="ion-text-center">
       No endorsement available
@@ -73,15 +107,19 @@
 
     </ion-accordion-group>
 
-    <ion-fab vertical="bottom" horizontal="end" slot="fixed">
+    <!-- <ion-fab vertical="bottom" horizontal="end" slot="fixed">
       <ion-fab-button color="success" (click)="addEndorsement()">
         <ion-icon name="add-outline"></ion-icon>
       </ion-fab-button>
-    </ion-fab>
+    </ion-fab> -->
 
   </div>
 
   <div *ngIf="segment == 'sponsorship'">
+
+    <div>
+      <ion-spinner name="dots" *ngIf="!loaded" style="width: 100%;"></ion-spinner>
+    </div>
 
     <h6 *ngIf="loaded && sponsorships && sponsorships.length == 0" class="ion-text-center">
       No sponsorships available
@@ -125,11 +163,132 @@
 
     </ion-accordion-group>
 
-    <ion-fab vertical="bottom" horizontal="end" slot="fixed">
+    <!-- <ion-fab vertical="bottom" horizontal="end" slot="fixed">
       <ion-fab-button color="success" (click)="addSponsorship()">
         <ion-icon name="add-outline"></ion-icon>
       </ion-fab-button>
-    </ion-fab>
+    </ion-fab> -->
+
+  </div>
+
+  <div *ngIf="segment == 'leave'" class="ion-padding">
+
+    <ion-segment (ionChange)="leaveSegmentChange($event)" mode="ios" [value]="leaveSegment">
+      <ion-segment-button value="mine">
+        <ion-label>Mine</ion-label>
+      </ion-segment-button>
+      <ion-segment-button value="all"
+        *ngIf="staff && (staff.is_leave_approver == 1 || staff.user_role == 1 || staff.user_role == 9)">
+        <ion-label>All</ion-label>
+      </ion-segment-button>
+    </ion-segment>
+
+    <div>
+      <ion-spinner name="dots" *ngIf="!leaveLoaded" style="width: 100%;"></ion-spinner>
+    </div>
+
+    <h6 *ngIf="leaveLoaded && leaves && leaves.length == 0" class="ion-text-center">
+      No staff leave available
+    </h6>
+
+    <ion-accordion-group [value]="groupLeaves[0].name" class="ion-margin-bottom"
+      *ngIf="groupLeaves && groupLeaves[0] && groupLeaves[0].data && groupLeaves[0].data.length > 0">
+
+      <ion-accordion [value]="groupLeave.name" *ngFor="let groupLeave of groupLeaves">
+        <ion-item slot="header">
+          <ion-label>{{ groupLeave.name }}</ion-label>
+        </ion-item>
+
+        <ion-list slot="content">
+          <ion-item *ngFor="let leave of groupLeave.data" (click)="viewLeave(leave.id)">
+            <ion-label>
+              <h2>
+                {{ leave.staff.name }}
+                <p style="float: right;">{{ leave.date | date: 'dd/MM/YYYY' }}</p>
+              </h2>
+              <h3>
+                {{ leave.staff.position }}
+              </h3>
+              <p>Type: {{ leave.leave_type_name }}</p>
+              <p>Period:
+                <ng-container>{{ leave.start_date | date: 'd/M/YY' }}</ng-container>
+                <ng-container *ngIf="leave.start_day == 2"> (0.5am)</ng-container>
+                <ng-container *ngIf="leave.start_day == 3"> (0.5pm)</ng-container>
+                -
+                <ng-container>{{ leave.end_date | date: 'd/M/YY' }}</ng-container>
+                <ng-container *ngIf="leave.end_day == 2"> (0.5am)</ng-container>
+                <ng-container *ngIf="leave.end_day == 3"> (0.5pm)</ng-container>
+              </p>
+              <ion-badge color="warning" *ngIf="leave.status == 'pending'">Pending
+              </ion-badge>
+              <ion-badge color="danger" *ngIf="leave.status == 'rejected'">Rejected
+              </ion-badge>
+              <ion-badge color="success" *ngIf="leave.status == 'approved'">Approved
+                <span *ngIf="leave.approver">by {{leave.approver.name}}</span>
+              </ion-badge>
+            </ion-label>
+          </ion-item>
+        </ion-list>
+      </ion-accordion>
+
+    </ion-accordion-group>
+
+  </div>
+
+  <div *ngIf="segment == 'exgratia'">
+
+    <div>
+      <ion-spinner name="dots" *ngIf="!loaded" style="width: 100%;"></ion-spinner>
+    </div>
+
+    <h6 *ngIf="loaded && inspections && inspections.length == 0" class="ion-text-center">
+      No ex gratia available
+    </h6>
+
+    <ion-accordion-group [value]="groupExgratias[0].name" class="ion-margin-bottom"
+      *ngIf="groupExgratias && groupExgratias[0] && groupExgratias[0].data && groupExgratias[0].data.length > 0">
+
+      <ion-accordion [value]="groupExgratia.name" *ngFor="let groupExgratia of groupExgratias">
+        <ion-item slot="header">
+          <ion-label>{{ groupExgratia.name }}</ion-label>
+        </ion-item>
+
+        <ion-list slot="content">
+          <ion-item *ngFor="let exgratia of groupExgratia.data" (click)="viewExgratia(exgratia.id)">
+            <!-- <ion-thumbnail slot="start">
+              <img [src]="inspection.images[0].image_thumb_link">
+            </ion-thumbnail> -->
+            <ion-label>
+              <h2>
+                <span *ngIf="exgratia.dealer && exgratia.dealer.name;else old_dealer">
+                  {{ exgratia.dealer.name }}
+                </span>
+                <ng-template #old_dealer>
+                  {{ exgratia.dealer }}
+                </ng-template>
+
+                <ion-badge color="warning" *ngIf="exgratia.status == 'pending'" style="float: right;">Pending
+                </ion-badge>
+                <ion-badge color="danger" *ngIf="exgratia.status == 'rejected'" style="float: right;">Rejected
+                </ion-badge>
+                <ion-badge color="success" *ngIf="exgratia.status == 'proceed'" style="float: right;">Proceed
+                </ion-badge>
+              </h2>
+              <p *ngIf="exgratia.marketing_officer">MO: {{ exgratia.marketing_officer.name }}</p>
+              <p *ngIf="exgratia.marketing_officer">Created by: {{ exgratia.created_by_name }}</p>
+              <p>{{ exgratia.date.toDate() | date: 'dd/MM/YYYY' }}</p>
+            </ion-label>
+          </ion-item>
+        </ion-list>
+      </ion-accordion>
+
+    </ion-accordion-group>
+
+    <!-- <ion-fab vertical="bottom" horizontal="end" slot="fixed">
+      <ion-fab-button color="success" (click)="addEndorsement()">
+        <ion-icon name="add-outline"></ion-icon>
+      </ion-fab-button>
+    </ion-fab> -->
 
   </div>
 

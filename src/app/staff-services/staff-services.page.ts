@@ -1,7 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { AuthenticationService } from '../services/authentication.service';
-import { Router, NavigationExtras } from '@angular/router';
-import { Storage } from '@capacitor/storage';
+import { Router, NavigationExtras, ActivatedRoute } from '@angular/router';
+import { Preferences } from '@capacitor/preferences';
 import * as moment from 'moment';
 
 @Component({
@@ -23,10 +23,17 @@ export class StaffServicesPage implements OnInit {
   constructor(
     private authService: AuthenticationService,
     private router: Router,
+    private route: ActivatedRoute,
   ) { }
 
   ngOnInit() {
     this.checkUser();
+
+    this.route.queryParams.subscribe(params => {
+      if (params && params.refresh) {
+        this.searchServices();
+      }
+    });
   }
 
   async checkUser(event = null, policy_id = null) {
@@ -34,7 +41,7 @@ export class StaffServicesPage implements OnInit {
     this.user = null;
     this.staff = null;
 
-    let { value }: any = await Storage.get({ key: 'staff' });
+    let { value }: any = await Preferences.get({ key: 'staff' });
     let staff = value;
 
     if (staff) {
@@ -110,9 +117,12 @@ export class StaffServicesPage implements OnInit {
             if (this.services[0]) {
               previousDate = moment(this.services[0].created_at).format('YYYYMM');
               this.groupServices[indexGrow].name = moment(this.services[0].created_at).format('MMM YYYY');
+              this.groupServices[indexGrow].date = moment(this.services[0].created_at);
             }
 
             this.services.forEach(service => {
+
+              console.log('format', previousDate);
 
               const index = moment(service.created_at).format('YYYYMM');
 
@@ -121,12 +131,19 @@ export class StaffServicesPage implements OnInit {
                 this.groupServices[indexGrow] = {};
                 this.groupServices[indexGrow].data = [];
                 this.groupServices[indexGrow].name = moment(service.created_at).format('MMM YYYY');
+                this.groupServices[indexGrow].date = moment(service.created_at);
                 previousDate = moment(service.created_at).format('YYYYMM');
               }
 
               this.groupServices[indexGrow].data.push(service);
 
             });
+
+            // this.groupServices = this.groupServices.sort(function (a, b) {
+            //   // Turn your strings into dates, and then subtract them
+            //   // to get a value that is either negative, positive, or zero.
+            //   return b.date - a.date;
+            // });
 
             console.log('groupServices', this.groupServices);
 

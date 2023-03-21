@@ -199,6 +199,14 @@
                   <ion-icon name="close"></ion-icon>
                 </ion-chip>
               </ion-col>
+              <ion-col size="6" *ngFor="let image of importreportImages; let i = index">
+                <ion-img style="border:1px solid; margin: 5px;" role="button" class="image" [src]="image.image_link"
+                  (click)="helper.imagePreview(image.image_link)">
+                </ion-img>
+                <ion-chip class="chip-close" (click)="removeImportImage(i)">
+                  <ion-icon name="close"></ion-icon>
+                </ion-chip>
+              </ion-col>
             </ion-row>
           </ion-grid>
 

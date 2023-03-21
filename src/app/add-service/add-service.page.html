@@ -28,13 +28,14 @@
             </ion-label>
             <ion-select value="brown" okText="Okay" cancelText="Dismiss" interface="action-sheet"
               formControlName="service_type_id" (ionChange)="serviceTypeChange($event);">
-              <ion-select-option value="1">Engine Oil</ion-select-option>
-              <ion-select-option value="2">ATF Oil</ion-select-option>
+              <ion-select-option value="1" *ngIf="!isEv">Engine Oil</ion-select-option>
+              <ion-select-option value="2" *ngIf="!isEv">ATF Oil</ion-select-option>
+              <ion-select-option value="4" *ngIf="isEv">Full Service Inspection</ion-select-option>
               <!-- <ion-select-option value="3">Engine Oil + ATF Oil</ion-select-option> -->
             </ion-select>
           </ion-item>
 
-          <ion-item fill="outline" mode="md" class="ez-material-input" *ngIf="serviceType == 1 || serviceType == 3">
+          <ion-item fill="outline" mode="md" class="ez-material-input" *ngIf="serviceType === '1'">
             <ion-label position="floating">
               Engine Oil Type*
             </ion-label>
@@ -104,6 +105,25 @@
             </ion-item>
           </div>
 
+          <div *ngIf="serviceType == 4">
+            <ion-list-header>
+              <ion-label>
+                Full Service Inspection
+              </ion-label>
+            </ion-list-header>
+
+            <ion-item fill="outline" mode="md" class="ez-material-input">
+              <ion-label position="floating">Next Service Due (KM)</ion-label>
+              <ion-input placeholder="" formControlName="next_due_mileage" (keypress)="numberOnlyValidation($event)"
+                type="number"></ion-input>
+            </ion-item>
+
+            <ion-item fill="outline" mode="md" class="ez-material-input">
+              <ion-label position="floating">Next Service Due (Date)</ion-label>
+              <ion-input placeholder="" formControlName="next_due_date" type="date" class="ion-text-start">
+              </ion-input>
+            </ion-item>
+          </div>
 
           <ion-item fill="outline" mode="md" class="ez-material-input">
             <ion-label position="floating">Workshop Name*</ion-label>

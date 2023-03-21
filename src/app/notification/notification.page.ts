@@ -1,6 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { AngularFirestore } from '@angular/fire/compat/firestore';
-import { Storage } from '@capacitor/storage';
+import { Preferences } from '@capacitor/preferences';
 import { AlertController } from '@ionic/angular';
 
 @Component({
@@ -26,12 +26,12 @@ export class NotificationPage implements OnInit {
 
   async checkUser() {
 
-    let { value }: any = await Storage.get({ key: 'user' });
+    let { value }: any = await Preferences.get({ key: 'user' });
     this.user = JSON.parse(value);
     console.log('enter user', this.user);
 
     if (!this.user) {
-      let { value }: any = await Storage.get({ key: 'staff' });
+      let { value }: any = await Preferences.get({ key: 'staff' });
       this.staff = JSON.parse(value);
       console.log('enter staff', this.staff);
     }
@@ -44,20 +44,24 @@ export class NotificationPage implements OnInit {
 
     if (this.user) {
 
-      let { value }: any = await Storage.get({ key: 'reminder_notification' });
+      let { value }: any = await Preferences.get({ key: 'reminder_notification' });
       this.reminder = JSON.parse(value);
 
       let ic = this.user.cust_ic.replace(/[^0-9]/g, '');
 
       return this.firestore.collection('customer_notifications', ref => ref.where('user_id', '==', ic)).snapshotChanges().subscribe((res) => {
 
-        this.notifications = res.map((t) => {
+        this.notifications = res.map((t: any) => {
 
           return {
             id: t.payload.doc.id,
+            date: t.payload.doc.data().date_add ? t.payload.doc.data().date_add : 0,
             ...t.payload.doc.data() as any
           };
         });
+        this.notifications.sort((a, b) => a.date_add.toDate() - b.date_add.toDate());
+
+        this.notifications.sort((a, b) => b.date - a.date);
 
         console.log('res', this.notifications);
 
@@ -69,13 +73,18 @@ export class NotificationPage implements OnInit {
 
       return this.firestore.collection('notifications', ref => ref.where('user_id', '==', ic)).snapshotChanges().subscribe((res) => {
 
-        this.notifications = res.map((t) => {
+        this.notifications = res.map((t: any) => {
+
+          console.log('t.payload.doc.data()', t.payload.doc.data().date_add);
 
           return {
             id: t.payload.doc.id,
+            date: t.payload.doc.data().date_add ? t.payload.doc.data().date_add : 0,
             ...t.payload.doc.data() as any
           };
         });
+
+        this.notifications.sort((a, b) => b.date - a.date);
 
         console.log('res', this.notifications);
 
