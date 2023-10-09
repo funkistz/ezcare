@@ -16,11 +16,11 @@
   </div>
 
   <div *ngIf="total_sl_leave">
-    <ion-item fill="outline" mode="md" class="ez-material-input">
+    <!-- <ion-item fill="outline" mode="md" class="ez-material-input">
       <ion-label position="floating">Sick Leave days: </ion-label>
       <ion-input [(ngModel)]="total_sl_leave">
       </ion-input>
-    </ion-item>
+    </ion-item> -->
     <ion-item fill="outline" mode="md" class="ez-material-input">
       <ion-label position="floating">Hospitalization Leave days: </ion-label>
       <ion-input [(ngModel)]="total_hl_leave">
@@ -36,17 +36,27 @@
       <ion-input [(ngModel)]="total_pl_leave">
       </ion-input>
     </ion-item>
+    <ion-item fill="outline" mode="md" class="ez-material-input">
+      <ion-label position="floating">Compassionate Leave days: </ion-label>
+      <ion-input [(ngModel)]="total_cl_leave">
+      </ion-input>
+    </ion-item>
 
     <ion-row>
       <ion-col class="ion-no-padding">
-        <ion-button expand="block">Update</ion-button>
+        <ion-button expand="block" (click)="updateSettings()">Update</ion-button>
       </ion-col>
     </ion-row>
   </div>
 
   <ion-row>
     <ion-col size="12" class="ion-no-padding ion-padding-top">
-      <ion-button expand="block" color="danger" (click)="assignYearlyLeave()">Assign Yearly Leave</ion-button>
+      <ion-button expand="block" color="danger" (click)="assignYearlyLeave()">Assign Yearly Anual Leave</ion-button>
+    </ion-col>
+  </ion-row>
+  <ion-row>
+    <ion-col size="12" class="ion-no-padding ion-padding-top">
+      <ion-button expand="block" color="danger" (click)="assignYearlySickLeave()">Assign Yearly Sick Leave</ion-button>
     </ion-col>
   </ion-row>
 

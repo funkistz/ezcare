@@ -217,7 +217,7 @@
     transform: translate3d(0, 35px, 0) !important;
   }
 
-  .label-stacked{
+  .label-stacked {
     transform: translate3d(-10px, 0, 0) !important;
     color: #000000 !important;
     font-size: 16px !important;
@@ -385,14 +385,14 @@ ion-toolbar {
   height: 50px;
 }
 
-.ez-skeleton-big{
+.ez-skeleton-big {
   width: 60%;
   height: 20px;
   margin-top: 15px;
   color: #ffffff;
 }
 
-.file-box{
+.file-box {
   background-color: #eeeeee;
   padding: 10px;
   color: #000000;
@@ -403,24 +403,30 @@ ion-toolbar {
   justify-content: center;
   border-radius: 10px;
   word-break: break-all;
-    white-space: pre-wrap;
+  white-space: pre-wrap;
 }
 
-.ez-mobile-service-list{
+.ez-mobile-service-list {
 
-  ion-label{
+  ion-label {
     text-overflow: unset !important;
     white-space: normal !important;
   }
 
 }
 
-.ez-date input{
+.ez-date input {
   padding-right: 10px !important;
   --padding-start: 10px !important;
 }
 
-.ez-header-action{
+.ez-header-action {
   text-transform: none;
-  padding-right:5px;
+  padding-right: 5px;
+}
+
+.error-messages {
+  color: #F44336;
+  margin-left: 20px;
+  font-size: 12px;
 }

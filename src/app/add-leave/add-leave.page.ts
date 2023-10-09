@@ -1,3 +1,7 @@
+/* eslint-disable arrow-body-style */
+/* eslint-disable quote-props */
+/* eslint-disable @typescript-eslint/dot-notation */
+/* eslint-disable eqeqeq */
 /* eslint-disable @typescript-eslint/ban-types */
 /* eslint-disable @typescript-eslint/naming-convention */
 import { Component, OnInit } from '@angular/core';
@@ -42,7 +46,7 @@ export class AddLeavePage implements OnInit {
     }
   ];
   noReasonLeave = ['sl', 'hl', 'pl', 'ml'];
-  withImageLeave = ['sl', 'hl'];
+  withImageLeave = ['sl', 'hl', 'cl'];
   start_date = new Date().toISOString().split('T')[0];
   max_end_date;
   leaveImages = [];
@@ -60,7 +64,8 @@ export class AddLeavePage implements OnInit {
     'hl': 0,
     'ml': 0,
     'pl': 0,
-  }
+    'cl': 0,
+  };
   leaveBalance = 0;
   leaveBalanceAL = 0;
   leaveBalanceUL = 999;
@@ -68,6 +73,7 @@ export class AddLeavePage implements OnInit {
   leaveBalanceHL = 0;
   leaveBalanceML = 0;
   leaveBalancePL = 0;
+  leaveBalanceCL = 0;
 
   leaveType = {
     'al': 'Anual',
@@ -77,7 +83,8 @@ export class AddLeavePage implements OnInit {
     'hl': 'Hospitalization',
     'ml': 'Maternity',
     'pl': 'Paternity',
-  }
+    'cl': 'Compassionate',
+  };
 
   constructor(
     private firestore: AngularFirestore,
@@ -151,12 +158,14 @@ export class AddLeavePage implements OnInit {
           this.leaveBalances['hl'] = data.data.hl_balance;
           this.leaveBalances['ml'] = data.data.ml_balance;
           this.leaveBalances['pl'] = data.data.pl_balance;
+          this.leaveBalances['cl'] = data.data.cl_balance;
 
           this.leaveBalanceAL = data.data.al_balance;
           this.leaveBalanceSL = data.data.sl_balance;
           this.leaveBalanceHL = data.data.hl_balance;
           this.leaveBalanceML = data.data.ml_balance;
           this.leaveBalancePL = data.data.pl_balance;
+          this.leaveBalanceCL = data.data.cl_balance;
           console.log('getLeaveBalance', data.data);
 
           this.leaveBalance = data.data.al_balance;
@@ -174,7 +183,6 @@ export class AddLeavePage implements OnInit {
     this.firestore.collection('staff_leaves', ref => ref.where('staff.id', '==', Number(id))).snapshotChanges().subscribe((res) => {
 
       this.myLeaves = res.map((t) => {
-
         return {
           id: t.payload.doc.id,
           ...t.payload.doc.data() as Object
@@ -242,7 +250,7 @@ export class AddLeavePage implements OnInit {
   }
 
   async getStaff() {
-    let { value }: any = await Preferences.get({ key: 'staff' });
+    const { value }: any = await Preferences.get({ key: 'staff' });
     this.currentStaff = JSON.parse(value);
     this.staff = JSON.parse(value);
     console.log(this.currentStaff);
@@ -281,6 +289,9 @@ export class AddLeavePage implements OnInit {
         break;
       case 'el':
         this.leaveBalance = this.leaveBalanceAL;
+        break;
+      case 'cl':
+        this.leaveBalance = this.leaveBalanceCL;
         break;
       default:
         this.leaveBalance = 0;
@@ -423,12 +434,12 @@ export class AddLeavePage implements OnInit {
 
   async pickImage() {
 
-    let images = await this.helper.imagePicker();
+    const images = await this.helper.imagePicker();
 
     let index = 1;
     images.forEach(image => {
 
-      let data = {
+      const data = {
         id: Date.now(),
         file: image.file.original,
         file_thumbnail: image.file.thumbnail,
@@ -436,7 +447,7 @@ export class AddLeavePage implements OnInit {
         format: image.format,
         type: 'image',
         name: Date.now() + '_picker_' + index,
-      }
+      };
 
       this.leaveImages.push(data);
 
@@ -651,14 +662,12 @@ export class AddLeavePage implements OnInit {
       data.end_date = moment(data.end_date).toDate();
     }
 
-    data.type = this.types.find(obj => {
-      return obj.code == data.type
-    })
+    data.type = this.types.find(obj => obj.code == data.type);
 
     console.log('this.currentStaff', this.currentStaff);
 
     for (const leaveImage of this.leaveImages) {
-      let upload = await this.helper.uploadToFirebase(leaveImage.file, data.reg_no);
+      const upload = await this.helper.uploadToFirebase(leaveImage.file, data.reg_no);
       console.log('finish... report', upload.url);
       this.leaveImagesURL.push({
         name: leaveImage.name,
@@ -710,17 +719,29 @@ export class AddLeavePage implements OnInit {
 
           this.helper.presentLoading();
 
-          this.firestore.doc<any>('staff_leaves/' + this.id).delete().then(() => {
-            console.log('success');
-            this.helper.presentToast('Leave successfully deleted.');
-            this.helper.dissmissLoading();
-            this.navCtrl.back();
+          this.authService.deleteStaffLeave(this.id).subscribe(
+            result => {
 
-          }).catch(error => {
+              this.helper.presentToast('Leave successfully deleted.');
+              this.helper.dissmissLoading();
+              this.navCtrl.back();
 
-            this.helper.presentToast('Sorry, there is some error occured.');
-            this.helper.dissmissLoading();
-          });
+            }, error => {
+              this.helper.presentToast('Sorry, there is some error occured.');
+              this.helper.dissmissLoading();
+            });
+
+          // this.firestore.doc<any>('staff_leaves/' + this.id).delete().then(() => {
+          //   console.log('success');
+          //   this.helper.presentToast('Leave successfully deleted.');
+          //   this.helper.dissmissLoading();
+          //   this.navCtrl.back();
+
+          // }).catch(error => {
+
+          //   this.helper.presentToast('Sorry, there is some error occured.');
+          //   this.helper.dissmissLoading();
+          // });
 
 
         }
@@ -752,11 +773,11 @@ export class AddLeavePage implements OnInit {
           this.helper.presentLoading();
 
           const params = {
-            status: status,
+            status,
             id: this.id,
             staff: this.currentStaff.staff_id,
             hr_comment: this.hr_comment,
-          }
+          };
 
           this.authService.updateStaffLeave(this.id, params).subscribe(
             result => {
@@ -767,7 +788,7 @@ export class AddLeavePage implements OnInit {
                   name: this.currentStaff.user_fullname,
                   date: new Date(),
                 },
-                status: status,
+                status,
                 status_remarks: this.hr_comment,
               }).then(() => {
                 console.log('success');
@@ -818,10 +839,10 @@ export class AddLeavePage implements OnInit {
 
   async addNotification(staff_id, title, text) {
 
-    let data = {
-      title: title,
+    const data = {
+      title,
       body: 'Tap here to check it out!',
-      text: text,
+      text,
       user_id: 'staff_' + staff_id,
       data_add: new Date(),
     };

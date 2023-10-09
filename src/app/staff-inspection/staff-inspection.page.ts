@@ -1,3 +1,5 @@
+/* eslint-disable arrow-body-style */
+/* eslint-disable max-len */
 import { Component, OnInit } from '@angular/core';
 import { AuthenticationService } from '../services/authentication.service';
 import { Router, NavigationExtras } from '@angular/router';
@@ -40,6 +42,13 @@ export class StaffInspectionPage implements OnInit {
   search;
   dayFilter = null;
   branch;
+  monthGap = 1;
+  filterEndMonth: any = moment().endOf('month');
+  filterStartMonth: any = moment(this.filterEndMonth).startOf('month');
+
+  inspectionFirestore;
+  nonInspectionFirestore;
+  scheduleInspectionFirestore;
 
   constructor(
     private authService: AuthenticationService,
@@ -53,9 +62,9 @@ export class StaffInspectionPage implements OnInit {
   ngOnInit() {
 
     this.checkUser();
-    this.getSchedule();
-    this.getInspection();
-    this.getNonInspection();
+    // this.getSchedule();
+    // this.getInspection();
+    // this.getNonInspection();
     this.helper.getStaffs();
   }
 
@@ -69,7 +78,7 @@ export class StaffInspectionPage implements OnInit {
 
     if (staff) {
       this.staff = JSON.parse(staff);
-      this.branch = this.staff.user_branch;
+      this.branch = Number(this.staff.user_branch);
       console.log('staff', this.staff, this.branch);
       // this.getTasks();
       this.getSchedule();
@@ -79,15 +88,25 @@ export class StaffInspectionPage implements OnInit {
   segmentChange(ev: any) {
     this.segment = ev.detail.value;
 
-    if (this.segment == 'schedule') {
-      this.filterScheduleData();
+    if (this.inspectionFirestore) {
+      this.inspectionFirestore.unsubscribe();
+    }
+    if (this.nonInspectionFirestore) {
+      this.nonInspectionFirestore.unsubscribe();
+    }
+    if (this.scheduleInspectionFirestore) {
+      this.scheduleInspectionFirestore.unsubscribe();
+    }
 
-    } else if (this.segment == 'inspection') {
-      this.filterInspection();
+    if (this.segment === 'schedule') {
+      this.inspectionFirestore.unsubscribe();
+      this.getSchedule();
 
-    } else if (this.segment == 'noninspection') {
-      this.filterNonInspection();
+    } else if (this.segment === 'inspection') {
+      this.getInspection();
 
+    } else if (this.segment === 'noninspection') {
+      this.getNonInspection();
     }
 
   }
@@ -112,31 +131,68 @@ export class StaffInspectionPage implements OnInit {
     this.filterNonInspection();
   }
 
-  getInspection() {
+  changeFilterDateRange(type) {
 
-    return this.firestore.collection('inspections', ref => ref.orderBy('date', 'asc')).snapshotChanges().subscribe((res) => {
+    if (type === 'up') {
+      this.filterStartMonth = this.filterStartMonth.add(this.monthGap, 'months').startOf('month');
+      this.filterEndMonth = this.filterEndMonth.add(this.monthGap, 'months').endOf('month');
+    } else if (type === 'down') {
+      this.filterStartMonth = this.filterStartMonth.subtract(this.monthGap, 'months').startOf('month');
+      this.filterEndMonth = this.filterEndMonth.subtract(this.monthGap, 'months').endOf('month');
+    }
+
+    if (this.segment === 'schedule') {
+      this.getSchedule();
+    } else if (this.segment === 'inspection') {
+      this.getInspection();
+    } else if (this.segment === 'noninspection') {
+      this.getNonInspection();
+    }
+  }
+
+  async getInspection() {
+
+    this.inspectionLoaded = false;
+    this.groupInspections = [];
+
+    if (this.inspectionFirestore) {
+      this.inspectionFirestore.unsubscribe();
+    }
+    this.inspectionFirestore = await this.firestore.collection('inspections', (ref: any) => {
+
+      ref = ref.where('date', '>=', moment(this.filterStartMonth).toDate());
+      ref = ref.where('date', '<=', moment(this.filterEndMonth).endOf('month').toDate());
+      ref = ref.orderBy('date', 'desc');
+
+      if (this.branch && this.branch != 8) {
+        ref = ref.where('branch.id', '==', this.branch);
+      }
+      return ref;
+
+    }).snapshotChanges().subscribe((res) => {
 
       this.inspectionLoaded = true;
 
-      this.inspectionsTemp = res.map((t) => {
+      this.inspectionsTemp = res.map((t) => ({
+        id: t.payload.doc.id,
+        ...t.payload.doc.data() as any
+      }));
 
-        return {
-          id: t.payload.doc.id,
-          ...t.payload.doc.data() as any
-        };
-      });
-
-      console.log('inspectionsTemp', this.inspectionsTemp);
+      // console.log('inspectionsTemp', this.inspectionsTemp);
 
       this.filterInspection();
+      this.inspectionFirestore.unsubscribe();
+
     }, err => {
       this.inspectionLoaded = true;
       console.log('inspections err', err);
     });
+
   }
 
   filterInspection() {
 
+    //filter by schedule segment
     this.inspections = this.inspectionsTemp.filter((inspection: any) => {
 
       if (this.inspectSegment == 'mine') {
@@ -153,12 +209,11 @@ export class StaffInspectionPage implements OnInit {
 
     });
 
+    // this.inspections = this.inspections.sort(
+    //   (objA, objB) => objB.date - objA.date,
+    // );
 
-    this.inspections = this.inspections.sort(
-      (objA, objB) => objB.date - objA.date,
-    );
-
-    this.inspections = this.inspectionsFilterByBranch(this.inspections, this.branch);
+    // this.inspections = this.inspectionsFilterByBranch(this.inspections, this.branch);
 
     this.inspections = this.inspections.filter((inspection: any) => {
 
@@ -242,9 +297,25 @@ export class StaffInspectionPage implements OnInit {
 
   }
 
-  getSchedule() {
+  async getSchedule() {
 
-    return this.firestore.collection('schedule_inspections', ref => ref.orderBy('reminder_date', 'asc')).snapshotChanges().subscribe((res) => {
+    this.scheduleLoaded = false;
+    this.groupScheduleInspections = [];
+
+    if (this.scheduleInspectionFirestore) {
+      this.scheduleInspectionFirestore.unsubscribe();
+    }
+    this.scheduleInspectionFirestore = await this.firestore.collection('schedule_inspections', (ref: any) => {
+      ref = ref.where('reminder_date', '>=', moment(this.filterStartMonth).toDate());
+      ref = ref.where('reminder_date', '<=', moment(this.filterEndMonth).endOf('month').toDate());
+      ref = ref.orderBy('reminder_date', 'desc');
+
+      console.log('this.branch', this.branch);
+      if (this.branch && this.branch != 8) {
+        ref = ref.where('branch.id', '==', this.branch);
+      }
+      return ref;
+    }).snapshotChanges().subscribe((res) => {
 
       this.scheduleLoaded = true;
 
@@ -259,12 +330,15 @@ export class StaffInspectionPage implements OnInit {
       // console.log('schedule data', this.scheduleInspectionsTemp);
 
       this.filterScheduleData();
-      console.log('filterScheduleData', this.scheduleInspections);
+      // console.log('filterScheduleData', this.scheduleInspections);
+      this.scheduleInspectionFirestore.unsubscribe();
 
     }, err => {
       this.scheduleLoaded = true;
       console.log('inspections err', err);
     });
+
+
   }
 
   filterScheduleData() {
@@ -290,52 +364,53 @@ export class StaffInspectionPage implements OnInit {
 
     });
 
-    this.scheduleInspections = this.scheduleInspections.filter((inspection: any) => {
+    //filter by reminder date
+    // this.scheduleInspections = this.scheduleInspections.filter((inspection: any) => {
 
-      if (this.scheduleSegment == 'unassigned' || this.scheduleSegment == 'mine') {
+    //   if (this.scheduleSegment == 'unassigned' || this.scheduleSegment == 'mine') {
 
-        if (moment(inspection.reminder_date.toDate()).diff(new Date(), 'days') >= 0) {
+    //     if (moment(inspection.reminder_date.toDate()).diff(new Date(), 'days') >= 0) {
 
-          if (this.dayFilter) {
+    //       if (this.dayFilter) {
 
-            if (moment(inspection.reminder_date.toDate()).format('YYYY-MM-DD') == this.dayFilter) {
-              return true;
-            } else {
-              return false;
-            }
+    //         if (moment(inspection.reminder_date.toDate()).format('YYYY-MM-DD') == this.dayFilter) {
+    //           return true;
+    //         } else {
+    //           return false;
+    //         }
 
-          } else {
-            return true;
-          }
+    //       } else {
+    //         return true;
+    //       }
 
-        } else {
-          return false;
-        }
-      } else if (this.scheduleSegment == 'all') {
+    //     } else {
+    //       return false;
+    //     }
+    //   } else if (this.scheduleSegment == 'all') {
 
-        if (moment(inspection.reminder_date.toDate()).diff(new Date(), 'days') < 0) {
+    //     if (moment(inspection.reminder_date.toDate()).diff(new Date(), 'days') < 0) {
 
-          if (this.dayFilter) {
+    //       if (this.dayFilter) {
 
-            if (moment(inspection.reminder_date.toDate()).format('YYYY-MM-DD') == this.dayFilter) {
-              return true;
-            } else {
-              return false;
-            }
+    //         if (moment(inspection.reminder_date.toDate()).format('YYYY-MM-DD') == this.dayFilter) {
+    //           return true;
+    //         } else {
+    //           return false;
+    //         }
 
-          } else {
-            return true;
-          }
+    //       } else {
+    //         return true;
+    //       }
 
-        } else {
-          return false;
-        }
-      }
+    //     } else {
+    //       return false;
+    //     }
+    //   }
 
-    });
+    // });
+    // this.scheduleInspections = this.inspectionsFilterByBranch(this.scheduleInspections, this.branch);
 
-    this.scheduleInspections = this.inspectionsFilterByBranch(this.scheduleInspections, this.branch);
-
+    //search
     this.scheduleInspections = this.scheduleInspections.filter((inspection: any) => {
 
       if (this.search) {
@@ -400,13 +475,28 @@ export class StaffInspectionPage implements OnInit {
 
     });
 
-    console.log('after filter', this.scheduleInspections)
+    // console.log('after filter', this.scheduleInspections);
 
   }
 
-  getNonInspection() {
+  async getNonInspection() {
 
-    return this.firestore.collection('non_inspections', ref => ref.orderBy('date', 'asc')).snapshotChanges().subscribe((res) => {
+    this.nonInspectionLoaded = false;
+    this.groupNonInspections = [];
+
+    if (this.nonInspectionFirestore) {
+      this.nonInspectionFirestore.unsubscribe();
+    }
+    this.nonInspectionFirestore = await this.firestore.collection('non_inspections', (ref: any) => {
+      ref = ref.where('date', '>=', moment(this.filterStartMonth).toDate());
+      ref = ref.where('date', '<=', moment(this.filterEndMonth).endOf('month').toDate());
+      ref = ref.orderBy('date', 'desc');
+
+      if (this.branch && this.branch != 8) {
+        ref = ref.where('branch.id', '==', this.branch);
+      }
+      return ref;
+    }).snapshotChanges().subscribe((res) => {
 
       this.nonInspectionLoaded = true;
 
@@ -419,14 +509,19 @@ export class StaffInspectionPage implements OnInit {
       });
 
       this.filterNonInspection();
+      // this.nonInspectionFirestore.unsubscribe();
+
     }, err => {
       this.nonInspectionLoaded = true;
       console.log('nonInspectionsTemp err', err);
     });
+
+
   }
 
   filterNonInspection() {
 
+    //filter by schedule segment
     this.nonInspections = this.nonInspectionsTemp.filter((inspection: any) => {
 
       if (this.nonInspectSegment == 'mine') {
@@ -443,23 +538,23 @@ export class StaffInspectionPage implements OnInit {
 
     });
 
-    this.nonInspections = this.nonInspections.sort(
-      (objA, objB) => objB.date - objA.date,
-    );
+    // this.nonInspections = this.nonInspections.sort(
+    //   (objA, objB) => objB.date - objA.date,
+    // );
 
-    this.nonInspections = this.inspectionsFilterByBranch(this.nonInspections, this.branch);
+    // this.nonInspections = this.inspectionsFilterByBranch(this.nonInspections, this.branch);
 
     this.nonInspections = this.nonInspections.filter((inspection: any) => {
 
-      if (this.dayFilter) {
+      // if (this.dayFilter) {
 
-        if (moment(inspection.date.toDate()).format('YYYY-MM-DD') == this.dayFilter) {
+      //   if (moment(inspection.date.toDate()).format('YYYY-MM-DD') == this.dayFilter) {
 
-        } else {
-          return false;
-        }
+      //   } else {
+      //     return false;
+      //   }
 
-      }
+      // }
 
       if (this.search) {
 
@@ -566,16 +661,26 @@ export class StaffInspectionPage implements OnInit {
   segmentFilterData() {
 
     if (this.segment == 'schedule') {
-      this.filterScheduleData();
+      this.getSchedule();
     } else if (this.segment == 'inspection') {
-      this.filterInspection();
+      this.getInspection();
     } else if (this.segment == 'noninspection') {
-      this.filterNonInspection();
+      this.getNonInspection();
     }
 
   }
 
   filterByDay() {
+
+    console.log('dayFilter', this.dayFilter);
+
+    if (this.dayFilter) {
+      this.filterEndMonth = moment(this.dayFilter).startOf('month');
+      this.filterStartMonth = moment(this.filterEndMonth).subtract(this.monthGap, 'months');
+    } else {
+      this.filterEndMonth = moment().startOf('month');
+      this.filterStartMonth = moment(this.filterEndMonth).subtract(this.monthGap, 'months');
+    }
 
     if (this.segment == 'schedule') {
 

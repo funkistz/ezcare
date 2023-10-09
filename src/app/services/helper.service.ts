@@ -82,7 +82,6 @@ export class HelperService {
 
     if (inspection_types.value) {
       this.inspection_types = JSON.parse(inspection_types.value);
-      console.log('get inspection_types', this.inspection_types);
     }
 
     let dealers: any = await Preferences.get({ key: 'dealers' });
@@ -112,8 +111,6 @@ export class HelperService {
     this.authService.getStaffs().subscribe(
       (data: any) => {
         if (data && data.data) {
-
-          console.log('get staff', data);
 
           this.staffs = [];
           this.staffsReal = [];

@@ -1,3 +1,4 @@
+/* eslint-disable max-len */
 import { Component, ViewChild, ElementRef } from '@angular/core';
 import { Preferences } from '@capacitor/preferences';
 import { AuthenticationService } from '../services/authentication.service';
@@ -66,6 +67,10 @@ export class StaffHomePage {
   staffOnLeave = [];
   pendingLeave = [];
 
+  //firestore instance
+  sponsorshipFire;
+  inspectionFire
+
   constructor(
     private authService: AuthenticationService,
     private callNumber: CallNumber,
@@ -130,7 +135,6 @@ export class StaffHomePage {
 
     if (staff) {
       this.staff = JSON.parse(staff);
-      console.log('get staff', this.staff);
 
       this.getStaff();
 
@@ -138,10 +142,15 @@ export class StaffHomePage {
         this.userReport = this.staff.staff_id;
       }
 
+      //no need
       this.getReport(event, this.userReport, moment().month(this.reportMonth2).format("M"));
+      //no need
       this.getReportYearly(event, this.userReport, this.reportYear, this.reportMonth);
+      //done
       this.getSponsorshipReport(event, this.userReport, this.managerReportSponsorhipYear, this.managerReportSponsorhipDealer);
+      //no need
       this.getLeaveBalance(this.userReport, moment().year());
+      //no need
       this.getAllStaffOnLeaveToday();
 
       if (this.staff.is_manager && this.staff.is_manager != 0) {
@@ -200,7 +209,6 @@ export class StaffHomePage {
       data => {
 
         if (data) {
-          console.log('getAllTodayStaff', data);
           this.staffOnLeave = data.data;
           this.pendingLeave = data.pendingLeave;
         }
@@ -552,7 +560,6 @@ export class StaffHomePage {
       data => {
 
         if (data && data.data) {
-          console.log('reports', this.reports);
           this.reports = data.data;
           // this.barChartMethod(
           //   this.reports.months
@@ -563,7 +570,6 @@ export class StaffHomePage {
           event.target.complete();
         }
 
-        console.log('report', data);
       }, error => {
         console.log(error);
 
@@ -684,7 +690,7 @@ export class StaffHomePage {
     }
 
     console.log('where', this.managerReportSponsorhipDealer.id);
-    await this.firestore.collection('sponsorship', ref => ref.where('dealer.id', '==', this.managerReportSponsorhipDealer.id)).valueChanges().subscribe((data: any) => {
+    this.sponsorshipFire = this.firestore.collection('sponsorship', ref => ref.where('dealer.id', '==', this.managerReportSponsorhipDealer.id)).valueChanges().subscribe((data: any) => {
 
       this.managerReportSponsorhipUnit = 0;
       this.managerReportSponsorhipTotal = 0;
@@ -704,19 +710,19 @@ export class StaffHomePage {
 
       });
 
-      console.log('sponsorships', data);
-      console.log('managerReportSponsorhipUnit', this.managerReportSponsorhipUnit);
-      console.log('managerReportSponsorhipTotal', this.managerReportSponsorhipTotal);
+      // console.log('sponsorships', data);
+      // console.log('managerReportSponsorhipUnit', this.managerReportSponsorhipUnit);
+      // console.log('managerReportSponsorhipTotal', this.managerReportSponsorhipTotal);
+      this.sponsorshipFire.unsubscribe();
 
     });
-
   }
 
   async getInspections() {
 
     let inspectionsTemp;
 
-    let unsubscribe = this.firestore.collection('inspections').snapshotChanges().subscribe((res) => {
+    this.inspectionFire = this.firestore.collection('inspections').snapshotChanges().subscribe((res) => {
 
       inspectionsTemp = res.map((t) => {
 
@@ -759,8 +765,7 @@ export class StaffHomePage {
 
       // console.log('inspectionReports', this.inspectionReports);
 
-
-
+      this.inspectionFire.unsubscribe();
     });
 
 
@@ -790,8 +795,6 @@ export class StaffHomePage {
 
         if (data && data.data) {
           this.staffs = data.data;
-          console.log('xxxx', this.staffs);
-          console.log('zzzz', this.staff.user_branch);
 
           if (this.staff.user_role == 16) {
             this.staffs = this.staffs.filter(staff => {

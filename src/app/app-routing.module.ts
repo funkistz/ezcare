@@ -122,6 +122,14 @@ const routes: Routes = [
     path: 'add-exgratia',
     loadChildren: () => import('./add-exgratia/add-exgratia.module').then( m => m.AddExgratiaPageModule)
   },
+  {
+    path: 'register',
+    loadChildren: () => import('./register/register.module').then( m => m.RegisterPageModule)
+  },
+  {
+    path: 'change-password',
+    loadChildren: () => import('./change-password/change-password.module').then( m => m.ChangePasswordPageModule)
+  },
 ];
 @NgModule({
   imports: [

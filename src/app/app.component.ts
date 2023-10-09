@@ -16,6 +16,7 @@ export class AppComponent {
 
   user;
   staff;
+  loggedIn;
 
   constructor(
     private router: Router,
@@ -55,37 +56,40 @@ export class AppComponent {
 
   }
 
-  async checkUser(event = null, policy_id = null) {
+  async checkUser(event = null) {
 
     this.user = null;
     this.staff = null;
+    this.loggedIn = null;
 
-    let { value }: any = await Preferences.get({ key: 'user' });
-    let user = value;
+    const { value: loggedIn }: any = await Preferences.get({ key: 'logged_in' });
+    const { value: staff }: any = await Preferences.get({ key: 'staff' });
+    let { value: user }: any = await Preferences.get({ key: 'user' });
 
-    if (!user) {
-      let { value }: any = await Preferences.get({ key: 'staff' });
-      let staff = value;
+    console.log('loggedIn', loggedIn);
 
-      if (staff) {
-        this.staff = JSON.parse(staff);
-        // console.log('staff', this.staff);
+    if (!loggedIn && !staff) {
+      this.logout();
+    }
 
-        this.checkStaff(this.staff.user_name, this.staff.user_password, this.staff.last_login);
-
-        return 'staff';
-      } else {
-        this.logout();
-        return 'guest';
-      }
-
-    } else {
+    if (user) {
 
       user = JSON.parse(user);
       this.user = user;
       console.log(this.user.cust_id);
 
       return 'user';
+
+    } else if (staff) {
+
+      this.staff = JSON.parse(staff);
+      this.checkStaff(this.staff.user_name, this.staff.user_password, this.staff.last_login);
+
+      return 'staff';
+
+    } else {
+      this.logout();
+      return 'guest';
     }
   }
 
@@ -123,6 +127,7 @@ export class AppComponent {
   logout() {
     Preferences.remove({ key: 'user' });
     Preferences.remove({ key: 'staff' });
+    Preferences.remove({ key: 'logged_in' });
     this.router.navigate(['/login']);
   }
 

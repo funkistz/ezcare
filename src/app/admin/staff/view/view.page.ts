@@ -1,3 +1,5 @@
+/* eslint-disable @typescript-eslint/naming-convention */
+/* eslint-disable radix */
 import { Component, OnInit } from '@angular/core';
 import { AuthenticationService } from '../../../services/authentication.service';
 import { ActivatedRoute, Router } from '@angular/router';
@@ -22,6 +24,7 @@ export class ViewPage implements OnInit {
   isLeaveApprover = 0;
   isExGratiaApprover = 0;
   totalLeave = 0;
+  totalSickLeave = 0;
 
   constructor(
     private authService: AuthenticationService,
@@ -48,7 +51,7 @@ export class ViewPage implements OnInit {
       (data: any) => {
 
         if (data && data) {
-          // console.log(data);
+          console.log('staff', data);
           this.staff = data.data;
           this.users = data.users;
 
@@ -87,6 +90,10 @@ export class ViewPage implements OnInit {
           this.totalLeave = this.staff.current_leave.total_leave;
         }
 
+        if (this.staff.current_sick_leave) {
+          this.totalSickLeave = this.staff.current_sick_leave.total_leave;
+        }
+
 
       }, error => {
         console.log(error);
@@ -103,7 +110,7 @@ export class ViewPage implements OnInit {
 
   updateStaffUser() {
 
-    let data: any = {
+    const data: any = {
       staff_id: this.user_id,
       user_active: this.isActive,
       is_manager: this.isManager,
@@ -111,21 +118,22 @@ export class ViewPage implements OnInit {
       is_leave_approver: this.isLeaveApprover,
       is_exgratia_approver: this.isExGratiaApprover,
       total_leave: this.totalLeave,
+      total_sick_leave: this.totalSickLeave,
     };
 
     this.helper.presentLoading();
 
     this.authService.updateStaff(this.staff.id, data).subscribe(
-      (data: any) => {
+      (result: any) => {
 
         this.navCtrl.back();
 
-        if (data && data.data) {
+        if (result && result.data) {
           // console.log(data);
-          this.staff = data.data;
+          this.staff = result.data;
         }
 
-        console.log(data);
+        console.log(result);
         this.helper.dissmissLoading();
       }, error => {
         console.log(error);

@@ -306,6 +306,9 @@ export class StaffAddSchedulePage implements OnInit {
     this.ionicForm.get('marketing_officer').updateValueAndValidity();
     this.ionicForm.get('dealer').updateValueAndValidity();
     this.ionicForm.get('no_of_vehicle').updateValueAndValidity();
+    this.ionicForm.get('warranty_plan').updateValueAndValidity();
+    this.ionicForm.get('period').updateValueAndValidity();
+    this.ionicForm.get('promo').updateValueAndValidity();
 
   }
 

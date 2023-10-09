@@ -39,6 +39,8 @@ export class ClaimImportsPage implements OnInit {
 
   async getInspection() {
 
+    console.log('getInspection', this.policy.cust_policyno);
+
     await this.firestore.collection('inspections', ref => ref.where('policy_no', '==', this.policy.cust_policyno)).valueChanges().subscribe((data: any) => {
 
       this.inspections = data;

@@ -59,6 +59,18 @@ export class EndorsementPage implements OnInit {
 
   }
 
+  ionViewDidEnter() {
+    if (this.segment === 'endorsement') {
+      this.filterEndorsement();
+    } else if (this.segment === 'sponsorship') {
+      this.filterSponsorship();
+    } else if (this.segment === 'leave') {
+      this.getLeaves();
+    } else if (this.segment === 'Ex Gratia') {
+      this.getLeaves();
+    }
+  }
+
   async checkUser(event = null, policy_id = null) {
 
     this.user = null;

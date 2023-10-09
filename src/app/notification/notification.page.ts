@@ -1,3 +1,4 @@
+/* eslint-disable max-len */
 import { Component, OnInit } from '@angular/core';
 import { AngularFirestore } from '@angular/fire/compat/firestore';
 import { Preferences } from '@capacitor/preferences';
@@ -15,6 +16,8 @@ export class NotificationPage implements OnInit {
   staff;
   reminder;
 
+  notificationFire;
+
   constructor(
     private firestore: AngularFirestore,
     public alertController: AlertController
@@ -28,12 +31,12 @@ export class NotificationPage implements OnInit {
 
     let { value }: any = await Preferences.get({ key: 'user' });
     this.user = JSON.parse(value);
-    console.log('enter user', this.user);
+    // console.log('enter user', this.user);
 
     if (!this.user) {
       let { value }: any = await Preferences.get({ key: 'staff' });
       this.staff = JSON.parse(value);
-      console.log('enter staff', this.staff);
+      // console.log('enter staff', this.staff);
     }
 
     this.getSettings();
@@ -49,7 +52,7 @@ export class NotificationPage implements OnInit {
 
       let ic = this.user.cust_ic.replace(/[^0-9]/g, '');
 
-      return this.firestore.collection('customer_notifications', ref => ref.where('user_id', '==', ic)).snapshotChanges().subscribe((res) => {
+      this.notificationFire = this.firestore.collection('customer_notifications', ref => ref.where('user_id', '==', ic)).snapshotChanges().subscribe((res) => {
 
         this.notifications = res.map((t: any) => {
 
@@ -63,19 +66,20 @@ export class NotificationPage implements OnInit {
 
         this.notifications.sort((a, b) => b.date - a.date);
 
-        console.log('res', this.notifications);
+        // console.log('res', this.notifications);
 
+        this.notificationFire.unsubscribe();
       });
 
     } else {
 
       let ic = 'staff_' + this.staff.staff_id
 
-      return this.firestore.collection('notifications', ref => ref.where('user_id', '==', ic)).snapshotChanges().subscribe((res) => {
+      this.notificationFire = this.firestore.collection('notifications', ref => ref.where('user_id', '==', ic)).snapshotChanges().subscribe((res) => {
 
         this.notifications = res.map((t: any) => {
 
-          console.log('t.payload.doc.data()', t.payload.doc.data().date_add);
+          // console.log('t.payload.doc.data()', t.payload.doc.data().date_add);
 
           return {
             id: t.payload.doc.id,
@@ -86,8 +90,9 @@ export class NotificationPage implements OnInit {
 
         this.notifications.sort((a, b) => b.date - a.date);
 
-        console.log('res', this.notifications);
+        // console.log('res', this.notifications);
 
+        this.notificationFire.unsubscribe();
 
       });
 

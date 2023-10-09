@@ -12,7 +12,7 @@
 
   <ion-grid>
     <ion-row>
-      <ion-col class="logo-wrapper">
+      <ion-col class="logo-wrapper" style="margin-top: 15px;">
         <img src="../../assets/Ezcarehorizontal.png" class="logo" />
       </ion-col>
     </ion-row>
@@ -20,13 +20,92 @@
     <ion-row>
       <ion-col size="12">
         <ion-title style="color: #ffffff; text-align: center; font-size: 14px;">
-          Version 1.4.0
+          Version 1.4.6
         </ion-title>
       </ion-col>
     </ion-row>
   </ion-grid>
 
+  <ion-card color="warning" *ngIf="segment == 'customer'">
+    <ion-card-header>
+      <ion-card-title>Attention <ion-icon name="alert-circle-outline" size="large"></ion-icon></ion-card-title>
+    </ion-card-header>
+
+    <ion-card-content>
+      Sign in using policy number and registration nuber has been removed.
+      <br /><br />
+      All customer need to register using email address starting now.<br />
+      Please click register for user that does not have account.
+    </ion-card-content>
+  </ion-card>
+
+  <ion-card color="success" *ngIf="registerSuccess">
+    <ion-card-content>
+      Registered Successfully.
+      <br /><br />
+      Please try to login using your email and password.
+    </ion-card-content>
+  </ion-card>
+
   <ion-card mode="ios" *ngIf="segment == 'customer'">
+
+    <ion-card-header>
+      <ion-card-title>Customer Login</ion-card-title>
+    </ion-card-header>
+
+    <ion-card-content>
+      <form class="ez-form" (ngSubmit)="customer_login_email()" [formGroup]="customerForm">
+        <ion-item lines="full">
+          <ion-label position="floating">Email</ion-label>
+          <ion-input type="text" required formControlName="email"></ion-input>
+        </ion-item>
+        <div class="error-messages">
+          <ng-container *ngFor="let error of error_messages.email">
+            <div class="error-message"
+              *ngIf="customerForm.get('email').hasError(error.type) && (customerForm.get('email').dirty || customerForm.get('email').touched)">
+              {{ error.message }}
+            </div>
+          </ng-container>
+        </div>
+
+        <ion-item lines="full">
+          <ion-label position="floating">Password</ion-label>
+          <ion-input type="password" required formControlName="password"></ion-input>
+        </ion-item>
+
+        <ion-row>
+          <ion-col>
+            <ion-button type="submit" color="primary" expand="block" shape="round" class="btn-login"
+              *ngIf="customerForm.valid">Login</ion-button>
+            <ion-button type="submit" color="primary" expand="block" shape="round" class="btn-login"
+              *ngIf="!customerForm.valid">Login</ion-button>
+          </ion-col>
+        </ion-row>
+        <ion-row>
+          <ion-col>
+            <ion-button fill="outline" expand="block" shape="round" type="button"
+              (click)="register()">Register</ion-button>
+          </ion-col>
+        </ion-row>
+        <ion-row>
+          <ion-col>
+            <ion-button fill="clear" expand="block" shape="round" type="button" (click)="register()">Forgot
+              Password</ion-button>
+          </ion-col>
+        </ion-row>
+        <ion-row>
+          <ion-col>
+            <ion-button fill="clear" expand="block" shape="round" type="button" (click)="register()">
+              Forgot Password
+            </ion-button>
+          </ion-col>
+        </ion-row>
+      </form>
+    </ion-card-content>
+
+  </ion-card>
+
+  <!-- <ion-card mode="ios" *ngIf="segment == 'customer'">
 
     <ion-card-header>
       <ion-card-title>Customer Login</ion-card-title>
@@ -50,6 +129,125 @@
               *ngIf="customerForm.valid">Login</ion-button>
             <ion-button type="submit" color="primary" expand="block" shape="round" class="btn-login" disabled
               *ngIf="!customerForm.valid">Login</ion-button>
+          </ion-col>
+        </ion-row>
+      </form>
+    </ion-card-content>
+
+  </ion-card> -->
+
+  <ion-card mode="ios" *ngIf="segment == 'register'">
+
+    <ion-card-header>
+      <ion-card-title>Customer Register</ion-card-title>
+    </ion-card-header>
+
+    <ion-card-content>
+      <form class="ez-form" (ngSubmit)="customer_register()" [formGroup]="customerRegisterForm">
+        <ion-item>
+          <ion-label position="floating">Registration no</ion-label>
+          <ion-input type="text" required formControlName="registration_number"></ion-input>
+        </ion-item>
+        <div class="error-messages">
+          <ng-container *ngFor="let error of error_messages.registration_number">
+            <div class="error-message"
+              *ngIf="customerRegisterForm.get('registration_number').hasError(error.type) && (customerRegisterForm.get('registration_number').dirty || customerRegisterForm.get('registration_number').touched)">
+              {{ error.message }}
+            </div>
+          </ng-container>
+        </div>
+
+        <ion-item>
+          <ion-label position="floating">Policy no</ion-label>
+          <ion-input type="text" required formControlName="policy_number"></ion-input>
+        </ion-item>
+        <div class="error-messages">
+          <ng-container *ngFor="let error of error_messages.policy_number">
+            <div class="error-message"
+              *ngIf="customerRegisterForm.get('policy_number').hasError(error.type) && (customerRegisterForm.get('policy_number').dirty || customerRegisterForm.get('policy_number').touched)">
+              {{ error.message }}
+            </div>
+          </ng-container>
+        </div>
+
+        <ion-item>
+          <ion-label position="floating">Email</ion-label>
+          <ion-input type="email" required formControlName="email"></ion-input>
+        </ion-item>
+        <div class="error-messages">
+          <ng-container *ngFor="let error of error_messages.email">
+            <div class="error-message"
+              *ngIf="customerRegisterForm.get('email').hasError(error.type) && (customerRegisterForm.get('email').dirty || customerRegisterForm.get('email').touched)">
+              {{ error.message }}
+            </div>
+          </ng-container>
+        </div>
+
+        <ion-item>
+          <ion-label position="floating">Confirm Email</ion-label>
+          <ion-input type="email" required formControlName="confirm_email"></ion-input>
+        </ion-item>
+        <div class="error-messages">
+          <ng-container *ngFor="let error of error_messages.confirm_email">
+            <div class="error-message"
+              *ngIf="customerRegisterForm.get('confirm_email').hasError(error.type) && (customerRegisterForm.get('confirm_email').dirty || customerRegisterForm.get('confirm_email').touched)">
+              {{ error.message }}
+            </div>
+          </ng-container>
+          <div class="error-message"
+            *ngIf="!customerRegisterForm.get('confirm_email').errors && customerRegisterForm.hasError('emailNotMatch') && (customerRegisterForm.get('confirm_email').dirty || customerRegisterForm.get('confirm_email').touched)">
+            Email and Confirm Email fields should match
+          </div>
+        </div>
+
+        <ion-item>
+          <ion-label position="floating">Password</ion-label>
+          <ion-input type="password" required formControlName="password"></ion-input>
+        </ion-item>
+        <div class="error-messages">
+          <ng-container *ngFor="let error of error_messages.password">
+            <div class="error-message"
+              *ngIf="customerRegisterForm.get('password').hasError(error.type) && (customerRegisterForm.get('password').dirty || customerRegisterForm.get('password').touched)">
+              {{ error.message }}
+            </div>
+          </ng-container>
+        </div>
+
+        <ion-item>
+          <ion-label position="floating">Confirm Password</ion-label>
+          <ion-input type="password" required formControlName="confirm_password"></ion-input>
+        </ion-item>
+        <div class="error-messages">
+          <ng-container *ngFor="let error of error_messages.confirm_password">
+            <div class="error-message"
+              *ngIf="customerRegisterForm.get('confirm_password').hasError(error.type) && (customerRegisterForm.get('confirm_password').dirty || customerRegisterForm.get('confirm_password').touched)">
+              {{ error.message }}
+            </div>
+          </ng-container>
+          <div class="error-message"
+            *ngIf="!customerRegisterForm.get('confirm_password').errors && customerRegisterForm.hasError('passwordNotMatch') && (customerRegisterForm.get('confirm_password').dirty || customerRegisterForm.get('confirm_password').touched)">
+            Password and Confirm Password fields should match
+          </div>
+        </div>
+
+        <!-- <pre>
+          Form Error - {{ customerRegisterForm.errors | json }}
+        </pre> -->
+
+        <ion-row>
+          <ion-col>
+            <!-- <ion-button type="submit" color="primary" expand="block" shape="round"
+              class="btn-login">Register</ion-button> -->
+            <ion-button type="submit" color="primary" expand="block" shape="round" class="btn-login"
+              *ngIf="customerRegisterForm.valid">Register</ion-button>
+            <ion-button type="submit" color="primary" expand="block" shape="round" class="btn-login" disabled
+              *ngIf="!customerRegisterForm.valid">Register</ion-button>
+          </ion-col>
+        </ion-row>
+        <ion-row>
+          <ion-col>
+            <ion-button fill="outline" expand="block" shape="round" type="button" (click)="customerSegment()">Back to
+              Login</ion-button>
           </ion-col>
         </ion-row>
       </form>
@@ -125,7 +323,7 @@
 
 </ion-content>
 
-<ion-footer class="ion-no-border" color="light">
+<ion-footer class="ion-no-border" color="primary">
   <ion-toolbar>
     <ion-segment (ionChange)="segmentChanged($event)" value="{{ segment }}" mode="md" color="light">
       <ion-segment-button value="customer">

@@ -139,4 +139,8 @@ export class SettingPage implements OnInit {
     this.router.navigate(['/admin/' + link]);
   }
 
+  changePassword(link) {
+    this.router.navigate(['/change-password']);
+  }
+
 }

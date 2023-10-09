@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/naming-convention */
 import { Component, OnInit } from '@angular/core';
 import { AuthenticationService } from 'src/app/services/authentication.service';
 import { HelperService } from 'src/app/services/helper.service';
@@ -14,6 +15,7 @@ export class LeavePage implements OnInit {
   total_hl_leave;
   total_ml_leave;
   total_pl_leave;
+  total_cl_leave;
 
   constructor(
     private authService: AuthenticationService,
@@ -35,6 +37,7 @@ export class LeavePage implements OnInit {
           this.total_hl_leave = result.data.total_hl_leave;
           this.total_ml_leave = result.data.total_ml_leave;
           this.total_pl_leave = result.data.total_pl_leave;
+          this.total_cl_leave = result.data.total_cl_leave;
         }
         console.log('data', result);
 
@@ -52,7 +55,8 @@ export class LeavePage implements OnInit {
       total_sl_leave: this.total_sl_leave,
       total_hl_leave: this.total_hl_leave,
       total_ml_leave: this.total_ml_leave,
-      total_pl_leave: this.total_pl_leave
+      total_pl_leave: this.total_pl_leave,
+      total_cl_leave: this.total_cl_leave
     };
 
     this.authService.updateLeaveConfig(data).subscribe(
@@ -62,8 +66,11 @@ export class LeavePage implements OnInit {
           this.total_hl_leave = result.data.total_hl_leave;
           this.total_ml_leave = result.data.total_ml_leave;
           this.total_pl_leave = result.data.total_pl_leave;
+          this.total_cl_leave = result.data.total_cl_leave;
         }
         console.log('data', result);
+        this.helper.dissmissLoading();
+
 
       }, error => {
         this.helper.dissmissLoading();
@@ -113,6 +120,48 @@ export class LeavePage implements OnInit {
 
   }
 
+  async assignYearlySickLeave() {
+
+    console.log('assignYearlySickLeave');
+
+    const alert = await this.alertController.create({
+      header: 'Assign new sick leave for all staff',
+      message: 'This action cannot be revert!',
+      buttons: [
+        {
+          text: 'Cancel',
+          role: 'cancel',
+          handler: () => {
+
+          },
+        },
+        {
+          text: 'OK',
+          role: 'confirm',
+          handler: (data) => {
+            this.confirmAssignYearlySickLeave(data.total, data.year);
+          },
+        },
+      ],
+      inputs: [
+        {
+          name: 'total',
+          type: 'number',
+          placeholder: 'Total leave for all staff',
+          min: 1,
+          max: 30,
+        },
+        {
+          name: 'year',
+          placeholder: 'Year',
+        }
+      ]
+    });
+
+    await alert.present();
+
+  }
+
   async confirmAssignYearlyLeave(days, year) {
 
     const alert = await this.alertController.create({
@@ -132,6 +181,41 @@ export class LeavePage implements OnInit {
             this.helper.presentLoading();
 
             this.authService.assignTotalLeave(days, year).subscribe(
+              data => {
+                this.helper.dissmissLoading();
+                this.helper.presentToast('Successfully assign total leave.');
+              }, error => {
+                this.helper.dissmissLoading();
+              });
+
+          },
+        },
+      ]
+    });
+
+    await alert.present();
+
+  }
+
+  async confirmAssignYearlySickLeave(days, year) {
+
+    const alert = await this.alertController.create({
+      header: 'Are you sure want to assign ' + days + ' days sick leave to all staff?',
+      buttons: [
+        {
+          text: 'Cancel',
+          role: 'cancel',
+          handler: () => {
+
+          },
+        },
+        {
+          text: 'OK',
+          role: 'confirm',
+          handler: () => {
+            this.helper.presentLoading();
+
+            this.authService.assignTotalSickLeave(days, year).subscribe(
               data => {
                 this.helper.dissmissLoading();
                 this.helper.presentToast('Successfully assign total leave.');

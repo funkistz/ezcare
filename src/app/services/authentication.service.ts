@@ -65,6 +65,18 @@ export class AuthenticationService {
     // )
   }
 
+  loginCustomerEmail(credentials: any): Observable<any> {
+
+    this.resetHeader();
+    return this.http.post(this.url + 'customer/loginCustomerEmail', credentials, this.header);
+  }
+
+  sendVerificationEmail(credentials: any): Observable<any> {
+
+    this.resetHeader();
+    return this.http.post(this.url + 'email/api-verification-notification', credentials, this.header);
+  }
+
   loginStaff(credentials: { username, password }): Observable<any> {
 
     this.resetHeader();
@@ -442,7 +454,7 @@ export class AuthenticationService {
   getTotalLeave(staff_id = null, year = null): Observable<any> {
 
     this.resetHeader();
-    let params = new HttpParams().set('staff_id', staff_id).set('year', year);
+    const params = new HttpParams().set('staff_id', staff_id).set('year', year);
     this.header.params = params;
 
     return this.http.get(this.url + 'staffs/getStaffLeave', this.header);
@@ -451,10 +463,19 @@ export class AuthenticationService {
   assignTotalLeave(total = null, year = null): Observable<any> {
 
     this.resetHeader();
-    let params = new HttpParams().set('total_leave', total).set('year', year);
+    const params = new HttpParams().set('total_leave', total).set('year', year);
     this.header.params = params;
 
     return this.http.get(this.url + 'staffs/setAllStaffLeave', this.header);
+  }
+
+  assignTotalSickLeave(total = null, year = null): Observable<any> {
+
+    this.resetHeader();
+    const params = new HttpParams().set('total_leave', total).set('year', year);
+    this.header.params = params;
+
+    return this.http.get(this.url + 'staffs/setAllStaffSickLeave', this.header);
   }
 
   // logout(): Promise<void> {
@@ -471,7 +492,7 @@ export class AuthenticationService {
   updateLeaveConfig(data): Observable<any> {
 
     this.resetHeader();
-    return this.http.post(this.url + 'staffLeave/updateConfig', data, this.header);
+    return this.http.put(this.url + 'staffLeave/updateConfig', data, this.header);
   }
 
   getLeaves(staffId = null): Observable<any> {
@@ -487,6 +508,13 @@ export class AuthenticationService {
 
     this.resetHeader();
     return this.http.post(this.url + 'staffLeave', data, this.header);
+
+  }
+
+  deleteStaffLeave(id): Observable<any> {
+
+    this.resetHeader();
+    return this.http.delete(this.url + 'staffLeave/' + id, this.header);
 
   }
 
@@ -538,5 +566,17 @@ export class AuthenticationService {
     this.resetHeader();
     return this.http.delete(this.url + 'workshop/' + workshop_id, this.header);
 
+  }
+
+  registerCustomer(params: any): Observable<any> {
+
+    this.resetHeader();
+    return this.http.post(this.url + 'customer/register', params, this.header);
+  }
+
+  changePassword(params: any): Observable<any> {
+
+    this.resetHeader();
+    return this.http.post(this.url + 'customer/changePassword', params, this.header);
   }
 }

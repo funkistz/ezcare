@@ -1,5 +1,5 @@
 import { Component, OnInit } from '@angular/core';
-import { FormGroup, FormBuilder, Validators } from "@angular/forms";
+import { FormGroup, FormBuilder, Validators } from '@angular/forms';
 import { AngularFirestore } from '@angular/fire/compat/firestore';
 import { AuthenticationService } from '../services/authentication.service';
 import { HelperService } from '../services/helper.service';

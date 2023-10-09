@@ -89,8 +89,8 @@
     </ion-row>
     <ion-row>
       <ion-col size="6">
-        <ion-card mode="ios" style="margin: 0px 5px 10px 5px;" *ngIf="staff && staff.user_branch == 8">
-          <ion-select interface="action-sheet" placeholder="Select Branch" [(ngModel)]="branch"
+        <ion-card mode="ios" style="margin: 0px 5px 0px 5px;" *ngIf="staff && staff.user_branch == 8">
+          <ion-select interface="action-sheet" placeholder="Select Branch" [value]="branch" [(ngModel)]="branch"
             (ionChange)="changeBranch($event)">
             <ion-select-option *ngFor="let branch of helper.branches" [value]="branch.id">
               {{ branch.branch }}
@@ -99,13 +99,25 @@
         </ion-card>
       </ion-col>
       <ion-col size="6">
-        <ion-card mode="ios" style="margin: 0px 5px 10px 5px;">
+        <ion-card mode="ios" style="margin: 0px 5px 0px 5px;">
           <ion-input placeholder="" [(ngModel)]="dayFilter" (ionChange)="filterByDay()" type="date" class="ez-date">
           </ion-input>
         </ion-card>
       </ion-col>
     </ion-row>
   </ion-grid>
+
+  <div style="display: flex; justify-content: space-between;">
+    <ion-button size="small" fill="clear" (click)="changeFilterDateRange('down')">
+      <ion-icon slot="icon-only" name="chevron-back-outline"></ion-icon>
+    </ion-button>
+    <div style="margin-top: 6px;">
+      {{ filterStartMonth.format('MMMM YYYY') }}
+    </div>
+    <ion-button size="small" fill="clear" (click)="changeFilterDateRange('up')">
+      <ion-icon slot="icon-only" name="chevron-forward-outline"></ion-icon>
+    </ion-button>
+  </div>
 
   <div *ngIf="segment == 'schedule'">
 
