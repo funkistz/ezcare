@@ -27,6 +27,7 @@ export class SettingPage implements OnInit {
   ngOnInit() {
     this.checkUser();
     this.getSettings();
+    this.getGenerals();
   }
 
   logout() {
@@ -116,6 +117,8 @@ export class SettingPage implements OnInit {
     this.authService.getSettings().subscribe(
       data => {
 
+        console.log('getGenerals', data);
+
         if (data && data.data) {
           this.generals = data.data[0];
         }
@@ -139,7 +142,7 @@ export class SettingPage implements OnInit {
     this.router.navigate(['/admin/' + link]);
   }
 
-  changePassword(link) {
+  changePassword() {
     this.router.navigate(['/change-password']);
   }
 

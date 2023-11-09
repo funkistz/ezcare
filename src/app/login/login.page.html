@@ -20,13 +20,13 @@
     <ion-row>
       <ion-col size="12">
         <ion-title style="color: #ffffff; text-align: center; font-size: 14px;">
-          Version 1.4.6
+          Version 1.5.2
         </ion-title>
       </ion-col>
     </ion-row>
   </ion-grid>
 
-  <ion-card color="warning" *ngIf="segment == 'customer'">
+  <!-- <ion-card color="warning" *ngIf="segment == 'customer'">
     <ion-card-header>
       <ion-card-title>Attention <ion-icon name="alert-circle-outline" size="large"></ion-icon></ion-card-title>
     </ion-card-header>
@@ -45,9 +45,9 @@
       <br /><br />
       Please try to login using your email and password.
     </ion-card-content>
-  </ion-card>
+  </ion-card> -->
 
-  <ion-card mode="ios" *ngIf="segment == 'customer'">
+  <!-- <ion-card mode="ios" *ngIf="segment == 'customer'">
 
     <ion-card-header>
       <ion-card-title>Customer Login</ion-card-title>
@@ -103,9 +103,9 @@
       </form>
     </ion-card-content>
 
-  </ion-card>
+  </ion-card> -->
 
-  <!-- <ion-card mode="ios" *ngIf="segment == 'customer'">
+  <ion-card mode="ios" *ngIf="segment == 'customer'">
 
     <ion-card-header>
       <ion-card-title>Customer Login</ion-card-title>
@@ -134,9 +134,9 @@
       </form>
     </ion-card-content>
 
-  </ion-card> -->
+  </ion-card>
 
-  <ion-card mode="ios" *ngIf="segment == 'register'">
+  <!-- <ion-card mode="ios" *ngIf="segment == 'register'">
 
     <ion-card-header>
       <ion-card-title>Customer Register</ion-card-title>
@@ -230,14 +230,8 @@
           </div>
         </div>
 
-        <!-- <pre>
-          Form Error - {{ customerRegisterForm.errors | json }}
-        </pre> -->
-
         <ion-row>
           <ion-col>
-            <!-- <ion-button type="submit" color="primary" expand="block" shape="round"
-              class="btn-login">Register</ion-button> -->
             <ion-button type="submit" color="primary" expand="block" shape="round" class="btn-login"
               *ngIf="customerRegisterForm.valid">Register</ion-button>
             <ion-button type="submit" color="primary" expand="block" shape="round" class="btn-login" disabled
@@ -253,7 +247,7 @@
       </form>
     </ion-card-content>
 
-  </ion-card>
+  </ion-card> -->
 
   <ion-card mode="ios" *ngIf="segment == 'staff'">
 

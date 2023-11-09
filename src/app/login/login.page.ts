@@ -64,55 +64,56 @@ export class LoginPage implements OnInit {
     private helper: HelperService,
   ) {
 
-    this.customerRegisterForm = fb.group({
-      registration_number: new FormControl('QCL9193', Validators.compose([
-        Validators.required
-      ])),
-      policy_number: new FormControl('PW003402', Validators.compose([
-        Validators.required
-      ])),
-      email: new FormControl('funkistz@getnada.com', Validators.compose([
-        Validators.required,
-        Validators.minLength(6),
-        Validators.maxLength(30)
-      ])),
-      confirm_email: new FormControl('funkistz@getnada.com', Validators.compose([
-        Validators.required,
-        Validators.minLength(6),
-        Validators.maxLength(30)
-      ])),
-      password: new FormControl('123456', Validators.compose([
-        Validators.required,
-        Validators.minLength(6),
-        Validators.maxLength(30)
-      ])),
-      confirm_password: new FormControl('123456', Validators.compose([
-        Validators.required,
-        Validators.minLength(6),
-        Validators.maxLength(30)
-      ])),
-    }, {
-      validators: [
-        this.password.bind(this),
-        this.confirmEmail.bind(this),
-      ]
-    });
+    // this.customerRegisterForm = fb.group({
+    //   registration_number: new FormControl('QCL9193', Validators.compose([
+    //     Validators.required
+    //   ])),
+    //   policy_number: new FormControl('PW003402', Validators.compose([
+    //     Validators.required
+    //   ])),
+    //   email: new FormControl('funkistz@getnada.com', Validators.compose([
+    //     Validators.required,
+    //     Validators.minLength(6),
+    //     Validators.maxLength(30)
+    //   ])),
+    //   confirm_email: new FormControl('funkistz@getnada.com', Validators.compose([
+    //     Validators.required,
+    //     Validators.minLength(6),
+    //     Validators.maxLength(30)
+    //   ])),
+    //   password: new FormControl('123456', Validators.compose([
+    //     Validators.required,
+    //     Validators.minLength(6),
+    //     Validators.maxLength(30)
+    //   ])),
+    //   confirm_password: new FormControl('123456', Validators.compose([
+    //     Validators.required,
+    //     Validators.minLength(6),
+    //     Validators.maxLength(30)
+    //   ])),
+    // }, {
+    //   validators: [
+    //     this.password.bind(this),
+    //     this.confirmEmail.bind(this),
+    //   ]
+    // });
 
     this.customerForm = this.fb.group({
-      email: ['', [
-        Validators.required,
-        Validators.pattern('^[a-zA-Z0-9_.+-]+@[a-zA-Z0-9-]+.[a-zA-Z0-9-.]+$')
-      ]],
-      password: ['', [Validators.required]],
+      registration_number: ['', [Validators.required]],
+      policy_number: ['', [Validators.required]],
     });
+
+    // this.customerForm = this.fb.group({
+    //   email: ['', [
+    //     Validators.required,
+    //     Validators.pattern('^[a-zA-Z0-9_.+-]+@[a-zA-Z0-9-]+.[a-zA-Z0-9-.]+$')
+    //   ]],
+    //   password: ['', [Validators.required]],
+    // });
   }
 
   ngOnInit() {
 
-    // this.customerForm = this.fb.group({
-    //   registration_number: ['', [Validators.required]],
-    //   policy_number: ['', [Validators.required]],
-    // });
 
     // this.customerRegisterForm2 = this.fb.group({
     //   registration_number: ['', [Validators.required]],

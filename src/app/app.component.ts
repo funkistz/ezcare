@@ -6,6 +6,7 @@ import { initializeApp } from 'firebase/app';
 import { indexedDBLocalPersistence, initializeAuth } from 'firebase/auth';
 import { environment } from 'src/environments/environment';
 import { Capacitor } from '@capacitor/core';
+import { AlertController } from '@ionic/angular';
 
 @Component({
   selector: 'app-root',
@@ -17,10 +18,12 @@ export class AppComponent {
   user;
   staff;
   loggedIn;
+  appVersion = 105000;
 
   constructor(
     private router: Router,
     private authService: AuthenticationService,
+    private alertController: AlertController
   ) {
 
     const app = initializeApp(environment.firebaseConfig);
@@ -34,6 +37,8 @@ export class AppComponent {
       if (event instanceof NavigationStart) {
         // Show loading indicator
         // console.log(event.url);
+
+        this.getGenerals();
 
         if (event.url != '/login') {
           this.checkUser();
@@ -132,4 +137,45 @@ export class AppComponent {
   }
 
 
+  async getGenerals() {
+
+    this.authService.getSettings().subscribe(
+      async data => {
+
+
+        if (data && data.data) {
+          console.log('getGenerals', data.data);
+
+          let version = data.data.find((element) => element.name === 'app_version');
+
+          if (version) {
+            version = Number(version.value);
+            console.log('current version', this.appVersion);
+            console.log('version', version);
+
+            if (version > this.appVersion) {
+              console.log('please update');
+
+              const alert = await this.alertController.create({
+                header: 'Your application is out of date!',
+                // subHeader: '',
+                message: 'Please update your application to continue.',
+                // buttons: ['OK'],
+                backdropDismiss: false
+              });
+
+              await alert.present();
+            }
+
+          }
+
+
+        }
+
+        console.log(data);
+      }, error => {
+        console.log(error);
+      });
+
+  }
 }
