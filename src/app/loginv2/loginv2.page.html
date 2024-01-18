@@ -1,0 +1,74 @@
+<ion-content [fullscreen]="true">
+
+  <ion-grid>
+    <ion-row>
+      <ion-col class="logo-wrapper" style="margin-top: 15px;">
+        <img src="../../assets/Ezcarehorizontal.png" class="logo" />
+      </ion-col>
+    </ion-row>
+
+    <ion-row>
+      <ion-col size="12">
+        <ion-title style="color: #ffffff; text-align: center; font-size: 14px;">
+          Version 1.6.1
+        </ion-title>
+      </ion-col>
+    </ion-row>
+  </ion-grid>
+
+
+  <ion-card mode="ios">
+
+    <ion-card-header>
+      <ion-card-subtitle style="display:flex; gap: 15px; align-items: flex-end;">
+        <img style="height: 40px;" src="../../assets/country/indonesia_icon.png" />
+        <div style="margin-bottom: 5px; color: black;">Indonesia</div>
+      </ion-card-subtitle>
+      <ion-card-title>
+        Customer Login
+      </ion-card-title>
+    </ion-card-header>
+    <ion-card-content>
+      <form class="ez-form" (ngSubmit)="customer_login()" [formGroup]="customerForm">
+        <ion-item lines="full">
+          <ion-label position="floating">Username</ion-label>
+          <ion-input type="text" required formControlName="username"></ion-input>
+        </ion-item>
+        <ion-label style="margin-left: 10px; margin-top: 10px;">*Email or Phone no</ion-label>
+
+        <ion-item lines="full">
+          <ion-label position="floating">Password</ion-label>
+          <ion-input type="password" required formControlName="password"></ion-input>
+        </ion-item>
+
+        <ion-row>
+          <ion-col>
+            <ion-button type="submit" color="primary" expand="block" shape="round" class="btn-login"
+              *ngIf="customerForm.valid">Login</ion-button>
+            <ion-button type="submit" color="primary" expand="block" shape="round" class="btn-login" disabled
+              *ngIf="!customerForm.valid">Login</ion-button>
+          </ion-col>
+        </ion-row>
+      </form>
+    </ion-card-content>
+  </ion-card>
+
+  <ion-grid>
+    <ion-row>
+      <ion-col style="text-align: center; padding: 40px;">
+        <ion-button color="white" expand="block" shape="round" size="large" class="btn-login"
+          (click)="goToMalaysiaPage()">
+          Login to Malaysia
+          <img style="height: 90%;" slot="start" src="../../assets/country/malaysia_icon.png" class="logo" />
+        </ion-button>
+      </ion-col>
+    </ion-row>
+  </ion-grid>
+
+  <ion-card *ngIf="error" mode="ios" color="danger">
+    <ion-card-content>
+      {{ error }}
+    </ion-card-content>
+  </ion-card>
+
+</ion-content>

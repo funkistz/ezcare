@@ -7,6 +7,7 @@ import { indexedDBLocalPersistence, initializeAuth } from 'firebase/auth';
 import { environment } from 'src/environments/environment';
 import { Capacitor } from '@capacitor/core';
 import { AlertController } from '@ionic/angular';
+import { Apiv2Service } from './services/apiv2.service';
 
 @Component({
   selector: 'app-root',
@@ -23,7 +24,8 @@ export class AppComponent {
   constructor(
     private router: Router,
     private authService: AuthenticationService,
-    private alertController: AlertController
+    private alertController: AlertController,
+    private apiv2: Apiv2Service,
   ) {
 
     const app = initializeApp(environment.firebaseConfig);
@@ -39,8 +41,9 @@ export class AppComponent {
         // console.log(event.url);
 
         this.getGenerals();
+        this.getSettingsV2();
 
-        if (event.url != '/login') {
+        if ((event.url != '/login') && (event.url != '/loginv2')) {
           this.checkUser();
         }
 
@@ -176,6 +179,27 @@ export class AppComponent {
       }, error => {
         console.log(error);
       });
+
+  }
+
+  async getSettingsV2() {
+
+    console.log('getSettingsV2');
+
+    this.apiv2.get('mobile/settings', {}).subscribe(
+      data => {
+        console.log('getSettingsV2', data);
+
+        Preferences.set({
+          key: 'settings_v2',
+          value: JSON.stringify(data.data),
+        });
+
+      }, error => {
+
+      });
+
+    return;
 
   }
 }

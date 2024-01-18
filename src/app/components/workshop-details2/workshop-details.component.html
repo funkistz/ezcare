@@ -1,0 +1,43 @@
+<ion-header>
+  <ion-toolbar>
+    <ion-title> Workshop Details </ion-title>
+    <ion-buttons slot="end">
+      <ion-button (click)="dismiss()">
+        <ion-icon slot="icon-only" name="close"></ion-icon>
+      </ion-button>
+    </ion-buttons>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content>
+
+  <ion-card>
+    <!-- <ion-img style="object-fit:cover; height:250px;" [src]="workshop.image_url"></ion-img> -->
+    <!-- <img [src]="workshop.image_url" /> -->
+    <ion-card-header>
+      <ion-card-subtitle>Workshop Name</ion-card-subtitle>
+      <ion-card-title style="font-size: 20px;">
+        {{ workshop.name }}
+      </ion-card-title>
+      <div style="margin-top: 10px;" [innerHTML]=" workshop.description"></div>
+    </ion-card-header>
+    <ion-card-content>
+      <ion-button class="ion-margin-bottom" (click)="navigate(workshop)">
+        <ion-icon slot="start" name="navigate-circle-outline"></ion-icon>
+        Navigate
+      </ion-button>
+      <ion-button *ngIf="workshop.phone_no_1" class="ion-margin-bottom" (click)="call(workshop.phone_no_1)"
+        color="success">
+        <ion-icon slot="start" name="call-outline"></ion-icon>
+        Call
+      </ion-button>
+      <p>{{ workshop.main_address?.line1 }}</p>
+      <p>{{ workshop.main_address?.line2 }}</p>
+      <p>{{ workshop.main_address?.line3 }}</p>
+      <p>{{ workshop.main_address?.postcode }}</p>
+      <p>{{ workshop.main_address?.city }}</p>
+      <p>{{ workshop.main_address?.country }}</p>
+    </ion-card-content>
+  </ion-card>
+
+</ion-content>

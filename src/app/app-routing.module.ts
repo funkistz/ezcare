@@ -11,6 +11,10 @@ const routes: Routes = [
     loadChildren: () => import('./tabs/tabs.module').then(m => m.TabsPageModule)
   },
   {
+    path: 'tabsv2',
+    loadChildren: () => import('./tabsv2/tabs.module').then(m => m.TabsPageModule)
+  },
+  {
     path: 'login',
     loadChildren: () => import('./login/login.module').then(m => m.LoginPageModule)
   },
@@ -96,39 +100,59 @@ const routes: Routes = [
   },
   {
     path: 'endorsement',
-    loadChildren: () => import('./endorsement/endorsement.module').then( m => m.EndorsementPageModule)
+    loadChildren: () => import('./endorsement/endorsement.module').then(m => m.EndorsementPageModule)
   },
   {
     path: 'claim-imports',
-    loadChildren: () => import('./components/claim-imports/claim-imports.module').then( m => m.ClaimImportsPageModule)
+    loadChildren: () => import('./components/claim-imports/claim-imports.module').then(m => m.ClaimImportsPageModule)
   },
   {
     path: 'staff-add-schedule',
-    loadChildren: () => import('./staff-add-schedule/staff-add-schedule.module').then( m => m.StaffAddSchedulePageModule)
+    loadChildren: () => import('./staff-add-schedule/staff-add-schedule.module').then(m => m.StaffAddSchedulePageModule)
   },
   {
     path: 'staff-inspection',
-    loadChildren: () => import('./staff-inspection/staff-inspection.module').then( m => m.StaffInspectionPageModule)
+    loadChildren: () => import('./staff-inspection/staff-inspection.module').then(m => m.StaffInspectionPageModule)
   },
   {
     path: 'add-non-inspect',
-    loadChildren: () => import('./add-non-inspect/add-non-inspect.module').then( m => m.AddNonInspectPageModule)
+    loadChildren: () => import('./add-non-inspect/add-non-inspect.module').then(m => m.AddNonInspectPageModule)
   },
   {
     path: 'add-leave',
-    loadChildren: () => import('./add-leave/add-leave.module').then( m => m.AddLeavePageModule)
+    loadChildren: () => import('./add-leave/add-leave.module').then(m => m.AddLeavePageModule)
   },
   {
     path: 'add-exgratia',
-    loadChildren: () => import('./add-exgratia/add-exgratia.module').then( m => m.AddExgratiaPageModule)
+    loadChildren: () => import('./add-exgratia/add-exgratia.module').then(m => m.AddExgratiaPageModule)
   },
   {
     path: 'register',
-    loadChildren: () => import('./register/register.module').then( m => m.RegisterPageModule)
+    loadChildren: () => import('./register/register.module').then(m => m.RegisterPageModule)
   },
   {
     path: 'change-password',
-    loadChildren: () => import('./change-password/change-password.module').then( m => m.ChangePasswordPageModule)
+    loadChildren: () => import('./change-password/change-password.module').then(m => m.ChangePasswordPageModule)
+  },
+  {
+    path: 'loginv2',
+    loadChildren: () => import('./loginv2/loginv2.module').then(m => m.Loginv2PageModule)
+  },
+  {
+    path: 'homev2',
+    loadChildren: () => import('./homev2/homev2.module').then(m => m.Homev2PageModule)
+  },
+  {
+    path: 'settingv2',
+    loadChildren: () => import('./settingv2/settingv2.module').then( m => m.Settingv2PageModule)
+  },
+  {
+    path: 'servicev2',
+    loadChildren: () => import('./servicev2/servicev2.module').then( m => m.Servicev2PageModule)
+  },
+  {
+    path: 'workshopv2',
+    loadChildren: () => import('./workshopv2/workshopv2.module').then( m => m.Workshopv2PageModule)
   },
 ];
 @NgModule({

@@ -20,7 +20,7 @@
     <ion-row>
       <ion-col size="12">
         <ion-title style="color: #ffffff; text-align: center; font-size: 14px;">
-          Version 1.5.2
+          Version 1.6.1
         </ion-title>
       </ion-col>
     </ion-row>
@@ -105,9 +105,13 @@
 
   </ion-card> -->
 
-  <ion-card mode="ios" *ngIf="segment == 'customer'">
+  <ion-card mode="ios" *ngIf="segment === 'customer'">
 
     <ion-card-header>
+      <ion-card-subtitle style="display:flex; gap: 15px; align-items: flex-end;">
+        <img style="height: 40px;" src="../../assets/country/malaysia_icon.png" />
+        <div style="margin-bottom: 5px; color: black;">Malaysia</div>
+      </ion-card-subtitle>
       <ion-card-title>Customer Login</ion-card-title>
     </ion-card-header>
 
@@ -133,8 +137,19 @@
         </ion-row>
       </form>
     </ion-card-content>
-
   </ion-card>
+
+  <ion-grid>
+    <ion-row>
+      <ion-col style="text-align: center; padding: 40px;">
+        <ion-button color="white" expand="block" shape="round" class="btn-login" size="large"
+          (click)="goToIndonesiaPage()">
+          Login to Indonesia
+          <img style="height: 90%;" slot="start" src="../../assets/country/indonesia_icon.png" class="logo" />
+        </ion-button>
+      </ion-col>
+    </ion-row>
+  </ion-grid>
 
   <!-- <ion-card mode="ios" *ngIf="segment == 'register'">
 

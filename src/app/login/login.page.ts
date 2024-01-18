@@ -114,6 +114,10 @@ export class LoginPage implements OnInit {
 
   ngOnInit() {
 
+    Preferences.remove({
+      key: 'is_indonesia',
+    });
+
 
     // this.customerRegisterForm2 = this.fb.group({
     //   registration_number: ['', [Validators.required]],
@@ -365,4 +369,7 @@ export class LoginPage implements OnInit {
     const { role } = await alert.onDidDismiss();
   }
 
+  goToIndonesiaPage() {
+    this.router.navigateByUrl('/loginv2');
+  }
 }

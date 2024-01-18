@@ -1,0 +1,66 @@
+<ion-header>
+  <ion-toolbar mode="ios" class="ez-toolbar" color="primary">
+
+    <ion-title>
+      Workshops
+    </ion-title>
+
+    <ion-buttons slot="end">
+      <ion-button color="light" style="margin: 14px 5px; font-size: 18px;" [routerLink]="['/notification']">
+        <ion-icon name="notifications-outline"></ion-icon>
+      </ion-button>
+    </ion-buttons>
+  </ion-toolbar>
+
+  <ion-searchbar placeholder="Search..." debounce="500" (ionChange)="searchWorkshops($event)" animated="true"
+    style="padding-bottom: 0;" mode="ios">
+  </ion-searchbar>
+
+  <ion-item style="float: right;" lines="none">
+    <ion-label class="ion-no-margin">EV Only</ion-label>
+    <ion-toggle slot="end" (ionChange)="toggleEv($event)" [(ngModel)]="evOnly"></ion-toggle>
+  </ion-item>
+  <ion-item style="float: right;" lines="none">
+    <ion-label class="ion-no-margin">Hybrid Only</ion-label>
+    <ion-toggle slot="end" (ionChange)="toggleHybrid($event)" [(ngModel)]="hybridOnly"></ion-toggle>
+  </ion-item>
+</ion-header>
+
+<ion-content>
+
+  <div class="map-wrapper">
+    <div id="map_center">
+      <!-- <img src="assets/icon/location-marker.png" /> -->
+    </div>
+    <div #map id="map"></div>
+  </div>
+
+  <ion-list *ngIf="hasPermission && !isLoading" style="height: 65%; overflow: scroll;">
+
+    <ion-item *ngFor="let workshop of workshops" (click)="displayWorkshop(workshop)">
+      <!-- <ion-avatar slot="start">
+        <img src="./avatar-han.png" />
+      </ion-avatar> -->
+      <ion-label>
+        <h2>{{ workshop.name }}</h2>
+        <h3>{{ workshop.phone_no_1 }}</h3>
+        <p>{{ workshop.description }}</p>
+      </ion-label>
+    </ion-item>
+  </ion-list>
+  <div *ngIf="isLoading" class="ion-text-center ion-padding">
+    <ion-spinner></ion-spinner>
+  </div>
+
+  <ion-card *ngIf="!hasPermission">
+    <ion-card-header>
+      <ion-card-title>Location is required</ion-card-title>
+      <ion-card-subtitle>Please enable your location to use this feature</ion-card-subtitle>
+    </ion-card-header>
+
+    <ion-card-content>
+      <ion-button expand="block" (click)="requestPermission()" color="warning">Enable Location</ion-button>
+    </ion-card-content>
+  </ion-card>
+
+</ion-content>

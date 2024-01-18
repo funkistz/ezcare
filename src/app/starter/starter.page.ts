@@ -130,6 +130,10 @@ export class StarterPage implements OnInit {
   async checkUser(event = null, policy_id = null) {
 
     let { value }: any = await Preferences.get({ key: 'user' });
+    let is_indonesia: any = await Preferences.get({ key: 'is_indonesia' });
+
+    console.log('is_indonesia', is_indonesia)
+
     this.user = JSON.parse(value);
     console.log('enter user', this.user);
 
@@ -146,7 +150,12 @@ export class StarterPage implements OnInit {
 
 
     } else {
-      this.router.navigateByUrl('/tabs');
+      if (is_indonesia.value) {
+        console.log('is_indonesia login');
+        this.router.navigateByUrl('/tabsv2');
+      } else {
+        this.router.navigateByUrl('/tabs');
+      }
     }
 
     if (this.platform.is('ios')) {
