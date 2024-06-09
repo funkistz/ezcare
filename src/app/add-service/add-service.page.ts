@@ -145,13 +145,20 @@ export class AddServicePage implements OnInit {
     this.changeMileage(currentMileage);
   }
 
+  invoiceDateChange(event) {
+    const currentMileage = this.ionicForm.get('current_mileage').value;
+    this.changeMileage(currentMileage);
+  }
+
   changeMileage(currentMileage) {
 
     console.log('changeMileage');
 
+    const data: any = this.ionicForm.value;
+
     let due_mileage = 0;
     let due_mileage_atf = 0;
-    const date = new Date();
+    const date = new Date(data.invoice_date);
     const dateAtf = new Date();
 
     // if EV
@@ -188,6 +195,11 @@ export class AddServicePage implements OnInit {
   }
 
   async confirmSubmitForm() {
+
+    if (this.reminderImages.length == 0 || this.receiptImages.length == 0 || this.mileageImages.length == 0) {
+      this.presentToast('Please add all attachments!');
+      return;
+    }
 
     const alert = await this.alertController.create({
       header: 'Are you sure want to submit.',

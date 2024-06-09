@@ -186,7 +186,7 @@ SPEC CHECKSUMS:
   CapacitorPushNotifications: b31e326c6e4eb216a622041d6ca21a973f34943f
   CapacitorStatusBar: 565c0a1ebd79bb40d797606a8992b4a105885309
   CordovaPlugins: f9493874ba58190e6beb193352ec8eb6a68cf015
-  CordovaPluginsResources: 1b3992e05cb6336d2850cd77dd5e3054f2f76f96
+  CordovaPluginsResources: 0c211f770ed91763a179ebcd9b9346e120b70662
   Firebase: 31d9575c124839fb5abc0db6d39511cc1dab1b85
   FirebaseCore: 62fd4d549f5e3f3bd52b7998721c5fa0557fb355
   FirebaseCoreInternal: 9e46c82a14a3b3a25be4e1e151ce6d21536b89c0
@@ -200,4 +200,4 @@ SPEC CHECKSUMS:
 
 PODFILE CHECKSUM: 90e5255e0226c83a00518c629abe71d6e6beb50c
 
-COCOAPODS: 1.12.0
+COCOAPODS: 1.14.3

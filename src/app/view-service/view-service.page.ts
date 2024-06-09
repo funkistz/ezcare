@@ -52,7 +52,7 @@ export class ViewServicePage implements OnInit {
 
         if (data && data.data) {
 
-          console.log(data);
+          console.log('getService', data);
 
 
           if (event) {

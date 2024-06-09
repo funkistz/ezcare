@@ -29,7 +29,7 @@
             <ion-select value="brown" okText="Okay" cancelText="Dismiss" interface="action-sheet"
               formControlName="service_type_id" (ionChange)="serviceTypeChange($event);">
               <ion-select-option value="1" *ngIf="!isEv">Engine Oil</ion-select-option>
-              <ion-select-option value="2" *ngIf="!isEv">ATF Oil</ion-select-option>
+              <ion-select-option value="2" *ngIf="!isEv">ATF / Rear Axle Oil</ion-select-option>
               <ion-select-option value="4" *ngIf="isEv">Full Service Inspection</ion-select-option>
               <!-- <ion-select-option value="3">Engine Oil + ATF Oil</ion-select-option> -->
             </ion-select>
@@ -54,7 +54,7 @@
           <ion-item fill="outline" mode="md" class="ez-material-input">
             <ion-label position="floating">Invoice Date*</ion-label>
             <ion-input placeholder="" formControlName="invoice_date" type="date" class="ion-text-start"
-              [value]="defaultDate">
+              (ionChange)="invoiceDateChange();" [value]="defaultDate">
             </ion-input>
           </ion-item>
 
@@ -136,7 +136,7 @@
           </ion-item>
 
           <ion-list-header style="margin-bottom: 20px;">
-            <ion-label>Attachment</ion-label>
+            <ion-label>Attachment*</ion-label>
           </ion-list-header>
 
           <ion-button class="ez-icon-btn" expand="block" shape="round" (click)="selectImageSource('reminder')"
